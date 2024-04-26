@@ -1,21 +1,21 @@
-datatype IDS = PATH_MASTER_id | P_default | N_default | R_default | J_default | C_default | LC_default | L_default | B_default | CP_default | PL_default | PL2_default | RES_default | LAMP_default | BS_C_LEFT_default | BS_C_RIGHT_default | BS_R_default | BS_L_COIL_default | BS_R_COIL_default | C_ENDPOINT_default | BL_default | BL_INDEPENDENT_CONNECTION_default | BL_DEPENDENT_ENDPOINT_POS_default | BL_DEPENDENT_ENDPOINT_NEG_default | BL_DEPENDENT_CONNECTION_default
-POSITIVE_IDS = {}
-NEGATIVE_IDS = {}
+datatype IDS = P1 | R1 | C2 | N1 | P2 | C1 | R2 | B1 | N2 | PATH_MASTER_id | C2_ENDPOINT_id | C1_ENDPOINT_id | P_default | N_default | R_default | J_default | LC_default | L_default | B_default | CP_default | PL_default | PL2_default | RES_default | LAMP_default | BS_C_LEFT_default | BS_C_RIGHT_default | BS_R_default | BS_L_COIL_default | BS_R_COIL_default | C_ENDPOINT_default | BL_default | BL_INDEPENDENT_CONNECTION_default | BL_DEPENDENT_ENDPOINT_POS_default | BL_DEPENDENT_ENDPOINT_NEG_default | BL_DEPENDENT_CONNECTION_default
+POSITIVE_IDS = {P1, P2}
+NEGATIVE_IDS = {N1, N2}
 
-RELAY_IDS = {R_default}
-CONTACT_CLOSED_IDS = {C_default}
-CONTACT_OPENED_IDS = {}
-TWO_WAY_CONTACT_IDS = {C_default}
+RELAY_IDS = {R1, R2, R_default}
+CONTACT_CLOSED_IDS = {C1}
+CONTACT_OPENED_IDS = {C2}
+TWO_WAY_CONTACT_IDS = {}
 CONTACT_IDS = union(TWO_WAY_CONTACT_IDS, union(CONTACT_CLOSED_IDS, CONTACT_OPENED_IDS))
 CONTACT_ENDPOINTS_IDS = union(ENDPOINT, union(ENDPOINT_TYPE_UP, ENDPOINT_TYPE_DOWN))
 ENDPOINT_TYPE_UP = {}
 ENDPOINT_TYPE_DOWN = {}
-ENDPOINT = {C_ENDPOINT_default}
+ENDPOINT = {C2_ENDPOINT_id, C1_ENDPOINT_id, C_ENDPOINT_default}
 
 JUNCTION_IDS = {J_default}
 
 REAL_BUTTON_IDS = {B_default}
-STUB_BUTTON_IDS = {}
+STUB_BUTTON_IDS = {B1}
 BUTTON_IDS = union(REAL_BUTTON_IDS, STUB_BUTTON_IDS)
 
 LEVER_IDS = {L_default}
@@ -57,10 +57,13 @@ TIME_ACTIVATION_SETTING = {(BL_default, 0)}
 INITIAL_MAX_ACTIVATION_TIME = setup_max_time[(BL_default, 0)]
 MAX_ACTIVATION_TIME = 10
 
-INITIAL_OPEN_COMPONENTS = {}
+INITIAL_OPEN_COMPONENTS = {B1}
 
+RELAY_OF(C2_ENDPOINT_id) = R2
+RELAY_OF(C1_ENDPOINT_id) = R1
 
-GET_CONTACT_OF_ENDPOINT(id) = C_default
+GET_CONTACT_OF_ENDPOINT(C2_ENDPOINT_id) = C2
+GET_CONTACT_OF_ENDPOINT(C1_ENDPOINT_id) = C1
 GET_ENDPOINT_DOWN_OF(id) = {}
 GET_ENDPOINT_UP_OF(id) = {}
 
@@ -76,6 +79,7 @@ INITIAL_CHARGES = {(CP_default, 0)}
 INITIAL_MAX_CHARGE = capacitance(CP_default, 0)
 MAX_CHARGE = charge_max(INITIAL_MAX_CHARGE, CP_default)
 
+GET_BS_CONTACT_OF(C_ENDPOINT_default) = C_default
 GET_COIL_FROM_BS_ENDPOINT_L(C_ENDPOINT_default) = BS_L_COIL_default
 GET_COIL_FROM_BS_ENDPOINT_R(C_ENDPOINT_default) = BS_R_COIL_default
 
@@ -87,4 +91,16 @@ GET_INDEPENDENT_CONNECTION_OF_ACTIVATION(BL_default) = BL_INDEPENDENT_CONNECTION
 GET_POSITIVE_OF_ACTIVATION_BLOCK(BL_default) = {}
 GET_NEGATIVE_OF_ACTIVATION_BLOCK(BL_default) = {}
 
-CONNECTIONS = {}
+CONNECTIONS = {
+    {P1, R1},
+    {R1, C2},
+    {C2, N1},
+    {P2, C1},
+    {C1, R2},
+    {R2, B1},
+    {B1, N2},
+    {C2, C2_ENDPOINT_id},
+    {C2_ENDPOINT_id, N1},
+    {C1, C1_ENDPOINT_id},
+    {C1_ENDPOINT_id, R2}
+}

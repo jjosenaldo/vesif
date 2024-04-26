@@ -1,6 +1,5 @@
 package org.example.verifier.csp_generator.generator
 
-import org.example.verifier.csp_generator.*
 import org.example.verifier.csp_generator.model.CspPair
 import org.example.verifier.csp_generator.model.FrontEndCspData
 import java.io.BufferedWriter
@@ -16,7 +15,6 @@ object FrontEndCspWriter {
         file.bufferedWriter().use { out ->
             out.apply {
                 writeDataDefinition("IDS", data.ids)
-//                newLine()
                 writeDefinition("POSITIVE_IDS", data.positiveIds)
                 writeDefinition("NEGATIVE_IDS", data.negativeIds)
                 newLine()
@@ -142,12 +140,19 @@ private fun BufferedWriter.writeDefinition(name: String, definition: Any) {
 }
 
 private fun <T> BufferedWriter.writeSetOfSetsDefinition(name: String, definition: Set<Set<T>>) {
+    // TODO: put in an utils file
+    val newLine = System.lineSeparator()
+    val trailingNewLine = if (definition.isEmpty()) "" else newLine
+
+    // TODO: put in a config file
+    val tab = " ".repeat(4)
+
     writeDefinition(
-        name, "{${
-            definition.joinToString(", ") { innerSet ->
-                "{${innerSet.joinToString { ", " }}}"
+        name, "{$trailingNewLine${
+            definition.joinToString(",$newLine") { innerSet ->
+                "$tab{${innerSet.joinToString(", ")}}"
             }
-        }}"
+        }$trailingNewLine}"
     )
 }
 
