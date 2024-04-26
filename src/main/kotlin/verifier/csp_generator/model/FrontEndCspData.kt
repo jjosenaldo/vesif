@@ -1,8 +1,7 @@
-package org.example.verifier.csp_generator
+package org.example.verifier.csp_generator.model
 
 import org.example.core.model.*
 import org.example.core.model.visitor.ComponentVisitor
-import org.example.verifier.csp_generator.model.CspPair
 
 // TODO: do buffered writers need to be closed?
 // TODO: clear data after generating a file

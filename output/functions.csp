@@ -1,0 +1,121 @@
+---------------------------------------------------------------------
+-- PAIR FUNCTIONS
+---------------------------------------------------------------------
+fst((a,b)) = a
+snd((a,b)) = b
+
+---------------------------------------------------------------------
+-- SEQUENCE FUNCTIONS
+---------------------------------------------------------------------
+last(<e>) = e
+last(<e>^s) = last(s)
+
+inv(<>) = <>
+inv(<e>^s) = (inv(s))^<e>
+
+front(<>) = <>
+front(s^<e>) = s
+
+elemAt(0, s) = head(s)
+elemAt(n, s) = elemAt(n - 1, tail(s))
+
+---------------------------------------------------------------------
+-- SET FUNCTIONS
+---------------------------------------------------------------------
+subset(s, t) = empty(diff(s,t))
+
+push(e, st) = {union({e}, s) | s <- st}
+
+---------------------------------------------------------------------
+-- MAPPING FUNCTIONS
+---------------------------------------------------------------------
+
+build_map_on_false(cs) = mapFromList(< (c,false) | c <- seq(cs)>)
+build_map_on_empty(wires) = mapFromList(< (w,{}) | w <- wires>)
+
+all_true(map) = all_true_seq(mapToList(map)) 
+
+all_true_seq(<>) = true
+all_true_seq(<(k,v)>^map) = 
+    if v
+    then all_true_seq(map) 
+    else false
+
+map_equals(map1, map2) = 
+--    map1 <= map2 and map2 <= map1
+    let domain_map1 = domain(map1)
+    within
+        if domain_map1 == domain(map2)
+        then map_equals_aux(seq(domain_map1), map1, map2)
+        else false
+
+map_equals_aux(<>, map1, map2) = true
+map_equals_aux(<k>^domain_seq, map1, map2) =
+    if mapLookup(map1,k) == mapLookup(map2, k)
+    then map_equals_aux(domain_seq, map1, map2)
+    else false
+
+
+domain(map) = domain_seq(mapToList(map))
+domain_seq(<>) = {}
+domain_seq(<(k,v)>^s) = union({k},domain_seq(s))
+
+---------------------------------------------------------------------
+-- FUNCTION FOR CONNECTIONS
+---------------------------------------------------------------------
+
+-- Returns the domain of the connections function
+domainFromSet(s) = domainFromSet_seq(seq(s))
+domainFromSet_seq(<>) = {}
+domainFromSet_seq(<(k,v)>^s) = union({k},domainFromSet_seq(s))
+
+---------------------------------------------------------------------
+-- FUNCTIONS FOR CHARGING AND DISCHARGING THE CAPACITOR
+---------------------------------------------------------------------
+
+-- Returns a map containing the capacitor's id and its capacitance
+capacitance(id, amount)= mapFromList(<(id, amount)>)
+capacitance_mult(id1, id2, amount1, amount2)= mapFromList(<(id1, amount1), (id2, amount2)>) 
+-- Returns the capacitance value of an instantiated capacitor
+charge_max(initial_max_charge, id) = mapLookup(initial_max_charge, id)
+
+CapCharge((cp_id, ch)) = ch
+Capacitor((cp_id, ch)) = cp_id
+
+get_charge(cp_id, charges) =
+    get_charge_aux(cp_id, seq(charges))
+
+get_charge_aux(cp_id, <c>) = CapCharge(c)
+get_charge_aux(cp_id, <c>^cs) =
+    if (cp_id == Capacitor(c))
+    then CapCharge(c)
+    else get_charge_aux(cp_id, cs)
+
+CapMoreCharge(cp_id, charge) =
+if charge < charge_max(INITIAL_MAX_CHARGE, cp_id)
+then charge + 1
+else charge_max(INITIAL_MAX_CHARGE, cp_id)
+
+CapLessCharge(charge) =
+if charge > 0
+then charge - 1
+else 0
+
+-----------------------------------------------
+-- FUNCTIONS FOR PASSING THE TIME OF BLOCKS --
+-----------------------------------------------
+blk_time((block_id, time)) = time
+blk_id((block_id, time)) = block_id
+
+get_time(block_id, time_setting) = 
+    aux_get_time(block_id, seq(time_setting))
+
+aux_get_time(block_id, <time>) = blk_time(time) 
+aux_get_time(block_id, <time>^times) =
+        if  (block_id == blk_id(time))
+        then blk_time(time)
+        else aux_get_time(block_id, times)
+
+setup_max_time(id, amount) = mapFromList(<(id, amount)>)
+setup_max_time_mult(id1, id2, amount1, amount2) = mapFromList(<(id1, amount1), (id2, amount2)>)
+get_max_time(stp_max_time, id) = mapLookup(stp_max_time, id)

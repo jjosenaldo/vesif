@@ -1,0 +1,35 @@
+---------------------------------------------------
+-- * Unique assertions
+-- ** parametrised assertions
+---------------------------------------------------
+
+---------------------------------------------------
+-- STANDARD PROPERTIES*
+---------------------------------------------------
+assert SYSTEM:[deadlock free]
+assert SYSTEM:[divergence free]
+assert SYSTEM:[deterministic[FD]]
+
+---------------------------------------------------
+-- CHECK RINGBELL EFFECT ON R1 CONTACT**
+---------------------------------------------------
+assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C1_ENDPOINT_id,
+            (| B1_id => true |)) 
+       [T= RUN({switch})
+
+assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C1_ENDPOINT_id,
+            (| B1_id => false |)) 
+       [T= RUN({switch})
+
+---------------------------------------------------
+-- CHECKING R1 AND R2 CONTACTS STATUS**
+---------------------------------------------------
+assert STOP [T= SYSTEM_CONTACTS_STATUS((| C1_ENDPOINT_id => true, C2_ENDPOINT_id => true |))
+assert STOP [T= SYSTEM_CONTACTS_STATUS((| C1_ENDPOINT_id => true, C2_ENDPOINT_id => false |))
+assert STOP [T= SYSTEM_CONTACTS_STATUS((| C1_ENDPOINT_id => false, C2_ENDPOINT_id => true |))
+assert STOP [T= SYSTEM_CONTACTS_STATUS((| C1_ENDPOINT_id => false, C2_ENDPOINT_id => false |))
+
+---------------------------------------------------
+-- CHECKING SHORT CIRCUITS*
+---------------------------------------------------
+assert RUN(ALPHA_PATH_MASTER) [T= SYSTEM 
