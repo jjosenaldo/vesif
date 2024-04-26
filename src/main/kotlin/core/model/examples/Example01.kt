@@ -35,15 +35,24 @@ val componentsExample01: List<Component> by lazy {
     val b1 = Button(leftNeighbor = Component.DEFAULT, rightNeighbor = Component.DEFAULT, id = "B1")
     val n2 = Pole(isPositive = false, id = "N2", isLeft = false, neighbor = Component.DEFAULT)
 
-    listOf(
-        p1.copyWith(neighbor = r1),
-        r1.copyWith(leftNeighbor = p1, rightNeighbor = c2, contacts = listOf(c1)),
-        c2.copyWith(leftNeighbor = r1, rightNeighbor = n1, controller = r2),
-        n1.copyWith(neighbor = c2),
-        p2.copyWith(neighbor = c1),
-        c1.copyWith(leftNeighbor = p2, rightNeighbor = r2, controller = r1),
-        r2.copyWith(leftNeighbor = c1, rightNeighbor = b1, contacts = listOf(c2)),
-        b1.copyWith(leftNeighbor = r2, rightNeighbor = n2),
-        n2.copyWith(neighbor = b1)
-    )
+    p1.neighbor = r1
+    r1.leftNeighbor = p1
+    r1.rightNeighbor = c2
+    r1.contacts = listOf(c1)
+    c2.leftNeighbor = r1
+    c2.rightNeighbor = n1
+    c2.controller = r2
+    n1.neighbor = c2
+    p2.neighbor = c1
+    c1.leftNeighbor = p2
+    c1.rightNeighbor = r2
+    c1.controller = r1
+    r2.leftNeighbor = c1
+    r2.rightNeighbor = b1
+    r2.contacts = listOf(c2)
+    b1.leftNeighbor = r2
+    b1.rightNeighbor = n2
+    n2.neighbor = b1
+
+    listOf(p1, r1, c2, n1, p2, c1, r2, b1, n2)
 }

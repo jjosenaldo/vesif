@@ -38,14 +38,14 @@ class FrontEndCspData : ComponentVisitor {
     val deactBlockIndependentIds = mutableSetOf<String>()
     val deactBlockDependentIds = mutableSetOf<String>()
     val timeDeactSettings = mutableSetOf<CspPair<String, Int>>()
-    lateinit var initialMaxDeactTimes: CspPair<String, Int>
-    val maxDeactTime = 10
+    lateinit var initialMaxDeactTime: CspPair<String, Int>
+    val maxDeactTime = 0
     val actBlockIds = mutableSetOf<String>()
     val actBlockIndependentIds = mutableSetOf<String>()
     val actBlockDependentIds = mutableSetOf<String>()
     val timeActSettings = mutableSetOf<CspPair<String, Int>>()
-    val initialMaxActTimes = mutableSetOf<CspPair<String, Int>>()
-    val maxActTime = 10
+    lateinit var initialMaxActTime: CspPair<String, Int>
+    val maxActTime = 0
     val initialOpenComponentIds = mutableSetOf<String>()
     val relayOfs = mutableSetOf<CspPair<String, String>>()
     val getContactOfEndpoints = mutableSetOf<CspPair<String, String>>()
@@ -55,8 +55,6 @@ class FrontEndCspData : ComponentVisitor {
     val capPoles = mutableSetOf<CspPair<String, Set<String>>>()
     val capLeftPoles = mutableSetOf<CspPair<String, String>>()
     val capRightPoles = mutableSetOf<CspPair<String, String>>()
-    val initialPositiveIds = mutableSetOf<String>()
-    val initialNegativeIds = mutableSetOf<String>()
     val initialCharges = mutableSetOf<CspPair<String, Int>>()
     lateinit var initialMaxCharge: CspPair<String, Int>
     lateinit var maxCharge: CspPair<String, String>
@@ -215,6 +213,11 @@ class FrontEndCspData : ComponentVisitor {
             getBsContactOf.add(CspPair("C_ENDPOINT_default", "C_default"))
         }
 
+        if (bistableRelayContacts.none { it is RelayChangeOverContact }) {
+            getBsEndpointLeftOf.add(CspPair("BS_C_default", setOf("BS_C_LEFT_default")))
+            getBsEndpointRightOf.add(CspPair("BS_C_default", setOf("BS_C_RIGHT_default")))
+        }
+
         if (bistableRelayContacts.none { it is RelayRegularContact }) {
             bistableRelayContactLeftIds.add("BS_C_LEFT_default")
         } else {
@@ -251,7 +254,7 @@ class FrontEndCspData : ComponentVisitor {
         if (actBlocks.isEmpty()) {
             actBlockIds.add("BL_default")
             timeActSettings.add(CspPair("BL_default", 0))
-            initialMaxActTimes.add(CspPair("BL_default", 0))
+            initialMaxActTime = CspPair("BL_default", 0)
             getIndependentConnectionOfAct.add(CspPair("BL_default", "BL_INDEPENDENT_CONNECTION_default"))
             getPositiveOfActBlock.add(CspPair("BL_default", emptySet()))
             getNegativeOfActBlock.add(CspPair("BL_default", emptySet()))
@@ -260,7 +263,7 @@ class FrontEndCspData : ComponentVisitor {
         if (deactBlocks.isEmpty()) {
             deactBlockIds.add("BL_default")
             timeDeactSettings.add(CspPair("BL_default", 0))
-            initialMaxDeactTimes = CspPair("BL_default", 0)
+            initialMaxDeactTime = CspPair("BL_default", 0)
             getIndependentConnectionOfDeact.add(CspPair("BL_default", "BL_INDEPENDENT_CONNECTION_default"))
             getPositiveOfDeactBlock.add(CspPair("BL_default", emptySet()))
             getNegativeOfDeactBlock.add(CspPair("BL_default", emptySet()))
@@ -280,7 +283,10 @@ class FrontEndCspData : ComponentVisitor {
         ids.add(component.id)
     }
 
-    private fun addConnection(leftComponent: Component, rightComponent: Component) {
+    private fun addConnection(leftComponent: Component, rightComponent: Component, forceAdd: Boolean = false) {
+        if (!forceAdd && leftComponent is RelayRegularContact) {
+            return
+        }
         addComponentPair(leftComponent, rightComponent, connections)
     }
 
@@ -321,6 +327,7 @@ class FrontEndCspData : ComponentVisitor {
         val openOrClosedListToAdd = if (contact.isNormallyOpen) contactOpenedIds else contactClosedIds
         openOrClosedListToAdd.add(contact.id)
         addConnection(contact.leftNeighbor, contact)
+        if (contact.isNormallyOpen) initialOpenComponentIds.add(contact.id)
     }
 
     override fun visitCapacitor(capacitor: Capacitor) {
@@ -335,7 +342,7 @@ class FrontEndCspData : ComponentVisitor {
             val endpoint = object : Component(id = "${contact.id}_ENDPOINT_id") {
                 override fun acceptVisitor(visitor: ComponentVisitor) {}
             }
-            addConnection(contact, endpoint)
+            addConnection(contact, endpoint, forceAdd = true)
             addConnection(endpoint, contact.rightNeighbor)
             addComponentPair(endpoint, contact.controller, relayOfs)
             addComponentPair(endpoint, contact, getContactOfEndpoints)
