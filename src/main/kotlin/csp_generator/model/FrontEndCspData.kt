@@ -1,4 +1,4 @@
-package org.example.verifier.csp_generator.model
+package org.example.csp_generator.model
 
 import org.example.core.model.*
 import org.example.core.model.visitor.ComponentVisitor
@@ -229,6 +229,7 @@ class FrontEndCspData : ComponentVisitor {
             getCoilFromBsEndpointL.add(CspPair("C_ENDPOINT_default", "BS_L_COIL_default"))
             getCoilFromBsEndpointR.add(CspPair("C_ENDPOINT_default", "BS_R_COIL_default"))
             bistableRelayContactRightIds.add("C_default")
+            ids.add("C_default")
         }
     }
 

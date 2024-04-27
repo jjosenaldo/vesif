@@ -83,6 +83,13 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>1.9.23</version>
         </dependency>
+        <dependency>
+            <groupId>uk.ac.ox</groupId>
+            <artifactId>fdr</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/dependencies/fdr.jar</systemPath>
+        </dependency>
     </dependencies>
 
 </project>

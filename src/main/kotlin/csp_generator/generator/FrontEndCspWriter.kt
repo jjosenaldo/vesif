@@ -1,7 +1,7 @@
-package org.example.verifier.csp_generator.generator
+package org.example.csp_generator.generator
 
-import org.example.verifier.csp_generator.model.CspPair
-import org.example.verifier.csp_generator.model.FrontEndCspData
+import org.example.csp_generator.model.CspPair
+import org.example.csp_generator.model.FrontEndCspData
 import java.io.BufferedWriter
 import java.io.File
 
@@ -14,6 +14,7 @@ object FrontEndCspWriter {
 
         file.bufferedWriter().use { out ->
             out.apply {
+                writeLine("include \"general.csp\"")
                 writeDataDefinition("IDS", data.ids)
                 writeDefinition("POSITIVE_IDS", data.positiveIds)
                 writeDefinition("NEGATIVE_IDS", data.negativeIds)

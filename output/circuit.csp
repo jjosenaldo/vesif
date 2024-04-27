@@ -1,4 +1,5 @@
-datatype IDS = P1 | R1 | C2 | N1 | P2 | C1 | R2 | B1 | N2 | PATH_MASTER_id | C2_ENDPOINT_id | C1_ENDPOINT_id | P_default | N_default | R_default | J_default | LC_default | L_default | B_default | CP_default | PL_default | PL2_default | RES_default | LAMP_default | BS_C_LEFT_default | BS_C_RIGHT_default | BS_R_default | BS_L_COIL_default | BS_R_COIL_default | C_ENDPOINT_default | BL_default | BL_INDEPENDENT_CONNECTION_default | BL_DEPENDENT_ENDPOINT_POS_default | BL_DEPENDENT_ENDPOINT_NEG_default | BL_DEPENDENT_CONNECTION_default
+include "general.csp"
+datatype IDS = P1 | R1 | C2 | N1 | P2 | C1 | R2 | B1 | N2 | PATH_MASTER_id | C2_ENDPOINT_id | C1_ENDPOINT_id | P_default | N_default | R_default | J_default | LC_default | L_default | B_default | CP_default | PL_default | PL2_default | RES_default | LAMP_default | BS_C_LEFT_default | BS_C_RIGHT_default | BS_R_default | BS_L_COIL_default | BS_R_COIL_default | C_ENDPOINT_default | C_default | BL_default | BL_INDEPENDENT_CONNECTION_default | BL_DEPENDENT_ENDPOINT_POS_default | BL_DEPENDENT_ENDPOINT_NEG_default | BL_DEPENDENT_CONNECTION_default
 POSITIVE_IDS = {P1, P2}
 NEGATIVE_IDS = {N1, N2}
 
