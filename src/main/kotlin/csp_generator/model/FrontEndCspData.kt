@@ -328,7 +328,6 @@ class FrontEndCspData : ComponentVisitor {
         val openOrClosedListToAdd = if (contact.isNormallyOpen) contactOpenedIds else contactClosedIds
         openOrClosedListToAdd.add(contact.id)
         addConnection(contact.leftNeighbor, contact)
-        if (contact.isNormallyOpen) initialOpenComponentIds.add(contact.id)
     }
 
     override fun visitCapacitor(capacitor: Capacitor) {
@@ -340,7 +339,7 @@ class FrontEndCspData : ComponentVisitor {
      */
     private fun insertRegularContactEndpoints(contacts: List<RelayRegularContact>) {
         for (contact in contacts) {
-            val endpoint = object : Component(id = "${contact.id}_ENDPOINT_id") {
+            val endpoint = object : Component(id = "${contact.id.replace("_id", "")}_ENDPOINT_id") {
                 override fun acceptVisitor(visitor: ComponentVisitor) {}
             }
             addConnection(contact, endpoint, forceAdd = true)
@@ -349,6 +348,7 @@ class FrontEndCspData : ComponentVisitor {
             addComponentPair(endpoint, contact, getContactOfEndpoints)
             addComponentId(endpoint)
             endpointIds.add(endpoint.id)
+            if (contact.isNormallyOpen) initialOpenComponentIds.add(endpoint.id)
         }
     }
 }

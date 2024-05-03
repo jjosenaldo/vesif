@@ -14,11 +14,11 @@ assert SYSTEM:[deterministic[FD]]
 -- CHECK RINGBELL EFFECT ON R1 CONTACT**
 ---------------------------------------------------
 assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C1_ENDPOINT_id,
-            (| B1 => true |))
+            (| B1_id => true |))
        [T= RUN({switch})
 
 assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C1_ENDPOINT_id,
-            (| B1 => false |))
+            (| B1_id => false |))
        [T= RUN({switch})
 
 ---------------------------------------------------

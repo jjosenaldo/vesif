@@ -3,37 +3,37 @@ package org.example.core.model.examples
 import org.example.core.model.*
 
 val componentsExample01: List<Component> by lazy {
-    val p1 = Pole(isPositive = true, id = "P1", isLeft = true, neighbor = Component.DEFAULT)
+    val p1 = Pole(isPositive = true, id = "P1_id", isLeft = true, neighbor = Component.DEFAULT)
     val r1 = MonostableRelay(
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
         contacts = listOf(),
-        id = "R1"
+        id = "R1_id"
     )
     val c2 = RelayRegularContact(
         isNormallyOpen = true,
         controller = RelayContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
-        id = "C2"
+        id = "C2_id"
     )
-    val n1 = Pole(isPositive = false, id = "N1", isLeft = false, neighbor = Component.DEFAULT)
-    val p2 = Pole(isPositive = true, id = "P2", isLeft = true, neighbor = Component.DEFAULT)
+    val n1 = Pole(isPositive = false, id = "N1_id", isLeft = false, neighbor = Component.DEFAULT)
+    val p2 = Pole(isPositive = true, id = "P2_id", isLeft = true, neighbor = Component.DEFAULT)
     val c1 = RelayRegularContact(
         isNormallyOpen = false,
         controller = RelayContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
-        id = "C1"
+        id = "C1_id"
     )
     val r2 = MonostableRelay(
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
         contacts = listOf(),
-        id = "R2"
+        id = "R2_id"
     )
-    val b1 = Button(leftNeighbor = Component.DEFAULT, rightNeighbor = Component.DEFAULT, id = "B1")
-    val n2 = Pole(isPositive = false, id = "N2", isLeft = false, neighbor = Component.DEFAULT)
+    val b1 = Button(leftNeighbor = Component.DEFAULT, rightNeighbor = Component.DEFAULT, id = "B1_id")
+    val n2 = Pole(isPositive = false, id = "N2_id", isLeft = false, neighbor = Component.DEFAULT)
 
     p1.neighbor = r1
     r1.leftNeighbor = p1
