@@ -1,12 +1,12 @@
 package org.example.csp_generator.generator
 
 import org.example.csp_generator.model.CspPair
-import org.example.csp_generator.model.FrontEndCspData
+import org.example.csp_generator.model.CircuitCspData
 import java.io.BufferedWriter
 import java.io.File
 
-object FrontEndCspWriter {
-    fun write(data: FrontEndCspData, output: String) {
+object CircuitCspWriter {
+    fun write(data: CircuitCspData, output: String) {
         val file = File(output)
         if (!file.exists()) {
             file.createNewFile()

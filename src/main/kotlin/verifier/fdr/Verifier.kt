@@ -1,16 +1,63 @@
 package org.example.verifier.fdr
 
+import org.example.core.file_manager.outputPath
+import org.example.core.files.FileManager
+import org.example.core.model.Circuit
+import org.example.verifier.model.AssertionDefinition
+import org.example.verifier.assertion_generator.AssertionGenerator
+import org.example.verifier.model.AssertionRunResult
+import org.example.verifier.assertion_generator.RingBellAssertionGenerator
+import org.example.verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
-import java.nio.file.Paths
 
 
 object Verifier {
-    private val frontEndFile = "${Paths.get("").toAbsolutePath()}/output/circuit.csp"
+    private val circuitFile = "$outputPath/circuit.csp"
+    private val assertionsFile = "$outputPath/assertions.csp"
 
-    fun checkAssertions() {
+    private val assertionGenerators = mapOf<AssertionType, AssertionGenerator>(
+        AssertionType.ringBell to RingBellAssertionGenerator()
+    )
+
+    fun checkFailingAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): Map<AssertionType, List<AssertionRunResult>> {
+        return runAssertions(circuit, assertionTypes).filter { !it.passed }.groupBy { it.assertion.type }
+    }
+
+    private fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> {
+        val results = mutableListOf<AssertionRunResult>()
+        val assertionDefinitions = buildAssertions(circuit, assertionTypes)
+
+       try {
+           Session().apply {
+               loadFile(circuitFile)
+               results.addAll(
+                   assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
+                       fdrAssertion.execute(null)
+                       assertion.buildRunResult(fdrAssertion)
+                   }
+               )
+           }
+       } catch(e: Exception) {
+           e.printStackTrace()
+       } finally {
+           fdr.libraryExit()
+       }
+
+        return results
+    }
+
+    private fun buildAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionDefinition> {
+        val allAssertions = assertionTypes.mapNotNull { assertionGenerators[it]?.generateAssertions(circuit) }.flatten()
+
+        FileManager.upsertFile(assertionsFile, allAssertions.map { it.definition })
+
+        return allAssertions
+    }
+
+    fun exampleCheckAssertions() {
         try {
             val session = Session()
-            session.loadFile(frontEndFile)
+            session.loadFile(circuitFile)
 
             for (assertion: Assertion in session.assertions()) {
                 assertion.execute(null)

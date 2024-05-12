@@ -4,9 +4,9 @@ import org.example.core.model.visitor.ComponentVisitor
 
 class MonostableRelay(
     var leftNeighbor: Component,
-    var rightNeighbor: Component, contacts: List<RelayContact>, id: String,
+    var rightNeighbor: Component, contacts: List<RelayContact>, name: String,
 ) :
-    RelayContactController(contacts, id) {
+    RelayContactController(contacts, name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitMonostableRelay(this)
     }

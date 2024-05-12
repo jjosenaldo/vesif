@@ -2,38 +2,38 @@ package org.example.core.model.examples
 
 import org.example.core.model.*
 
-val componentsExample01: List<Component> by lazy {
-    val p1 = Pole(isPositive = true, id = "P1_id", isLeft = true, neighbor = Component.DEFAULT)
+val circuit01: Circuit by lazy {
+    val p1 = Pole(isPositive = true, name = "P1", isLeft = true, neighbor = Component.DEFAULT)
     val r1 = MonostableRelay(
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
         contacts = listOf(),
-        id = "R1_id"
+        name = "R1"
     )
     val c2 = RelayRegularContact(
         isNormallyOpen = true,
         controller = RelayContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
-        id = "C2_id"
+        name = "C2"
     )
-    val n1 = Pole(isPositive = false, id = "N1_id", isLeft = false, neighbor = Component.DEFAULT)
-    val p2 = Pole(isPositive = true, id = "P2_id", isLeft = true, neighbor = Component.DEFAULT)
+    val n1 = Pole(isPositive = false, name = "N1", isLeft = false, neighbor = Component.DEFAULT)
+    val p2 = Pole(isPositive = true, name = "P2", isLeft = true, neighbor = Component.DEFAULT)
     val c1 = RelayRegularContact(
         isNormallyOpen = false,
         controller = RelayContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
-        id = "C1_id"
+        name = "C1"
     )
     val r2 = MonostableRelay(
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
         contacts = listOf(),
-        id = "R2_id"
+        name = "R2"
     )
-    val b1 = Button(leftNeighbor = Component.DEFAULT, rightNeighbor = Component.DEFAULT, id = "B1_id")
-    val n2 = Pole(isPositive = false, id = "N2_id", isLeft = false, neighbor = Component.DEFAULT)
+    val b1 = Button(leftNeighbor = Component.DEFAULT, rightNeighbor = Component.DEFAULT, name = "B1")
+    val n2 = Pole(isPositive = false, name = "N2", isLeft = false, neighbor = Component.DEFAULT)
 
     p1.neighbor = r1
     r1.leftNeighbor = p1
@@ -54,5 +54,5 @@ val componentsExample01: List<Component> by lazy {
     b1.rightNeighbor = n2
     n2.neighbor = b1
 
-    listOf(p1, r1, c2, n1, p2, c1, r2, b1, n2)
+    Circuit(components = listOf(p1, r1, c2, n1, p2, c1, r2, b1, n2))
 }

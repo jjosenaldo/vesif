@@ -5,7 +5,7 @@ import org.example.core.model.visitor.ComponentVisitor
 
 // TODO: do buffered writers need to be closed?
 // TODO: clear data after generating a file
-class FrontEndCspData : ComponentVisitor {
+class CircuitCspData : ComponentVisitor {
     val ids = mutableSetOf<String>()
     val positiveIds = mutableSetOf<String>()
     val negativeIds = mutableSetOf<String>()
@@ -339,7 +339,7 @@ class FrontEndCspData : ComponentVisitor {
      */
     private fun insertRegularContactEndpoints(contacts: List<RelayRegularContact>) {
         for (contact in contacts) {
-            val endpoint = object : Component(id = "${contact.id.replace("_id", "")}_ENDPOINT_id") {
+            val endpoint = object : Component(name = contact.endpointName) {
                 override fun acceptVisitor(visitor: ComponentVisitor) {}
             }
             addConnection(contact, endpoint, forceAdd = true)
