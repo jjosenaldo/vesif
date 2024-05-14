@@ -11,5 +11,8 @@ abstract class Component(val name: String) {
             override fun acceptVisitor(visitor: ComponentVisitor) {}
         }
 
+        fun getNameFromId(id: String): String {
+            return id.substring(0, id.length-3)
+        }
     }
 }

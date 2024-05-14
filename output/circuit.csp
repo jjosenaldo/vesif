@@ -1,17 +1,17 @@
 include "general.csp"
-datatype IDS = P1_id | R1_id | C2_id | N1_id | P2_id | C1_id | R2_id | B1_id | N2_id | PATH_MASTER_id | C2_ENDPOINT_id | C1_ENDPOINT_id | P_default | N_default | R_default | J_default | LC_default | L_default | B_default | CP_default | PL_default | PL2_default | RES_default | LAMP_default | BS_C_LEFT_default | BS_C_RIGHT_default | BS_R_default | BS_L_COIL_default | BS_R_COIL_default | C_ENDPOINT_default | C_default | BL_default | BL_INDEPENDENT_CONNECTION_default | BL_DEPENDENT_ENDPOINT_POS_default | BL_DEPENDENT_ENDPOINT_NEG_default | BL_DEPENDENT_CONNECTION_default
+datatype IDS = P1_id | C2_id | N1_id | P2_id | R2_id | B1_id | N2_id | PATH_MASTER_id | C2_ENDPOINT_id | P_default | N_default | R_default | J_default | LC_default | L_default | B_default | CP_default | PL_default | PL2_default | RES_default | LAMP_default | BS_C_LEFT_default | BS_C_RIGHT_default | BS_R_default | BS_L_COIL_default | BS_R_COIL_default | C_ENDPOINT_default | C_default | BL_default | BL_INDEPENDENT_CONNECTION_default | BL_DEPENDENT_ENDPOINT_POS_default | BL_DEPENDENT_ENDPOINT_NEG_default | BL_DEPENDENT_CONNECTION_default
 POSITIVE_IDS = {P1_id, P2_id}
 NEGATIVE_IDS = {N1_id, N2_id}
 
-RELAY_IDS = {R1_id, R2_id, R_default}
-CONTACT_CLOSED_IDS = {C1_id}
+RELAY_IDS = {R2_id, R_default}
+CONTACT_CLOSED_IDS = {}
 CONTACT_OPENED_IDS = {C2_id}
 TWO_WAY_CONTACT_IDS = {}
 CONTACT_IDS = union(TWO_WAY_CONTACT_IDS, union(CONTACT_CLOSED_IDS, CONTACT_OPENED_IDS))
 CONTACT_ENDPOINTS_IDS = union(ENDPOINT, union(ENDPOINT_TYPE_UP, ENDPOINT_TYPE_DOWN))
 ENDPOINT_TYPE_UP = {}
 ENDPOINT_TYPE_DOWN = {}
-ENDPOINT = {C2_ENDPOINT_id, C1_ENDPOINT_id}
+ENDPOINT = {C2_ENDPOINT_id}
 
 JUNCTION_IDS = {J_default}
 
@@ -61,10 +61,8 @@ MAX_ACTIVATION_TIME = 0
 INITIAL_OPEN_COMPONENTS = {B1_id, C2_ENDPOINT_id}
 
 RELAY_OF(C2_ENDPOINT_id) = R2_id
-RELAY_OF(C1_ENDPOINT_id) = R1_id
 
 GET_CONTACT_OF_ENDPOINT(C2_ENDPOINT_id) = C2_id
-GET_CONTACT_OF_ENDPOINT(C1_ENDPOINT_id) = C1_id
 GET_ENDPOINT_DOWN_OF(id) = {}
 GET_ENDPOINT_UP_OF(id) = {}
 
@@ -95,13 +93,10 @@ GET_POSITIVE_OF_ACTIVATION_BLOCK(BL_default) = {}
 GET_NEGATIVE_OF_ACTIVATION_BLOCK(BL_default) = {}
 
 CONNECTIONS = {
-    {P1_id, R1_id},
-    {R1_id, C2_id},
-    {P2_id, C1_id},
+    {P1_id, C2_id},
+    {P2_id, R2_id},
     {R2_id, B1_id},
     {B1_id, N2_id},
     {C2_id, C2_ENDPOINT_id},
-    {C2_ENDPOINT_id, N1_id},
-    {C1_id, C1_ENDPOINT_id},
-    {C1_ENDPOINT_id, R2_id}
+    {C2_ENDPOINT_id, N1_id}
 }

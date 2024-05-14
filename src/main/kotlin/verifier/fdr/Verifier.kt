@@ -7,6 +7,7 @@ import org.example.verifier.model.AssertionDefinition
 import org.example.verifier.assertion_generator.AssertionGenerator
 import org.example.verifier.model.AssertionRunResult
 import org.example.verifier.assertion_generator.RingBellAssertionGenerator
+import org.example.verifier.assertion_generator.ShortCircuitAssertionGenerator
 import org.example.verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
 
@@ -15,8 +16,9 @@ object Verifier {
     private val circuitFile = "$outputPath/circuit.csp"
     private val assertionsFile = "$outputPath/assertions.csp"
 
-    private val assertionGenerators = mapOf<AssertionType, AssertionGenerator>(
-        AssertionType.ringBell to RingBellAssertionGenerator()
+    private val assertionGenerators = mapOf(
+        AssertionType.RingBell to RingBellAssertionGenerator(),
+        AssertionType.ShortCircuit to ShortCircuitAssertionGenerator()
     )
 
     fun checkFailingAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): Map<AssertionType, List<AssertionRunResult>> {
@@ -33,7 +35,7 @@ object Verifier {
                results.addAll(
                    assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
                        fdrAssertion.execute(null)
-                       assertion.buildRunResult(fdrAssertion)
+                       assertion.buildRunResult(this, fdrAssertion)
                    }
                )
            }

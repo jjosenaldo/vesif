@@ -1,5 +1,6 @@
 package org.example.csp_generator.generator
 
+import org.example.core.files.FileManager
 import org.example.csp_generator.model.CspPair
 import org.example.csp_generator.model.CircuitCspData
 import java.io.BufferedWriter
@@ -141,12 +142,10 @@ private fun BufferedWriter.writeDefinition(name: String, definition: Any) {
 }
 
 private fun <T> BufferedWriter.writeSetOfSetsDefinition(name: String, definition: Set<Set<T>>) {
-    // TODO: put in an utils file
-    val newLine = System.lineSeparator()
+    val newLine = FileManager.newLine
     val trailingNewLine = if (definition.isEmpty()) "" else newLine
 
-    // TODO: put in a config file
-    val tab = " ".repeat(4)
+    val tab = FileManager.tab
 
     writeDefinition(
         name, "{$trailingNewLine${

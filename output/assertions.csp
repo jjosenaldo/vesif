@@ -1,4 +1,3 @@
 assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C2_ENDPOINT_id, (| B1_id => false |)) [T= RUN({switch})
 assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C2_ENDPOINT_id, (| B1_id => true |)) [T= RUN({switch})
-assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C1_ENDPOINT_id, (| B1_id => false |)) [T= RUN({switch})
-assert not MONITORED_SYSTEM_UNSTABLE_CONTACT(C1_ENDPOINT_id, (| B1_id => true |)) [T= RUN({switch})
+assert RUN(ALPHA_PATH_MASTER) [T= SYSTEM

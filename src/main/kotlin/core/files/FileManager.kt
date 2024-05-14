@@ -3,6 +3,9 @@ package org.example.core.files
 import java.io.File
 
 object FileManager {
+    val newLine = System.lineSeparator()
+    val tab = " ".repeat(4)
+
     fun upsertFile(path: String, lines: List<String>) {
         val file = File(path)
         if (!file.exists()) {
