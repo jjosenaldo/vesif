@@ -1,4 +1,4 @@
-package org.example.core.file_manager
+package org.example.core.files
 
 import java.nio.file.Path
 import java.nio.file.Paths

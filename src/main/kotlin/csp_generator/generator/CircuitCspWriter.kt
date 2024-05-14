@@ -1,17 +1,15 @@
 package org.example.csp_generator.generator
 
 import org.example.core.files.FileManager
-import org.example.csp_generator.model.CspPair
 import org.example.csp_generator.model.CircuitCspData
+import org.example.csp_generator.model.CspPair
 import java.io.BufferedWriter
 import java.io.File
 
 object CircuitCspWriter {
     fun write(data: CircuitCspData, output: String) {
         val file = File(output)
-        if (!file.exists()) {
-            file.createNewFile()
-        }
+        FileManager.createFileIfNotExists(output)
 
         file.bufferedWriter().use { out ->
             out.apply {

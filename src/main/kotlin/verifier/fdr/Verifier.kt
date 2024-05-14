@@ -1,10 +1,9 @@
 package org.example.verifier.fdr
 
-import org.example.core.file_manager.outputPath
+import org.example.core.files.outputPath
 import org.example.core.files.FileManager
 import org.example.core.model.Circuit
 import org.example.verifier.model.AssertionDefinition
-import org.example.verifier.assertion_generator.AssertionGenerator
 import org.example.verifier.model.AssertionRunResult
 import org.example.verifier.assertion_generator.RingBellAssertionGenerator
 import org.example.verifier.assertion_generator.ShortCircuitAssertionGenerator
@@ -13,8 +12,8 @@ import uk.ac.ox.cs.fdr.*
 
 
 object Verifier {
-    private val circuitFile = "$outputPath/circuit.csp"
-    private val assertionsFile = "$outputPath/assertions.csp"
+    private val circuitFile = "$outputPath${FileManager.fileSeparator}circuit.csp"
+    private val assertionsFile = "$outputPath${FileManager.fileSeparator}assertions.csp"
 
     private val assertionGenerators = mapOf(
         AssertionType.RingBell to RingBellAssertionGenerator(),

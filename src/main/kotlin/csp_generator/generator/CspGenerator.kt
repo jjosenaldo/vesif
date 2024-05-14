@@ -1,6 +1,7 @@
 package org.example.csp_generator.generator
 
-import org.example.core.file_manager.projectPath
+import org.example.core.files.projectPath
+import org.example.core.files.FileManager
 import org.example.core.model.Circuit
 import org.example.core.model.Component
 import org.example.csp_generator.model.CircuitCspData
@@ -14,7 +15,7 @@ object CspGenerator {
         "$projectPath/src/main/kotlin/csp_generator/default_csp_files"
 
     fun generateCsp(outputPath: String, circuit: Circuit) {
-        val pathWithSlash = "$outputPath${if (outputPath.last() != '/') "/" else ""}"
+        val pathWithSlash = "$outputPath${if (outputPath.last() != FileManager.fileSeparator) FileManager.fileSeparator else ""}"
 
         generateCircuitCsp(pathWithSlash, circuit.components)
         copyDefaultCspFiles(destinationFolderPath = pathWithSlash)
