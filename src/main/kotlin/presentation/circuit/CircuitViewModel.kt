@@ -3,8 +3,6 @@ package presentation.circuit
 import input.CircuitInputManager
 import org.example.core.model.Circuit
 import org.example.verifier.fdr.AssertionManager
-import org.koin.compose.getKoin
-import org.koin.compose.koinInject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import presentation.assertions.AssertionsViewModel

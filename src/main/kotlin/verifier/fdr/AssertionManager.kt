@@ -122,71 +122,77 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         indent: Int,
         recurse: Boolean
     ) {
-        printIndent(indent); print("behaviour type: ");
+        printIndent(indent); print("behaviour type: ")
 //        indent += 2;
-        if (behaviour is ExplicitDivergenceBehaviour)
-            println("explicit divergence after trace");
-        else if (behaviour is IrrelevantBehaviour)
-            println("irrelevant");
-        else if (behaviour is LoopBehaviour) {
-            println("loops after index " + behaviour.loopIndex());
-        } else if (behaviour is MinAcceptanceBehaviour) {
-            print("minimal acceptance refusing {");
-            for (event in behaviour.minAcceptance())
-                print(session.uncompileEvent(event).toString() + ", ");
-            println("}");
-        } else if (behaviour is SegmentedBehaviour) {
-            println("Segmented behaviour consisting of:");
-            // Describe the sections of this behaviour. Note that it is very
-            // important that false is passed to the the descibe methods below
-            // because segments themselves cannot be divded via the DebugContext.
-            // That is, asking for behaviourChildren for a behaviour of a
-            // SegmentedBehaviour is not allowed.
-            for (child in behaviour.priorSections())
-                prettyPrintBehavior(session, context, child, indent + 2, false);
-            prettyPrintBehavior(
-                session, context, behaviour.last(),
-                indent + 2, false
-            );
-        } else if (behaviour is TraceBehaviour) {
-            println(
-                "performs event " +
-                        session.uncompileEvent(behaviour.errorEvent()).toString()
-            );
+        when (behaviour) {
+            is ExplicitDivergenceBehaviour -> println("explicit divergence after trace")
+            is IrrelevantBehaviour -> println("irrelevant")
+            is LoopBehaviour -> {
+                println("loops after index " + behaviour.loopIndex())
+            }
+
+            is MinAcceptanceBehaviour -> {
+                print("minimal acceptance refusing {")
+                for (event in behaviour.minAcceptance())
+                    print(session.uncompileEvent(event).toString() + ", ")
+                println("}")
+            }
+
+            is SegmentedBehaviour -> {
+                println("Segmented behaviour consisting of:")
+                // Describe the sections of this behaviour. Note that it is very
+                // important that false is passed to the the descibe methods below
+                // because segments themselves cannot be divded via the DebugContext.
+                // That is, asking for behaviourChildren for a behaviour of a
+                // SegmentedBehaviour is not allowed.
+                for (child in behaviour.priorSections())
+                    prettyPrintBehavior(session, context, child, indent + 2, false)
+                prettyPrintBehavior(
+                    session, context, behaviour.last(),
+                    indent + 2, false
+                )
+            }
+
+            is TraceBehaviour -> {
+                println(
+                    "performs event " +
+                            session.uncompileEvent(behaviour.errorEvent()).toString()
+                )
+            }
         }
 
         // Describe the trace of the behaviour
-        printIndent(indent); print("Trace: ");
+        printIndent(indent); print("Trace: ")
         for (event in behaviour.trace()) {
             // INVALIDEVENT indiciates that this machine did not perform an event at
             // the specified index (i.e. it was not synchronised with the machines
             // that actually did perform the event).
             if (event == fdr.INVALIDEVENT.toLong())
-                print("-, ");
+                print("-, ")
             else
-                print(session.uncompileEvent(event).toString() + ", ");
+                print(session.uncompileEvent(event).toString() + ", ")
         }
-        println();
+        println()
 
         // Describe any named states of the behaviour
-        printIndent(indent); print("States: ");
+        printIndent(indent); print("States: ")
         for (node in behaviour.nodePath()) {
             if (node == null)
-                print("-, ");
+                print("-, ")
             else {
-                val processName = session.machineNodeName(behaviour.machine(), node);
+                val processName = session.machineNodeName(behaviour.machine(), node)
                 if (processName == null)
-                    print("(unknown), ");
+                    print("(unknown), ")
                 else
-                    print("$processName, ");
+                    print("$processName, ")
             }
         }
-        println();
+        println()
 
         // Describe our own children recursively
         if (recurse) {
             for (child in context.behaviourChildren(behaviour))
-                prettyPrintBehavior(session, context, child, indent + 2, true);
+                prettyPrintBehavior(session, context, child, indent + 2, true)
         }
     }
 

@@ -1,6 +1,5 @@
 package presentation
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import org.koin.compose.koinInject
