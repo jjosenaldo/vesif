@@ -1,36 +1,38 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material.Button
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlinx.coroutines.launch
 import org.example.core.model.examples.exampleWithShortCircuit
 import org.example.csp_generator.generator.CspGenerator
 import org.example.verifier.fdr.Verifier
 import org.example.verifier.model.AssertionType
+import presentation.XmlSelector
 import java.nio.file.Paths
 
 @Composable
 @Preview
 fun App() {
-    var text by remember { mutableStateOf("Hello, World!") }
+    val coroutineScope = rememberCoroutineScope()
+    var text by remember { mutableStateOf("") }
 
     MaterialTheme {
-        Button(onClick = {
-            text = "Hello, Desktop!"
-        }) {
-            Text(text)
+        Column {
+            XmlSelector(onFileSelected = {
+                coroutineScope.launch {
+                    text = it()
+                }
+            })
+            if (text.isNotEmpty()) Text("file content: $text")
         }
+
     }
 }
 
 fun main() = application {
-    main2()
     Window(onCloseRequest = ::exitApplication) {
         App()
     }

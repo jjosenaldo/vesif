@@ -21,6 +21,7 @@ dependencies {
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
     implementation(files("C:\\Program Files\\FDR\\bin\\fdr.jar"))
+    implementation("com.darkrockstudios:mpfilepicker:3.1.0")
 }
 
 compose.desktop {
