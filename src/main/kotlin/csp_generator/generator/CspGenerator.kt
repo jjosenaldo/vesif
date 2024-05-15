@@ -1,32 +1,28 @@
-package org.example.csp_generator.generator
+package csp_generator.generator
 
-import org.example.core.files.projectPath
-import org.example.core.files.FileManager
+import core.files.projectPath
+import core.files.circuitPath
+import core.files.outputPath
 import org.example.core.model.Circuit
 import org.example.core.model.Component
+import org.example.csp_generator.generator.CircuitCspWriter
 import org.example.csp_generator.model.CircuitCspData
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
-object CspGenerator {
-    private const val FRONT_END_FILE_NAME = "circuit.csp"
+class CspGenerator {
     private val cspFilesPath =
         "$projectPath/src/main/kotlin/csp_generator/default_csp_files"
 
-    fun generateCsp(outputPath: String, circuit: Circuit) {
-        val pathWithSlash = "$outputPath${if (outputPath.last() != FileManager.fileSeparator) FileManager.fileSeparator else ""}"
-
-        generateCircuitCsp(pathWithSlash, circuit.components)
-        copyDefaultCspFiles(destinationFolderPath = pathWithSlash)
+    fun generateCircuitCsp(circuit: Circuit) {
+        generateCircuitCsp(circuitPath, circuit.components)
+        copyDefaultCspFiles(destinationFolderPath = outputPath)
     }
 
     private fun generateCircuitCsp(outputPath: String, components: List<Component>) {
         val circuitCspData = CircuitCspData().apply { generate(components) }
-        CircuitCspWriter.write(
-            circuitCspData,
-            "$outputPath$FRONT_END_FILE_NAME"
-        )
+        CircuitCspWriter.write(circuitCspData, outputPath)
     }
 
     private fun copyDefaultCspFiles(destinationFolderPath: String) {

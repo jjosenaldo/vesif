@@ -22,6 +22,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(files("C:\\Program Files\\FDR\\bin\\fdr.jar"))
     implementation("com.darkrockstudios:mpfilepicker:3.1.0")
+    implementation(platform("io.insert-koin:koin-bom:3.5.6"))
+    implementation("io.insert-koin:koin-core:3.5.6")
+    implementation("io.insert-koin:koin-compose:1.0.5")
 }
 
 compose.desktop {

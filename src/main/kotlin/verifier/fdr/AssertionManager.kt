@@ -1,18 +1,21 @@
 package org.example.verifier.fdr
 
-import org.example.core.files.outputPath
+import core.files.outputPath
 import org.example.core.files.FileManager
+import core.files.circuitPath
 import org.example.core.model.Circuit
+import csp_generator.generator.CspGenerator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.example.verifier.model.AssertionDefinition
 import org.example.verifier.model.AssertionRunResult
 import org.example.verifier.assertion_generator.RingBellAssertionGenerator
 import org.example.verifier.assertion_generator.ShortCircuitAssertionGenerator
-import org.example.verifier.model.AssertionType
+import verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
 
 
-object Verifier {
-    private val circuitFile = "$outputPath${FileManager.fileSeparator}circuit.csp"
+class AssertionManager(private val cspGenerator: CspGenerator) {
     private val assertionsFile = "$outputPath${FileManager.fileSeparator}assertions.csp"
 
     private val assertionGenerators = mapOf(
@@ -20,32 +23,41 @@ object Verifier {
         AssertionType.ShortCircuit to ShortCircuitAssertionGenerator()
     )
 
-    fun checkFailingAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): Map<AssertionType, List<AssertionRunResult>> {
+    fun getAssertionTypes(): List<AssertionType> {
+        return AssertionType.entries
+    }
+
+    suspend fun runAssertionsReturnFailing(
+        circuit: Circuit,
+        assertionTypes: List<AssertionType>
+    ): Map<AssertionType, List<AssertionRunResult>> {
         return runAssertions(circuit, assertionTypes).filter { !it.passed }.groupBy { it.assertion.type }
     }
 
-    private fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> {
-        val results = mutableListOf<AssertionRunResult>()
-        val assertionDefinitions = buildAssertions(circuit, assertionTypes)
+    private suspend fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> =
+        withContext(Dispatchers.IO) {
+            cspGenerator.generateCircuitCsp(circuit)
+            val results = mutableListOf<AssertionRunResult>()
+            val assertionDefinitions = buildAssertions(circuit, assertionTypes)
 
-       try {
-           Session().apply {
-               loadFile(circuitFile)
-               results.addAll(
-                   assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
-                       fdrAssertion.execute(null)
-                       assertion.buildRunResult(this, fdrAssertion)
-                   }
-               )
-           }
-       } catch(e: Exception) {
-           e.printStackTrace()
-       } finally {
-           fdr.libraryExit()
-       }
+            try {
+                Session().apply {
+                    loadFile(circuitPath)
+                    results.addAll(
+                        assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
+                            fdrAssertion.execute(null)
+                            assertion.buildRunResult(this, fdrAssertion)
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                fdr.libraryExit()
+            }
 
-        return results
-    }
+            return@withContext results
+        }
 
     private fun buildAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionDefinition> {
         val allAssertions = assertionTypes.mapNotNull { assertionGenerators[it]?.generateAssertions(circuit) }.flatten()
@@ -58,7 +70,7 @@ object Verifier {
     fun exampleCheckAssertions() {
         try {
             val session = Session()
-            session.loadFile(circuitFile)
+            session.loadFile(circuitPath)
 
             for (assertion: Assertion in session.assertions()) {
                 assertion.execute(null)
@@ -71,7 +83,7 @@ object Verifier {
                 if (!assertion.passed()) {
                     println("counterexamples (${assertion.counterexamples().size}):")
                     assertion.counterexamples().forEach { counter ->
-                       prettyPrintCounterExample(session, counter)
+                        prettyPrintCounterExample(session, counter)
                     }
                 }
 
@@ -91,7 +103,7 @@ object Verifier {
             return
         }
 
-        println("event: ${ session.uncompileEvent(counterexample.errorEvent()) }")
+        println("event: ${session.uncompileEvent(counterexample.errorEvent())}")
         val context = DebugContext(counterexample, false)
         context.initialise(null)
         val behaviors = context.rootBehaviours()
@@ -103,26 +115,27 @@ object Verifier {
         }
     }
 
-    private fun prettyPrintBehavior(session: Session, context: DebugContext, behaviour: Behaviour, indent: Int, recurse: Boolean) {
+    private fun prettyPrintBehavior(
+        session: Session,
+        context: DebugContext,
+        behaviour: Behaviour,
+        indent: Int,
+        recurse: Boolean
+    ) {
         printIndent(indent); print("behaviour type: ");
 //        indent += 2;
         if (behaviour is ExplicitDivergenceBehaviour)
             println("explicit divergence after trace");
         else if (behaviour is IrrelevantBehaviour)
             println("irrelevant");
-        else if (behaviour is LoopBehaviour)
-        {
+        else if (behaviour is LoopBehaviour) {
             println("loops after index " + behaviour.loopIndex());
-        }
-        else if (behaviour is MinAcceptanceBehaviour)
-        {
+        } else if (behaviour is MinAcceptanceBehaviour) {
             print("minimal acceptance refusing {");
             for (event in behaviour.minAcceptance())
-            print(session.uncompileEvent(event).toString() + ", ");
+                print(session.uncompileEvent(event).toString() + ", ");
             println("}");
-        }
-        else if (behaviour is SegmentedBehaviour)
-        {
+        } else if (behaviour is SegmentedBehaviour) {
             println("Segmented behaviour consisting of:");
             // Describe the sections of this behaviour. Note that it is very
             // important that false is passed to the the descibe methods below
@@ -131,19 +144,20 @@ object Verifier {
             // SegmentedBehaviour is not allowed.
             for (child in behaviour.priorSections())
                 prettyPrintBehavior(session, context, child, indent + 2, false);
-            prettyPrintBehavior(session, context, behaviour.last(),
-                indent + 2, false);
-        }
-        else if (behaviour is TraceBehaviour)
-        {
-            println("performs event " +
-                    session.uncompileEvent(behaviour.errorEvent()).toString());
+            prettyPrintBehavior(
+                session, context, behaviour.last(),
+                indent + 2, false
+            );
+        } else if (behaviour is TraceBehaviour) {
+            println(
+                "performs event " +
+                        session.uncompileEvent(behaviour.errorEvent()).toString()
+            );
         }
 
         // Describe the trace of the behaviour
         printIndent(indent); print("Trace: ");
-        for (event in behaviour.trace())
-        {
+        for (event in behaviour.trace()) {
             // INVALIDEVENT indiciates that this machine did not perform an event at
             // the specified index (i.e. it was not synchronised with the machines
             // that actually did perform the event).
@@ -156,12 +170,10 @@ object Verifier {
 
         // Describe any named states of the behaviour
         printIndent(indent); print("States: ");
-        for (node in behaviour.nodePath())
-        {
+        for (node in behaviour.nodePath()) {
             if (node == null)
                 print("-, ");
-            else
-            {
+            else {
                 val processName = session.machineNodeName(behaviour.machine(), node);
                 if (processName == null)
                     print("(unknown), ");
@@ -174,7 +186,7 @@ object Verifier {
         // Describe our own children recursively
         if (recurse) {
             for (child in context.behaviourChildren(behaviour))
-            prettyPrintBehavior(session, context, child, indent + 2, true);
+                prettyPrintBehavior(session, context, child, indent + 2, true);
         }
     }
 

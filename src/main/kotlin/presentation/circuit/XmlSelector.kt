@@ -1,4 +1,4 @@
-package presentation
+package presentation.circuit
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
@@ -6,10 +6,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.darkrockstudios.libraries.mpfilepicker.MPFile
+import kotlinx.coroutines.launch
 
 @Composable
-fun XmlSelector(onFileSelected: (suspend () -> String) -> Unit) {
+fun XmlSelector(onFileSelected: (String) -> Unit) {
     var showFilePicker by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Column {
         Button(onClick = {
@@ -20,7 +22,11 @@ fun XmlSelector(onFileSelected: (suspend () -> String) -> Unit) {
         LibraryFilePicker(
             show = showFilePicker,
             onShowChanged = { showFilePicker = it },
-            onFileSelected = { onFileSelected(suspend { getFileContent(it) }) }
+            onFileSelected = {
+                scope.launch {
+                    onFileSelected(getFileContent(it))
+                }
+            }
         )
     }
 }

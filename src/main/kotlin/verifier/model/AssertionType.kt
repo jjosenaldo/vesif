@@ -1,5 +1,5 @@
-package org.example.verifier.model
+package verifier.model
 
-enum class AssertionType {
-    RingBell, ShortCircuit
+enum class AssertionType(val assertionName: String) {
+    RingBell("Ring-bell"), ShortCircuit("Short-circuit")
 }
