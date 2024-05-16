@@ -1,6 +1,6 @@
-package org.example.core.model
+package core.model
 
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.visitor.ComponentVisitor
 
 abstract class Component(val name: String) {
     val id = "${name}_id"
@@ -12,7 +12,7 @@ abstract class Component(val name: String) {
         }
 
         fun getNameFromId(id: String): String {
-            return id.substring(0, id.length-3)
+            return id.substring(0, id.length - 3)
         }
     }
 }

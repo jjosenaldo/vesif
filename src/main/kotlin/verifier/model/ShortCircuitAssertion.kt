@@ -1,8 +1,7 @@
-package org.example.verifier.model
+package verifier.model
 
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
-import verifier.model.AssertionType
 
 class ShortCircuitAssertion : AssertionDefinition() {
     override val definition = "assert RUN(ALPHA_PATH_MASTER) [T= SYSTEM"

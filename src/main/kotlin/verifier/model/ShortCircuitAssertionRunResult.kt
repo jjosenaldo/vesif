@@ -1,12 +1,13 @@
-package org.example.verifier.model
+package verifier.model
 
-import org.example.core.model.Component
+import core.model.Component
 import uk.ac.ox.cs.fdr.*
 
-class ShortCircuitAssertionRunResult(assertion: ShortCircuitAssertion, session:Session, fdrAssertion: Assertion) : AssertionRunResult(assertion, fdrAssertion.passed()) {
+class ShortCircuitAssertionRunResult(assertion: ShortCircuitAssertion, session: Session, fdrAssertion: Assertion) :
+    AssertionRunResult(assertion, fdrAssertion.passed()) {
     override val details = buildDetails(session, fdrAssertion)
 
-    private fun buildDetails(session:Session, fdrAssertion: Assertion): String {
+    private fun buildDetails(session: Session, fdrAssertion: Assertion): String {
         val behavior = getBehavior(fdrAssertion) ?: return ""
         val poles = getPolesFromBehavior(session, behavior)
         if (poles.size != 2) return ""
@@ -42,6 +43,7 @@ class ShortCircuitAssertionRunResult(assertion: ShortCircuitAssertion, session:S
     }
 
     private fun getTraceFromBehavior(session: Session, traceBehavior: TraceBehaviour): List<String> {
-        return traceBehavior.trace().map { if (it == fdr.INVALIDEVENT.toLong()) "-" else session.uncompileEvent(it).toString() }
+        return traceBehavior.trace()
+            .map { if (it == fdr.INVALIDEVENT.toLong()) "-" else session.uncompileEvent(it).toString() }
     }
 }

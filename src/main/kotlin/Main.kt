@@ -5,7 +5,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import csp_generator.generator.CspGenerator
 import input.CircuitInputManager
-import org.example.verifier.fdr.AssertionManager
+import verifier.fdr.AssertionManager
 import org.koin.compose.KoinApplication
 import org.koin.dsl.module
 import presentation.AppContent

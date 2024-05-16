@@ -1,8 +1,8 @@
-package org.example.csp_generator.generator
+package csp_generator.generator
 
-import org.example.core.files.FileManager
-import org.example.csp_generator.model.CircuitCspData
-import org.example.csp_generator.model.CspPair
+import core.files.FileManager
+import csp_generator.model.CircuitCspData
+import csp_generator.model.CspPair
 import java.io.BufferedWriter
 import java.io.File
 

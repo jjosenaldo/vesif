@@ -1,16 +1,16 @@
-package org.example.verifier.fdr
+package verifier.fdr
 
 import core.files.outputPath
-import org.example.core.files.FileManager
+import core.files.FileManager
 import core.files.circuitPath
-import org.example.core.model.Circuit
+import core.model.Circuit
 import csp_generator.generator.CspGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.example.verifier.model.AssertionDefinition
-import org.example.verifier.model.AssertionRunResult
-import org.example.verifier.assertion_generator.RingBellAssertionGenerator
-import org.example.verifier.assertion_generator.ShortCircuitAssertionGenerator
+import verifier.model.AssertionDefinition
+import verifier.model.AssertionRunResult
+import verifier.assertion_generator.RingBellAssertionGenerator
+import verifier.assertion_generator.ShortCircuitAssertionGenerator
 import verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
 

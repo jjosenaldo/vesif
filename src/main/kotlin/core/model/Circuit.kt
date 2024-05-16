@@ -1,4 +1,4 @@
-package org.example.core.model
+package core.model
 
 class Circuit(val components: List<Component>) {
     val regularContacts = components.filterIsInstance<RelayRegularContact>()

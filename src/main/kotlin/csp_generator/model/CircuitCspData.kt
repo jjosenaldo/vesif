@@ -1,7 +1,8 @@
-package org.example.csp_generator.model
+package csp_generator.model
 
-import org.example.core.model.*
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.*
+import core.model.visitor.ComponentVisitor
+import core.model.RelayChangeOverContact
 
 // TODO: do buffered writers need to be closed?
 // TODO: clear data after generating a file
@@ -285,7 +286,7 @@ class CircuitCspData : ComponentVisitor {
     }
 
     private fun addConnection(leftComponent: Component, rightComponent: Component, forceAdd: Boolean = false) {
-        if (!forceAdd && leftComponent is RelayRegularContact) {
+        if (!forceAdd && listOf(leftComponent, rightComponent).any { it is RelayRegularContact }) {
             return
         }
         addComponentPair(leftComponent, rightComponent, connections)
@@ -311,9 +312,7 @@ class CircuitCspData : ComponentVisitor {
         addComponentId(pole)
         val listToAdd = if (pole.isPositive) positiveIds else negativeIds
         listToAdd.add(pole.id)
-
-        if (pole.isLeft) addConnection(pole, pole.neighbor)
-        else addConnection(pole.neighbor, pole)
+        addConnection(pole, pole.neighbor)
     }
 
     override fun visitMonostableRelay(monostableRelay: MonostableRelay) {
@@ -327,7 +326,7 @@ class CircuitCspData : ComponentVisitor {
         addComponentId(contact)
         val openOrClosedListToAdd = if (contact.isNormallyOpen) contactOpenedIds else contactClosedIds
         openOrClosedListToAdd.add(contact.id)
-        addConnection(contact.leftNeighbor, contact)
+        addConnection(contact.leftNeighbor, contact, forceAdd = true)
     }
 
     override fun visitCapacitor(capacitor: Capacitor) {

@@ -1,9 +1,16 @@
-package org.example.core.model
+package core.model
 
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.visitor.ComponentVisitor
 
-class Pole(val isPositive: Boolean, var neighbor: Component, val isLeft: Boolean, name: String) : Component(name) {
+class Pole(
+    val isPositive: Boolean,
+    override var neighbor: Component = DEFAULT,
+    name: String
+) : Component(name),
+    PowerSource {
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitPole(this)
     }
+
+    override val isPositiveSource = isPositive
 }

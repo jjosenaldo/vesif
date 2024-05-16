@@ -1,6 +1,6 @@
-package org.example.core.model.visitor
+package core.model.visitor
 
-import org.example.core.model.*
+import core.model.*
 
 interface ComponentVisitor {
     fun visitButton(button: Button)

@@ -1,10 +1,12 @@
-package org.example.core.model
+package core.model
 
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.visitor.ComponentVisitor
 
 class MonostableRelay(
-    var leftNeighbor: Component,
-    var rightNeighbor: Component, contacts: List<RelayContact>, name: String,
+    var leftNeighbor: Component = Component.DEFAULT,
+    var rightNeighbor: Component = Component.DEFAULT,
+    contacts: List<RelayContact> = listOf(),
+    name: String,
 ) :
     RelayContactController(contacts, name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {

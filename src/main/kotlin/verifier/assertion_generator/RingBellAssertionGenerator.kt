@@ -1,23 +1,41 @@
-package org.example.verifier.assertion_generator
+package verifier.assertion_generator
 
-import org.example.core.model.Button
-import org.example.core.model.Circuit
-import org.example.core.model.RelayRegularContact
-import org.example.verifier.model.RingBellAssertion
+import core.model.Button
+import core.model.Circuit
+import core.model.RelayRegularContact
+import verifier.model.RingBellAssertion
 
 // TODO: only generates for regular contacts
-class RingBellAssertionGenerator: AssertionGenerator {
+class RingBellAssertionGenerator : AssertionGenerator {
     override fun generateAssertions(circuit: Circuit): List<RingBellAssertion> {
         if (circuit.buttons.isEmpty()) {
-            return circuit.regularContacts.map { buildAssertionForContactAndButtonConfiguration(it, listOf(), listOf()) }
+            return circuit.regularContacts.map {
+                buildAssertionForContactAndButtonConfiguration(
+                    it,
+                    listOf(),
+                    listOf()
+                )
+            }
         }
 
         val combinations = generateBooleanCombinations(circuit.buttons.size)
 
-        return circuit.regularContacts.map { contact -> combinations.map { combination -> buildAssertionForContactAndButtonConfiguration(contact, combination, circuit.buttons) } }.flatten()
+        return circuit.regularContacts.map { contact ->
+            combinations.map { combination ->
+                buildAssertionForContactAndButtonConfiguration(
+                    contact,
+                    combination,
+                    circuit.buttons
+                )
+            }
+        }.flatten()
     }
 
-    private fun buildAssertionForContactAndButtonConfiguration(contact: RelayRegularContact, configuration: List<Boolean>, buttons: List<Button>): RingBellAssertion {
+    private fun buildAssertionForContactAndButtonConfiguration(
+        contact: RelayRegularContact,
+        configuration: List<Boolean>,
+        buttons: List<Button>
+    ): RingBellAssertion {
         return RingBellAssertion(contact, buttons.zip(configuration).toMap())
     }
 

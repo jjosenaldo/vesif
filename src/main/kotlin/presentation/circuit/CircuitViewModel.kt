@@ -1,8 +1,8 @@
 package presentation.circuit
 
 import input.CircuitInputManager
-import org.example.core.model.Circuit
-import org.example.verifier.fdr.AssertionManager
+import core.model.Circuit
+import verifier.fdr.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import presentation.assertions.AssertionsViewModel
@@ -15,8 +15,9 @@ class CircuitViewModel(
     var circuit = Circuit.DEFAULT
         private set
 
-    fun loadCircuitFromXml(xmlFile: String) {
-        circuit = circuitInputManager.parseCircuitXml(xmlFile)
+    // TODO: validate documents
+    suspend fun loadCircuitFromXml(objectsPath: String, circuitPath: String) {
+        circuit = circuitInputManager.parseCircuitXml(objectsPath = objectsPath, circuitPath = circuitPath)
         val types = assertionManager.getAssertionTypes()
         assertionsViewModel.setAssertionsFromTypes(types)
     }

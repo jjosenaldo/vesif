@@ -1,4 +1,4 @@
-package org.example.core.files
+package core.files
 
 import java.io.File
 import java.io.IOException
@@ -6,7 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 object FileManager {
-    val newLine = System.lineSeparator()
+    val newLine = System.lineSeparator() ?: "\n"
     val tab = " ".repeat(4)
     val fileSeparator = File.separatorChar
 
@@ -25,7 +25,7 @@ object FileManager {
         if (!file.exists()) {
             try {
                 file.createNewFile()
-            } catch(e: IOException) {
+            } catch (e: IOException) {
                 var lastSeparatorPosition = output.lastIndexOf(fileSeparator)
 
                 if (lastSeparatorPosition == -1) lastSeparatorPosition = output.length

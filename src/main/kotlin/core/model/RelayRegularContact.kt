@@ -1,11 +1,13 @@
-package org.example.core.model
+package core.model
 
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.visitor.ComponentVisitor
 
 class RelayRegularContact(
     val isNormallyOpen: Boolean,
-    var leftNeighbor: Component,
-    var rightNeighbor: Component, controller: RelayContactController, name: String,
+    var leftNeighbor: Component = DEFAULT,
+    var rightNeighbor: Component = DEFAULT,
+    controller: RelayContactController = RelayContactController.DEFAULT,
+    name: String,
 ) : RelayContact(controller, name) {
     val endpointName = "${name}_ENDPOINT"
     val endpointId = "${endpointName}_id"

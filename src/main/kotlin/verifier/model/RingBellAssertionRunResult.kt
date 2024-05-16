@@ -1,7 +1,12 @@
-package org.example.verifier.model
+package verifier.model
 
-class RingBellAssertionRunResult(assertion: RingBellAssertion, passed: Boolean) : AssertionRunResult(assertion, passed) {
+class RingBellAssertionRunResult(assertion: RingBellAssertion, passed: Boolean) :
+    AssertionRunResult(assertion, passed) {
     override val details =
-        if (passed)  ""
-        else "Contact: ${assertion.contact.name}, pressed buttons: ${assertion.buttonsState.filterValues { it }.keys.joinToString (", "){ it.name }}"
+        if (passed) ""
+        else "Contact: ${assertion.contact.name}, pressed buttons: ${
+            assertion.buttonsState.filterValues { it }.keys.joinToString(
+                ", "
+            ) { it.name }
+        }"
 }

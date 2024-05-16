@@ -1,10 +1,10 @@
-package org.example.core.model.examples
+package core.model.examples
 
-import org.example.core.model.*
+import core.model.*
 
 // It's basically circuit01 without R1 (and C1 consequently)
 val exampleWithShortCircuit: Circuit by lazy {
-    val p1 = Pole(isPositive = true, name = "P1", isLeft = true, neighbor = Component.DEFAULT)
+    val p1 = Pole(isPositive = true, neighbor = Component.DEFAULT, name = "P1")
     val c2 = RelayRegularContact(
         isNormallyOpen = true,
         controller = RelayContactController.DEFAULT,
@@ -12,8 +12,8 @@ val exampleWithShortCircuit: Circuit by lazy {
         rightNeighbor = Component.DEFAULT,
         name = "C2"
     )
-    val n1 = Pole(isPositive = false, name = "N1", isLeft = false, neighbor = Component.DEFAULT)
-    val p2 = Pole(isPositive = true, name = "P2", isLeft = true, neighbor = Component.DEFAULT)
+    val n1 = Pole(isPositive = false, neighbor = Component.DEFAULT, name = "N1")
+    val p2 = Pole(isPositive = true, neighbor = Component.DEFAULT, name = "P2")
     val r2 = MonostableRelay(
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
@@ -21,7 +21,7 @@ val exampleWithShortCircuit: Circuit by lazy {
         name = "R2"
     )
     val b1 = Button(leftNeighbor = Component.DEFAULT, rightNeighbor = Component.DEFAULT, name = "B1")
-    val n2 = Pole(isPositive = false, name = "N2", isLeft = false, neighbor = Component.DEFAULT)
+    val n2 = Pole(isPositive = false, neighbor = Component.DEFAULT, name = "N2")
 
     p1.neighbor = c2
     c2.leftNeighbor = p1

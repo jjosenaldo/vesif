@@ -5,41 +5,39 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
-import com.darkrockstudios.libraries.mpfilepicker.MPFile
-import kotlinx.coroutines.launch
 
 @Composable
-fun XmlSelector(onFileSelected: (String) -> Unit) {
+fun XmlSelector(extension: String = "xml", buttonText: String, onFileSelected: (String?) -> Unit) {
     var showFilePicker by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    var filePicked by remember { mutableStateOf<String?>("") }
 
     Column {
+        if (filePicked?.isNotEmpty() == true)
+            Text(text = filePicked!!)
+
         Button(onClick = {
             showFilePicker = true
         }) {
-            Text("Select a XML file")
+            Text(buttonText)
         }
         LibraryFilePicker(
             show = showFilePicker,
             onShowChanged = { showFilePicker = it },
-            onFileSelected = {
-                scope.launch {
-                    onFileSelected(getFileContent(it))
-                }
-            }
+            onFileSelected = { filePicked = it; onFileSelected(it) },
+            extension = extension
         )
     }
 }
 
 @Composable
-private fun LibraryFilePicker(show: Boolean, onShowChanged: (Boolean) -> Unit, onFileSelected: (MPFile<Any>?) -> Unit) {
-    FilePicker(show = show, fileExtensions = listOf("xml")) { platformFile ->
+private fun LibraryFilePicker(
+    extension: String,
+    show: Boolean,
+    onShowChanged: (Boolean) -> Unit,
+    onFileSelected: (String?) -> Unit
+) {
+    FilePicker(show = show, fileExtensions = listOf(extension)) { platformFile ->
         onShowChanged(false)
-        onFileSelected(platformFile)
+        onFileSelected(platformFile?.path)
     }
-}
-
-private suspend fun getFileContent(file: MPFile<Any>?): String {
-    if (file == null) return ""
-    return file.getFileByteArray().decodeToString()
 }

@@ -3,8 +3,8 @@ package presentation.assertions
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.example.core.files.FileManager
-import org.example.verifier.fdr.AssertionManager
+import core.files.FileManager
+import verifier.fdr.AssertionManager
 import presentation.circuit.CircuitViewModel
 import verifier.model.AssertionType
 

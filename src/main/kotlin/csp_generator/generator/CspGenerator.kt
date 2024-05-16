@@ -3,10 +3,9 @@ package csp_generator.generator
 import core.files.projectPath
 import core.files.circuitPath
 import core.files.outputPath
-import org.example.core.model.Circuit
-import org.example.core.model.Component
-import org.example.csp_generator.generator.CircuitCspWriter
-import org.example.csp_generator.model.CircuitCspData
+import core.model.Circuit
+import core.model.Component
+import csp_generator.model.CircuitCspData
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption

@@ -1,7 +1,7 @@
-package org.example.verifier.assertion_generator
+package verifier.assertion_generator
 
-import org.example.core.model.Circuit
-import org.example.verifier.model.AssertionDefinition
+import core.model.Circuit
+import verifier.model.AssertionDefinition
 
 interface AssertionGenerator {
     fun generateAssertions(circuit: Circuit): List<AssertionDefinition>

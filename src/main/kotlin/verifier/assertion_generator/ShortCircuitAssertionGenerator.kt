@@ -1,10 +1,10 @@
-package org.example.verifier.assertion_generator
+package verifier.assertion_generator
 
-import org.example.core.model.Circuit
-import org.example.verifier.model.AssertionDefinition
-import org.example.verifier.model.ShortCircuitAssertion
+import core.model.Circuit
+import verifier.model.ShortCircuitAssertion
+import verifier.model.AssertionDefinition
 
-class ShortCircuitAssertionGenerator: AssertionGenerator {
+class ShortCircuitAssertionGenerator : AssertionGenerator {
     override fun generateAssertions(circuit: Circuit): List<AssertionDefinition> {
         return listOf(ShortCircuitAssertion())
     }

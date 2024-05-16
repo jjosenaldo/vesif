@@ -1,10 +1,9 @@
-package org.example.verifier.model
+package verifier.model
 
-import org.example.core.model.Button
-import org.example.core.model.RelayRegularContact
+import core.model.Button
+import core.model.RelayRegularContact
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
-import verifier.model.AssertionType
 
 class RingBellAssertion(val contact: RelayRegularContact, val buttonsState: Map<Button, Boolean>) :
     AssertionDefinition() {

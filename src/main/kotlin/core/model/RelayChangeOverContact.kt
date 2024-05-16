@@ -1,6 +1,6 @@
-package org.example.core.model
+package core.model
 
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.visitor.ComponentVisitor
 
 class RelayChangeOverContact(controller: RelayContactController, id: String) : RelayContact(controller, id) {
     override fun acceptVisitor(visitor: ComponentVisitor) {

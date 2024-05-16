@@ -1,6 +1,6 @@
-package org.example.core.model
+package core.model
 
-import org.example.core.model.visitor.ComponentVisitor
+import core.model.visitor.ComponentVisitor
 
 abstract class RelayContactController(var contacts: List<RelayContact>, id: String) : Component(id) {
     companion object {
