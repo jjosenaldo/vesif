@@ -1,4 +1,4 @@
-package verifier.model
+package verifier.model.common
 
 enum class AssertionType(val assertionName: String) {
     RingBell("Ring-bell"),

@@ -1,4 +1,4 @@
-package verifier.fdr
+package verifier
 
 import core.files.outputPath
 import core.files.FileManager
@@ -7,11 +7,15 @@ import core.model.Circuit
 import csp_generator.generator.CspGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import verifier.model.AssertionDefinition
-import verifier.model.AssertionRunResult
-import verifier.model.AssertionType
+import verifier.model.common.AssertionDefinition
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
 import uk.ac.ox.cs.fdr.*
-import verifier.assertion_generator.*
+import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
+import verifier.model.assertions.determinism.DeterminismAssertionGenerator
+import verifier.model.assertions.divergence.DivergenceAssertionGenerator
+import verifier.model.assertions.ringbell.RingBellAssertionGenerator
+import verifier.model.assertions.short_circuit.ShortCircuitAssertionGenerator
 
 
 class AssertionManager(private val cspGenerator: CspGenerator) {

@@ -1,9 +1,9 @@
-package verifier.assertion_generator
+package verifier.model.assertions.ringbell
 
 import core.model.Button
 import core.model.Circuit
 import core.model.RelayRegularContact
-import verifier.model.RingBellAssertion
+import verifier.model.common.AssertionGenerator
 
 // TODO: only generates for regular contacts
 class RingBellAssertionGenerator : AssertionGenerator {

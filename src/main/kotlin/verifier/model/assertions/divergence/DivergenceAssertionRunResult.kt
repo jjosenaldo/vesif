@@ -1,7 +1,9 @@
-package verifier.model
+package verifier.model.assertions.divergence
 
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
 import verifier.util.getFirstLoopBehavior
 import verifier.util.prettyTracePriorToLoop
 

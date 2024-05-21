@@ -1,6 +1,6 @@
 package presentation.assertions
 
-import verifier.model.AssertionType
+import verifier.model.common.AssertionType
 
 sealed class AssertionState(val type: AssertionType) {
     val name = type.assertionName

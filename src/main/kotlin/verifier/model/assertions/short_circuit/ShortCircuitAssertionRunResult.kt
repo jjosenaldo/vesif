@@ -1,7 +1,9 @@
-package verifier.model
+package verifier.model.assertions.short_circuit
 
 import core.model.Component
 import uk.ac.ox.cs.fdr.*
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
 import verifier.util.getFirstTraceBehavior
 import verifier.util.prettyTrace
 

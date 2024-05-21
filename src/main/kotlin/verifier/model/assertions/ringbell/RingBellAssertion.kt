@@ -1,9 +1,11 @@
-package verifier.model
+package verifier.model.assertions.ringbell
 
 import core.model.Button
 import core.model.RelayRegularContact
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
+import verifier.model.common.AssertionDefinition
+import verifier.model.common.AssertionType
 
 class RingBellAssertion(val contact: RelayRegularContact, val buttonsState: Map<Button, Boolean>) :
     AssertionDefinition() {

@@ -1,4 +1,4 @@
-package verifier.model
+package verifier.model.common
 
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session

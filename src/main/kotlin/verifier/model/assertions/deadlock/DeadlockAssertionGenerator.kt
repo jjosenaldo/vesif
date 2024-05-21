@@ -1,8 +1,8 @@
-package verifier.assertion_generator
+package verifier.model.assertions.deadlock
 
 import core.model.Circuit
-import verifier.model.AssertionDefinition
-import verifier.model.DeadlockAssertion
+import verifier.model.common.AssertionGenerator
+import verifier.model.common.AssertionDefinition
 
 class DeadlockAssertionGenerator : AssertionGenerator {
     override fun generateAssertions(circuit: Circuit): List<AssertionDefinition> {

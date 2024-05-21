@@ -1,7 +1,9 @@
-package verifier.model
+package verifier.model.assertions.deadlock
 
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
 import verifier.util.getFirstMinAcceptanceBehavior
 import verifier.util.prettyTrace
 

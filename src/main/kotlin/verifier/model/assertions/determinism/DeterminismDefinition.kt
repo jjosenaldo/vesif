@@ -1,7 +1,10 @@
-package verifier.model
+package verifier.model.assertions.determinism
 
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
+import verifier.model.common.AssertionDefinition
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
 
 class DeterminismDefinition : AssertionDefinition() {
     override val definition = "assert SYSTEM:[deterministic]"

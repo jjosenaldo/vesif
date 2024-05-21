@@ -2,7 +2,7 @@ package presentation.circuit
 
 import input.CircuitInputManager
 import core.model.Circuit
-import verifier.fdr.AssertionManager
+import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import presentation.assertions.AssertionsViewModel

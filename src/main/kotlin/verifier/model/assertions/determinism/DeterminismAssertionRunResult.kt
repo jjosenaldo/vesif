@@ -1,10 +1,12 @@
-package verifier.model
+package verifier.model.assertions.determinism
 
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Behaviour
 import uk.ac.ox.cs.fdr.LoopBehaviour
 import uk.ac.ox.cs.fdr.MinAcceptanceBehaviour
 import uk.ac.ox.cs.fdr.Session
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
 import verifier.util.*
 
 class DeterminismAssertionRunResult(val fdrAssertion: Assertion, val session: Session) :
