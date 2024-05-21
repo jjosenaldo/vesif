@@ -3,7 +3,7 @@ package verifier.model
 import core.model.Component
 import uk.ac.ox.cs.fdr.*
 import verifier.util.getFirstTraceBehavior
-import verifier.util.getPrettyTrace
+import verifier.util.prettyTrace
 
 class ShortCircuitAssertionRunResult(private val session: Session, private val fdrAssertion: Assertion) :
     AssertionRunResult(AssertionType.ShortCircuit, fdrAssertion.passed()) {
@@ -13,12 +13,12 @@ class ShortCircuitAssertionRunResult(private val session: Session, private val f
         val behavior = fdrAssertion.getFirstTraceBehavior() ?: return ""
         val poles = getPolesFromBehavior(session, behavior)
         if (poles.size != 2) return ""
-        val trace = behavior.getPrettyTrace(session)
+        val trace = behavior.prettyTrace(session)
         return buildDetailsFromPolesAndTrace(poles, trace)
     }
 
-    private fun buildDetailsFromPolesAndTrace(poles: List<String>, trace: List<String>): String {
-        return "Short circuit found from ${poles[0]} to ${poles[1]} with trace: ${trace.joinToString(", ")}"
+    private fun buildDetailsFromPolesAndTrace(poles: List<String>, trace: String): String {
+        return "Short circuit found from ${poles[0]} to ${poles[1]} with trace: $trace}"
     }
 
     private fun getPolesFromBehavior(session: Session, behavior: TraceBehaviour): List<String> {

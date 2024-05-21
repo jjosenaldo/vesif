@@ -37,3 +37,7 @@ fun main() = application {
         App()
     }
 }
+
+//fun main() {
+//    AssertionManager(CspGenerator()).exampleCheckAssertions()
+//}

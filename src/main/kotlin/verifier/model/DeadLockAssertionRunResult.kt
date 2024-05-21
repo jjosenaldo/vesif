@@ -3,7 +3,7 @@ package verifier.model
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
 import verifier.util.getFirstMinAcceptanceBehavior
-import verifier.util.getPrettyTrace
+import verifier.util.prettyTrace
 
 class DeadLockAssertionRunResult(
     val assertion: DeadlockAssertion,
@@ -15,7 +15,7 @@ class DeadLockAssertionRunResult(
 
     private fun buildDetails(): String {
         val trace =
-            fdrAssertion.getFirstMinAcceptanceBehavior()?.getPrettyTrace(session)?.joinToString(", ") ?: return ""
+            fdrAssertion.getFirstMinAcceptanceBehavior()?.prettyTrace(session) ?: return ""
 
         return "Trace leading to deadlock: $trace"
     }

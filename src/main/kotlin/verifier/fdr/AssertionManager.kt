@@ -9,12 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import verifier.model.AssertionDefinition
 import verifier.model.AssertionRunResult
-import verifier.assertion_generator.RingBellAssertionGenerator
-import verifier.assertion_generator.ShortCircuitAssertionGenerator
 import verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
-import verifier.assertion_generator.DeadlockAssertionGenerator
-import verifier.assertion_generator.DivergenceAssertionGenerator
+import verifier.assertion_generator.*
 
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
@@ -24,7 +21,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         AssertionType.RingBell to RingBellAssertionGenerator(),
         AssertionType.ShortCircuit to ShortCircuitAssertionGenerator(),
         AssertionType.Deadlock to DeadlockAssertionGenerator(),
-        AssertionType.Divergence to DivergenceAssertionGenerator()
+        AssertionType.Divergence to DivergenceAssertionGenerator(),
+        AssertionType.Determinism to DeterminismAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {
@@ -112,6 +110,13 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
             val context = DebugContext(counterexample, false)
             context.initialise(null)
             prettyPrintBehavior(session, context, context.rootBehaviours()[0], 2, true)
+            return
+        }
+        if (counterexample is DeterminismCounterexample) {
+            val context = DebugContext(counterexample, false)
+            context.initialise(null)
+            prettyPrintBehavior(session, context, context.rootBehaviours()[0], 2, true)
+            prettyPrintBehavior(session, context, context.rootBehaviours()[1], 2, true)
             return
         }
         if (counterexample !is TraceCounterexample) {

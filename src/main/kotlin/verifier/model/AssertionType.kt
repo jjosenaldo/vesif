@@ -4,5 +4,6 @@ enum class AssertionType(val assertionName: String) {
     RingBell("Ring-bell"),
     ShortCircuit("Short-circuit"),
     Deadlock("Deadlock"),
-    Divergence("Divergence")
+    Divergence("Divergence"),
+    Determinism("Determinism")
 }
