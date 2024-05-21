@@ -14,6 +14,7 @@ import verifier.assertion_generator.ShortCircuitAssertionGenerator
 import verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
 import verifier.assertion_generator.DeadlockAssertionGenerator
+import verifier.assertion_generator.DivergenceAssertionGenerator
 
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
@@ -22,7 +23,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
     private val assertionGenerators = mapOf(
         AssertionType.RingBell to RingBellAssertionGenerator(),
         AssertionType.ShortCircuit to ShortCircuitAssertionGenerator(),
-        AssertionType.Deadlock to DeadlockAssertionGenerator()
+        AssertionType.Deadlock to DeadlockAssertionGenerator(),
+        AssertionType.Divergence to DivergenceAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {
@@ -101,6 +103,12 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
 
     private fun prettyPrintCounterExample(session: Session, counterexample: Counterexample) {
         if (counterexample is DeadlockCounterexample) {
+            val context = DebugContext(counterexample, false)
+            context.initialise(null)
+            prettyPrintBehavior(session, context, context.rootBehaviours()[0], 2, true)
+            return
+        }
+        if (counterexample is DivergenceCounterexample) {
             val context = DebugContext(counterexample, false)
             context.initialise(null)
             prettyPrintBehavior(session, context, context.rootBehaviours()[0], 2, true)
