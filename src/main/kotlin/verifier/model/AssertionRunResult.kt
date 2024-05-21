@@ -1,5 +1,5 @@
 package verifier.model
 
-abstract class AssertionRunResult(val assertion: AssertionDefinition, val passed: Boolean) {
+abstract class AssertionRunResult(val assertionType: AssertionType, val passed: Boolean) {
     abstract val details: String
 }

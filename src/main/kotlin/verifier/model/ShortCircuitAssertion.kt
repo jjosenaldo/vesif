@@ -8,6 +8,6 @@ class ShortCircuitAssertion : AssertionDefinition() {
     override val type = AssertionType.ShortCircuit
 
     override fun buildRunResult(session: Session, fdrAssertion: Assertion): AssertionRunResult {
-        return ShortCircuitAssertionRunResult(this, session, fdrAssertion)
+        return ShortCircuitAssertionRunResult(session, fdrAssertion)
     }
 }

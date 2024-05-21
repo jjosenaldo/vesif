@@ -13,6 +13,7 @@ import verifier.assertion_generator.RingBellAssertionGenerator
 import verifier.assertion_generator.ShortCircuitAssertionGenerator
 import verifier.model.AssertionType
 import uk.ac.ox.cs.fdr.*
+import verifier.assertion_generator.DeadlockAssertionGenerator
 
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
@@ -20,7 +21,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
 
     private val assertionGenerators = mapOf(
         AssertionType.RingBell to RingBellAssertionGenerator(),
-        AssertionType.ShortCircuit to ShortCircuitAssertionGenerator()
+        AssertionType.ShortCircuit to ShortCircuitAssertionGenerator(),
+        AssertionType.Deadlock to DeadlockAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {
@@ -31,7 +33,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         circuit: Circuit,
         assertionTypes: List<AssertionType>
     ): Map<AssertionType, List<AssertionRunResult>> {
-        return runAssertions(circuit, assertionTypes).filter { !it.passed }.groupBy { it.assertion.type }
+        return runAssertions(circuit, assertionTypes).filter { !it.passed }.groupBy { it.assertionType }
     }
 
     private suspend fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> =
@@ -98,6 +100,12 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
     }
 
     private fun prettyPrintCounterExample(session: Session, counterexample: Counterexample) {
+        if (counterexample is DeadlockCounterexample) {
+            val context = DebugContext(counterexample, false)
+            context.initialise(null)
+            prettyPrintBehavior(session, context, context.rootBehaviours()[0], 2, true)
+            return
+        }
         if (counterexample !is TraceCounterexample) {
             println("not a TraceCounterExample...")
             return

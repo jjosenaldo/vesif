@@ -1,5 +1,7 @@
 package verifier.model
 
 enum class AssertionType(val assertionName: String) {
-    RingBell("Ring-bell"), ShortCircuit("Short-circuit")
+    RingBell("Ring-bell"),
+    ShortCircuit("Short-circuit"),
+    Deadlock("Deadlock")
 }
