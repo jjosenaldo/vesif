@@ -15,21 +15,22 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-fun AssertionsView(
-    assertions: List<AssertionState>,
-    failedAssertion: AssertionFailed?,
+fun AssertionsScreen(
     viewModel: AssertionsViewModel = koinInject()
 ) {
-    val scope = rememberCoroutineScope()
-    if (assertions.isEmpty()) return
+    if (viewModel.assertions.isEmpty()) return
 
-    if (failedAssertion != null) {
+
+    val scope = rememberCoroutineScope()
+    val assertionDetails = viewModel.assertionDetails
+
+    if (assertionDetails != null) {
         DialogWindow(
             onCloseRequest = { viewModel.showAssertionDetails(null) },
             title = "Details",
         ) {
             Column {
-                Text(failedAssertion.details)
+                Text(assertionDetails.details)
                 Button(onClick = { viewModel.showAssertionDetails(null) }) {
                     Text("Ok")
                 }
@@ -38,12 +39,12 @@ fun AssertionsView(
     }
 
     Column {
-        assertions.map { AssertionView(it) }
+        viewModel.assertions.map { AssertionView(it) }
 
-        if (assertions.all { it is AssertionInitial || it is AssertionRunning })
+        if (viewModel.assertions.all { it is AssertionInitial || it is AssertionRunning })
             Button(
                 onClick = {
-                    if (assertions.none { it is AssertionRunning }) {
+                    if (viewModel.assertions.none { it is AssertionRunning }) {
                         scope.launch {
                             viewModel.runSelectedAssertions()
                         }

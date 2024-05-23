@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import core.files.FileManager
 import verifier.AssertionManager
-import presentation.circuit.CircuitViewModel
+import presentation.select_circuit.CircuitViewModel
 import verifier.model.common.AssertionType
 
 class AssertionsViewModel(

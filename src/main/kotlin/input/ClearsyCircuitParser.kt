@@ -1,17 +1,20 @@
 package input
 
-import core.model.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import core.files.FileManager
+import core.model.Circuit
+import core.model.MonostableRelay
+import core.model.RelayContactController
+import core.model.RelayRegularContact
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-import java.io.FileInputStream
-import javax.xml.parsers.DocumentBuilderFactory
+import java.nio.file.Files
+import java.nio.file.Paths
+import kotlin.io.path.pathString
 
 
-class CircuitInputManager {
-    private val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+class ClearsyCircuitParser {
+    private val objectsFileExtension = "cdedatamodel"
     private val xmlComponentBuilders = mapOf(
         "C_BUTTON" to XmlButtonBuilder(),
         "C_POS_POLE" to XmlPoleBuilder(isPositive = true),
@@ -21,10 +24,10 @@ class CircuitInputManager {
         "C_CONTACT_NORMALLY_CLOSED" to XmlRelayRegularContactBuilder(isNormallyOpen = false),
     )
 
-    suspend fun parseCircuitXml(objectsPath: String, circuitPath: String): Circuit {
-        val allObjects = getObjects(objectsPath)
+    suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {
+        val allObjects = getObjects(getObjectsPath(projectPath))
         val circuitObjectsNames = mutableSetOf<String>()
-        val components = getDocument(circuitPath)
+        val components = FileManager.readXml(circuitPath)
             .documentElement
             .childrenByName("Leg")
             .fold(allObjects) { currentObjects, leg ->
@@ -38,8 +41,15 @@ class CircuitInputManager {
         return Circuit(components = components)
     }
 
+    private fun getObjectsPath(projectPath: String): String {
+        return Files.list(Paths.get(projectPath))
+            .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".$objectsFileExtension") }
+            .map { it.pathString }
+            .findFirst().get()
+    }
+
     private suspend fun getObjects(objectsPath: String): List<XmlCircuitComponent> {
-        val document = getDocument(objectsPath)
+        val document = FileManager.readXml(objectsPath)
         return getObjectsFromDocument(document)
     }
 
@@ -54,9 +64,6 @@ class CircuitInputManager {
         }
     }
 
-    private suspend fun getDocument(xmlPath: String): Document = withContext(Dispatchers.IO) {
-        return@withContext documentBuilder.parse(FileInputStream(xmlPath))
-    }
 
     private fun parseLeg(
         objects: List<XmlCircuitComponent>,

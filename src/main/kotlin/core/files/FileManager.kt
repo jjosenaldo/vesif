@@ -1,14 +1,27 @@
 package core.files
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.w3c.dom.Document
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import javax.xml.parsers.DocumentBuilderFactory
 
 object FileManager {
     val newLine = System.lineSeparator() ?: "\n"
     val tab = " ".repeat(4)
     val fileSeparator = File.separatorChar
+
+    suspend fun readXml(xmlPath: String): Document {
+        val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+
+        return withContext(Dispatchers.IO) {
+            documentBuilder.parse(FileInputStream(xmlPath))
+        }
+    }
 
     fun upsertFile(path: String, lines: List<String>) {
         val file = File(path)
@@ -33,4 +46,5 @@ object FileManager {
             }
         }
     }
+
 }

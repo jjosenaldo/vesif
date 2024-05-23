@@ -25,6 +25,8 @@ dependencies {
     implementation(platform("io.insert-koin:koin-bom:3.5.6"))
     implementation("io.insert-koin:koin-core:3.5.6")
     implementation("io.insert-koin:koin-compose:1.0.5")
+    implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
+
 }
 
 compose.desktop {

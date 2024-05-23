@@ -20,7 +20,7 @@ class ShortCircuitAssertionRunResult(private val session: Session, private val f
     }
 
     private fun buildDetailsFromPolesAndTrace(poles: List<String>, trace: String): String {
-        return "Short circuit found from ${poles[0]} to ${poles[1]} with trace: $trace}"
+        return "Short circuit found from ${poles[0]} to ${poles[1]} with trace: $trace"
     }
 
     private fun getPolesFromBehavior(session: Session, behavior: TraceBehaviour): List<String> {

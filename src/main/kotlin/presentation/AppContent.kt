@@ -1,33 +1,35 @@
 package presentation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
-import presentation.assertions.AssertionState
-import presentation.assertions.AssertionsView
-import presentation.assertions.AssertionsViewModel
-import presentation.circuit.CircuitViewModel
-import presentation.circuit.CircuitXmlSelector
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import presentation.assertions.AssertionsScreen
+import presentation.select_circuit.SelectCircuitScreen
+import presentation.select_project.SelectProjectScreen
+
+enum class AppScreen {
+    SelectProject,
+    SelectCircuit,
+    Assertions
+}
 
 @Composable
 fun AppContent() {
-    val vm = koinInject<AssertionsViewModel>()
-    val circuitVm = koinInject<CircuitViewModel>()
-    val assertionsVm = remember { vm }
-    val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
 
-    when (val assertions = assertionsVm.assertions) {
-        listOf<AssertionState>() -> CircuitXmlSelector(onFilesSelected = { objectsPath, circuitPath ->
-            scope.launch {
-                circuitVm.loadCircuitFromXml(
-                    circuitPath = circuitPath,
-                    objectsPath = objectsPath
-                )
-            }
-        })
-
-        else -> AssertionsView(assertions, failedAssertion = assertionsVm.assertionDetails)
+    NavHost(
+        navController = navController,
+        startDestination = AppScreen.SelectProject.name
+    ) {
+        composable(route = AppScreen.SelectProject.name) {
+            SelectProjectScreen(navController)
+        }
+        composable(route = AppScreen.SelectCircuit.name) {
+            SelectCircuitScreen(navController)
+        }
+        composable(route = AppScreen.Assertions.name) {
+            AssertionsScreen()
+        }
     }
 }
