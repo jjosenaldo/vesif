@@ -22,7 +22,9 @@ class ClearsyCircuitParser {
         "C_CONTACT_NORMALLY_CLOSED" to XmlRelayRegularContactBuilder(isNormallyOpen = false),
         "C_JUNCTION" to XmlJunctionBuilder(),
         "C_LEVER" to XmlLeverBuilder(),
-        "C_LEVER_CONTACT" to XmlLeverContactBuilder()
+        "C_LEVER_CONTACT" to XmlLeverContactBuilder(),
+        "C_LAMP" to XmlLampBuilder(),
+        "C_CHANGEOVER_CONTACT" to XmlRelayChangeOverContactBuilder()
     )
 
     suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {
@@ -106,6 +108,7 @@ class ClearsyCircuitParser {
 
     private fun connectReferences(components: List<XmlCircuitComponent>) {
         connectContactReferences<RelayRegularContact, MonostableRelay>(components)
+        connectContactReferences<RelayChangeOverContact, MonostableRelay>(components)
         connectContactReferences<LeverContact, Lever>(components)
     }
 

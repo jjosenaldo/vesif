@@ -50,8 +50,8 @@ class CircuitCspData : ComponentVisitor {
     val initialOpenComponentIds = mutableSetOf<String>()
     val relayOfs = mutableSetOf<CspPair<String, String>>()
     val getContactOfEndpoints = mutableSetOf<CspPair<String, String>>()
-    val getEndpointUpOf = mutableSetOf<CspPair<String, Set<String>>>()
-    val getEndpointDownOf = mutableSetOf<CspPair<String, Set<String>>>()
+    val getEndpointUpOf = mutableMapOf<String, Set<String>>()
+    val getEndpointDownOf = mutableMapOf<String, Set<String>>()
     val openLeverContactsOf = mutableMapOf<CspPair<String, String>, Set<String>>()
     val capPoles = mutableSetOf<CspPair<String, Set<String>>>()
     val capLeftPoles = mutableSetOf<CspPair<String, String>>()
@@ -123,8 +123,8 @@ class CircuitCspData : ComponentVisitor {
         }
 
         if (components.all { it !is RelayChangeOverContact || it.controller !is MonostableRelay }) {
-            getEndpointUpOf.add(CspPair("id", setOf()))
-            getEndpointDownOf.add(CspPair("id", setOf()))
+            addFunctionArg("id", target = getEndpointUpOf)
+            addFunctionArg("id", target = getEndpointDownOf)
         }
     }
 
@@ -279,6 +279,7 @@ class CircuitCspData : ComponentVisitor {
     private fun generateAdditionalIds(components: List<Component>) {
         ids.add("PATH_MASTER_id")
         insertRegularContactEndpoints(components.filterIsInstance<RelayRegularContact>())
+        insertChangeOverContactEndpoints(components.filterIsInstance<RelayChangeOverContact>())
     }
 
     private fun addComponentId(component: Component) {
@@ -286,7 +287,7 @@ class CircuitCspData : ComponentVisitor {
     }
 
     private fun addConnection(leftComponent: Component, rightComponent: Component, forceAdd: Boolean = false) {
-        if (!forceAdd && listOf(leftComponent, rightComponent).any { it is RelayRegularContact }) {
+        if (!forceAdd && listOf(leftComponent, rightComponent).any { it is Contact && it.hasEndpoint }) {
             return
         }
         addComponentPair(leftComponent, rightComponent, connections)
@@ -300,9 +301,17 @@ class CircuitCspData : ComponentVisitor {
         target.add(CspPair(leftComponent.id, rightComponent.id))
     }
 
+    private fun addFunctionArg(arg: Component, value: Component, target: MutableMap<String, Set<String>>) {
+        addFunctionArg(arg.id, value.id, target)
+    }
+
+    private fun addFunctionArg(arg: String, value: String? = null, target: MutableMap<String, Set<String>>) {
+        target[arg] = (target[arg] ?: setOf()) union if (value != null) setOf(value) else setOf()
+    }
+
     override fun visitButton(button: Button) {
         addComponentId(button)
-        stubButtonIds.add(button.id)
+        realButtonIds.add(button.id)
         initialOpenComponentIds.add(button.id)
         addConnection(button.leftNeighbor, button)
         addConnection(button, button.rightNeighbor)
@@ -357,21 +366,52 @@ class CircuitCspData : ComponentVisitor {
             (openLeverContactsOf[CspPair(lever.id, side)] ?: setOf()) union setOf(leverContact.id)
     }
 
+    override fun visitLamp(lamp: Lamp) {
+        addComponentId(lamp)
+        lampIds.add(lamp.id)
+        addConnection(lamp.leftNeighbor, lamp)
+        addConnection(lamp, lamp.rightNeighbor)
+    }
+
+    override fun visitRelayChangeOverContact(contact: RelayChangeOverContact) {
+        addComponentId(contact)
+        twoWayContactIds.add(contact.id)
+        addConnection(contact.leftNeighbor, contact, forceAdd = true)
+    }
+
     /**
      * Convention: the endpoint is always the contact's right neighbor
      */
     private fun insertRegularContactEndpoints(contacts: List<RelayRegularContact>) {
         for (contact in contacts) {
-            val endpoint = object : Component(name = contact.endpointName) {
-                override fun acceptVisitor(visitor: ComponentVisitor) {}
-            }
-            addConnection(contact, endpoint, forceAdd = true)
-            addConnection(endpoint, contact.rightNeighbor)
-            addComponentPair(endpoint, contact.controller, relayOfs)
-            addComponentPair(endpoint, contact, getContactOfEndpoints)
-            addComponentId(endpoint)
-            endpointIds.add(endpoint.id)
-            if (contact.isNormallyOpen) initialOpenComponentIds.add(endpoint.id)
+            addConnection(contact, contact.endpoint, forceAdd = true)
+            addConnection(contact.endpoint, contact.rightNeighbor)
+            addComponentPair(contact.endpoint, contact.controller, relayOfs)
+            addComponentPair(contact.endpoint, contact, getContactOfEndpoints)
+            addComponentId(contact.endpoint)
+            endpointIds.add(contact.endpoint.id)
+            if (contact.isNormallyOpen) initialOpenComponentIds.add(contact.endpoint.id)
+        }
+    }
+
+    private fun insertChangeOverContactEndpoints(contacts: List<RelayChangeOverContact>) {
+        for (contact in contacts) {
+            addComponentId(contact.endpointUp)
+            addComponentId(contact.endpointDown)
+            endpointUpIds.add(contact.endpointUp.id)
+            endpointDownIds.add(contact.endpointDown.id)
+            addConnection(contact.endpointUp, contact, forceAdd = true)
+            addConnection(contact.endpointDown, contact, forceAdd = true)
+            addConnection(contact.endpointUp, contact.upNeighbor)
+            addConnection(contact.endpointDown, contact.downNeighbor)
+            addComponentPair(contact.endpointUp, contact.controller, relayOfs)
+            addComponentPair(contact.endpointDown, contact.controller, relayOfs)
+            addComponentPair(contact.endpointUp, contact, getContactOfEndpoints)
+            addComponentPair(contact.endpointDown, contact, getContactOfEndpoints)
+            addFunctionArg(contact.controller, contact.endpointUp, getEndpointUpOf)
+            addFunctionArg(contact.controller, contact.endpointDown, getEndpointDownOf)
+            val openEndpoint = if (contact.isNormallyUp) contact.endpointUp else contact.endpointDown
+            initialOpenComponentIds.add(openEndpoint.id)
         }
     }
 }

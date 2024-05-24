@@ -1,7 +1,8 @@
 package core.model
 
 class Circuit(val components: List<Component>) {
-    val regularContacts = components.filterIsInstance<RelayRegularContact>()
+    val relayContacts =
+        components.filterIsInstance<Contact>().filter { it is RelayRegularContact || it is RelayChangeOverContact }
     val buttons = components.filterIsInstance<Button>()
 
     companion object {

@@ -138,3 +138,46 @@ class XmlLeverContactBuilder : XmlCircuitComponentBuilder("Lever contact") {
 }
 
 
+class XmlLampBuilder : XmlCircuitComponentBuilder("Lamp") {
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val lamp = Lamp(name = readName(fields))
+
+        return object : XmlCircuitComponent(lamp, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { lamp.leftNeighbor = it.component }
+                connections[1]?.let { lamp.rightNeighbor = it.component }
+            }
+        }
+    }
+}
+
+
+class XmlRelayChangeOverContactBuilder : XmlCircuitComponentBuilder("RelayChangeOverContact") {
+    private val openSideAttributeName = "Open side"
+    private val openSideAttributeIndex = 0
+
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val openSide = parseOpenSide(readMandatoryAttributeAt(fields, openSideAttributeIndex))
+        val contact = RelayChangeOverContact(name = readName(fields), isNormallyUp = openSide)
+
+        return object : XmlCircuitComponent(contact, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { contact.leftNeighbor = it.component }
+                connections[1]?.let { contact.upNeighbor = it.component }
+                connections[2]?.let { contact.downNeighbor = it.component }
+            }
+        }
+    }
+
+    private fun parseOpenSide(openSide: String): Boolean {
+        return when (openSide.lowercase()) {
+            "up" -> true
+            "down" -> false
+            else -> throw XmlComponentFieldException(
+                name = openSideAttributeName,
+                className = className,
+                data = openSide
+            )
+        }
+    }
+}

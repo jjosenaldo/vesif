@@ -8,9 +8,10 @@ class RelayRegularContact(
     var rightNeighbor: Component = DEFAULT,
     controller: ContactController = ContactController.DEFAULT,
     name: String,
-) : Contact(controller, name) {
-    val endpointName = "${name}_ENDPOINT"
-    val endpointId = "${endpointName}_id"
+) : Contact(controller, true, name) {
+    val endpoint = object : Component(name = "${name}_ENDPOINT") {
+        override fun acceptVisitor(visitor: ComponentVisitor) {}
+    }
 
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitRelayRegularContact(this)

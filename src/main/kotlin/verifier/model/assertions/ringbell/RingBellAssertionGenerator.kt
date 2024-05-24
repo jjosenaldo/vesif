@@ -1,17 +1,15 @@
 package verifier.model.assertions.ringbell
 
-import core.model.Button
-import core.model.Circuit
-import core.model.RelayRegularContact
+import core.model.*
 import verifier.model.common.AssertionGenerator
 
-// TODO: only generates for regular contacts
 class RingBellAssertionGenerator : AssertionGenerator {
     override fun generateAssertions(circuit: Circuit): List<RingBellAssertion> {
         if (circuit.buttons.isEmpty()) {
-            return circuit.regularContacts.map {
+            return circuit.relayContacts.map {
                 buildAssertionForContactAndButtonConfiguration(
                     it,
+                    getContactEndpoint(it),
                     listOf(),
                     listOf()
                 )
@@ -20,10 +18,11 @@ class RingBellAssertionGenerator : AssertionGenerator {
 
         val combinations = generateBooleanCombinations(circuit.buttons.size)
 
-        return circuit.regularContacts.map { contact ->
+        return circuit.relayContacts.map { contact ->
             combinations.map { combination ->
                 buildAssertionForContactAndButtonConfiguration(
                     contact,
+                    getContactEndpoint(contact),
                     combination,
                     circuit.buttons
                 )
@@ -32,17 +31,26 @@ class RingBellAssertionGenerator : AssertionGenerator {
     }
 
     private fun buildAssertionForContactAndButtonConfiguration(
-        contact: RelayRegularContact,
+        contact: Contact,
+        endpoint: Component,
         configuration: List<Boolean>,
         buttons: List<Button>
     ): RingBellAssertion {
-        return RingBellAssertion(contact, buttons.zip(configuration).toMap())
+        return RingBellAssertion(contact, endpoint, buttons.zip(configuration).toMap())
     }
 
     // Generates the 2^n possible combinations
     private fun generateBooleanCombinations(n: Int): List<List<Boolean>> {
         return (0 until (1 shl n)).map { i ->
             (0 until n).map { j -> ((i shr j) and 1) == 1 }
+        }
+    }
+
+    private fun getContactEndpoint(contact: Contact): Component {
+        return when (contact) {
+            is RelayRegularContact -> contact.endpoint
+            is RelayChangeOverContact -> contact.endpointUp
+            else -> Component.DEFAULT
         }
     }
 

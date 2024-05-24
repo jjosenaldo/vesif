@@ -166,6 +166,12 @@ private fun BufferedWriter.writeSingleArgFunctionDefinition(name: String, arg: S
     writeFunctionDefinition(name, listOf(arg), result)
 }
 
+private fun BufferedWriter.writeSingleArgFunctionDefinitions(name: String, args: Map<String, Set<String>>) {
+    args.entries.forEach { (key, value) ->
+        writeSingleArgFunctionDefinition(name, key, value)
+    }
+}
+
 private fun BufferedWriter.writeSingleArgFunctionDefinitions(name: String, args: Set<CspPair<String, Any>>) {
     args.forEach {
         writeSingleArgFunctionDefinition(name, it.first, it.second)
