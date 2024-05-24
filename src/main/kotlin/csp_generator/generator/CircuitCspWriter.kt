@@ -182,6 +182,14 @@ private fun BufferedWriter.writeTwoArgFunctionDefinitions(
     }
 }
 
+private fun BufferedWriter.writeTwoArgFunctionDefinitions(
+    name: String,
+    args: Map<CspPair<String, String>, Any>
+) {
+    val data = args.entries.map { CspPair(it.key, it.value) }.toSet()
+    writeTwoArgFunctionDefinitions(name, data)
+}
+
 private fun definitionDataToString(data: Any): String {
     return when (data) {
         is Set<*> -> "{${data.joinToString(", ")}}"

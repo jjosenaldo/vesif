@@ -2,9 +2,9 @@ package core.model
 
 import core.model.visitor.ComponentVisitor
 
-abstract class RelayContactController(var contacts: List<RelayContact>, id: String) : Component(id) {
+abstract class ContactController(open var contacts: List<Contact>, id: String) : Component(id) {
     companion object {
-        val DEFAULT = object : RelayContactController(listOf(), "") {
+        val DEFAULT = object : ContactController(listOf(), "") {
             override fun acceptVisitor(visitor: ComponentVisitor) {}
         }
     }

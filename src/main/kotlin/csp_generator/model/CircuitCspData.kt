@@ -52,7 +52,7 @@ class CircuitCspData : ComponentVisitor {
     val getContactOfEndpoints = mutableSetOf<CspPair<String, String>>()
     val getEndpointUpOf = mutableSetOf<CspPair<String, Set<String>>>()
     val getEndpointDownOf = mutableSetOf<CspPair<String, Set<String>>>()
-    val openLeverContactsOf = mutableSetOf<CspPair<CspPair<String, String>, Set<String>>>()
+    val openLeverContactsOf = mutableMapOf<CspPair<String, String>, Set<String>>()
     val capPoles = mutableSetOf<CspPair<String, Set<String>>>()
     val capLeftPoles = mutableSetOf<CspPair<String, String>>()
     val capRightPoles = mutableSetOf<CspPair<String, String>>()
@@ -135,7 +135,7 @@ class CircuitCspData : ComponentVisitor {
         ids.add(leverId)
         leverContactIds.add(contactId)
         leverIds.add(leverId)
-        openLeverContactsOf.add(CspPair(CspPair("id", "side"), setOf()))
+        openLeverContactsOf[CspPair("id", "side")] = setOf()
     }
 
     private fun addButtonDefaultIds() {
@@ -196,7 +196,7 @@ class CircuitCspData : ComponentVisitor {
         bistableRelayCoilLeftIds.add("BS_L_COIL_default")
         bistableRelayCoilRightIds.add("BS_R_COIL_default")
 
-        val relayContacts = components.filterIsInstance<RelayContact>()
+        val relayContacts = components.filterIsInstance<Contact>()
         val bistableRelayContacts = relayContacts.filter { it.controller is BistableRelayPlate }
         val monostableRelayContacts = relayContacts.filter { it.controller is MonostableRelay }
 
@@ -339,6 +339,22 @@ class CircuitCspData : ComponentVisitor {
         addConnection(junction.leftNeighbor, junction)
         addConnection(junction, junction.upNeighbor)
         addConnection(junction, junction.downNeighbor)
+    }
+
+    override fun visitLever(lever: Lever) {
+        addComponentId(lever)
+        leverIds.add(lever.id)
+    }
+
+    override fun visitLeverContact(leverContact: LeverContact) {
+        addComponentId(leverContact)
+        leverContactIds.add(leverContact.id)
+        addConnection(leverContact.leftNeighbor, leverContact)
+        addConnection(leverContact, leverContact.rightNeighbor)
+        val lever = leverContact.controller
+        val side = if (leverContact.isLeftOpen) "LEFT" else "RIGHT"
+        openLeverContactsOf[CspPair(lever.id, side)] =
+            (openLeverContactsOf[CspPair(lever.id, side)] ?: setOf()) union setOf(leverContact.id)
     }
 
     /**

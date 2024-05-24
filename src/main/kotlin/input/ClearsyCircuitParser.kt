@@ -1,10 +1,8 @@
 package input
 
 import core.files.FileManager
-import core.model.Circuit
-import core.model.MonostableRelay
-import core.model.RelayContactController
-import core.model.RelayRegularContact
+import core.model.*
+import input.model.XmlNodeTerminal
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -22,7 +20,9 @@ class ClearsyCircuitParser {
         "C_CONTACT_NORMALLY_OPEN" to XmlRelayRegularContactBuilder(isNormallyOpen = true),
         "C_RELAY_MONOSTABLE" to XmlMonostableRelayBuilder(),
         "C_CONTACT_NORMALLY_CLOSED" to XmlRelayRegularContactBuilder(isNormallyOpen = false),
-        "C_JUNCTION" to XmlJunctionBuilder()
+        "C_JUNCTION" to XmlJunctionBuilder(),
+        "C_LEVER" to XmlLeverBuilder(),
+        "C_LEVER_CONTACT" to XmlLeverContactBuilder()
     )
 
     suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {
@@ -59,13 +59,12 @@ class ClearsyCircuitParser {
             val category = it.attributeChild("Category") ?: return@mapNotNull null
             if (category == "C_BEND") return@mapNotNull null
             val builder = xmlComponentBuilders[category] ?: return@mapNotNull null
-            val attributes = it.nodeChildren().associate { node -> Pair(node.nodeName ?: "", node.textContent ?: "") }
+            val attributes = it.nodeChildren().map { node -> Pair(node.nodeName ?: "", node.textContent ?: "") }
             builder.buildXmlComponent(attributes)
         }.also {
             connectReferences(it)
         }
     }
-
 
     private fun parseLeg(
         objects: List<XmlCircuitComponent>,
@@ -106,20 +105,27 @@ class ClearsyCircuitParser {
     }
 
     private fun connectReferences(components: List<XmlCircuitComponent>) {
-        val contacts = mutableListOf<RelayRegularContact>()
-        components.forEach {
-            if (it.component is RelayRegularContact) {
-                contacts.add(it.component)
-                it.component.controller =
-                    components.first { component -> component.component.name == it.reference }.component as RelayContactController
+        connectContactReferences<RelayRegularContact, MonostableRelay>(components)
+        connectContactReferences<LeverContact, Lever>(components)
+    }
 
+    private inline fun <reified T1 : Contact, reified T2 : ContactController> connectContactReferences(components: List<XmlCircuitComponent>) {
+        val contacts = mutableListOf<T1>()
+
+        components.forEach {
+            if (it.component is T1) {
+                contacts.add(it.component)
+                val controller = components.first { component -> component.component.name == it.reference }.component
+                if (controller is T2) {
+                    it.component.controller = controller
+                }
             }
         }
 
         components.forEach {
             val component = it.component
-            if (component is MonostableRelay) {
-                component.contacts = contacts.filter { contact -> contact.controller.name == component.name }
+            if (component is T2) {
+                component.contacts += contacts.filter { contact -> contact.controller.name == component.name }
             }
         }
     }

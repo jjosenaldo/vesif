@@ -1,5 +1,7 @@
-package input
+package input.model
 
+import input.XmlCircuitComponent
+import input.attributeChild
 import org.w3c.dom.Element
 
 data class XmlNodeTerminal(val component: XmlCircuitComponent, val index: Int) {

@@ -12,7 +12,7 @@ val example01: Circuit by lazy {
     )
     val c2 = RelayRegularContact(
         isNormallyOpen = true,
-        controller = RelayContactController.DEFAULT,
+        controller = ContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
         name = "C2"
@@ -21,7 +21,7 @@ val example01: Circuit by lazy {
     val p2 = Pole(isPositive = true, neighbor = Component.DEFAULT, name = "P2")
     val c1 = RelayRegularContact(
         isNormallyOpen = false,
-        controller = RelayContactController.DEFAULT,
+        controller = ContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
         name = "C1"

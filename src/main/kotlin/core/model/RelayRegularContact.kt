@@ -6,9 +6,9 @@ class RelayRegularContact(
     val isNormallyOpen: Boolean,
     var leftNeighbor: Component = DEFAULT,
     var rightNeighbor: Component = DEFAULT,
-    controller: RelayContactController = RelayContactController.DEFAULT,
+    controller: ContactController = ContactController.DEFAULT,
     name: String,
-) : RelayContact(controller, name) {
+) : Contact(controller, name) {
     val endpointName = "${name}_ENDPOINT"
     val endpointId = "${endpointName}_id"
 
