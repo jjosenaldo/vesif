@@ -1,9 +1,6 @@
 package input
 
-import core.model.Button
-import core.model.Pole
-import core.model.RelayRegularContact
-import core.model.MonostableRelay
+import core.model.*
 
 abstract class XmlCircuitComponentBuilder {
     abstract fun buildXmlComponent(attributes: Map<String, String>): XmlCircuitComponent
@@ -56,6 +53,20 @@ class XmlRelayRegularContactBuilder(private val isNormallyOpen: Boolean) : XmlCi
             override fun setComponentConnections() {
                 connections[0]?.let { contact.leftNeighbor = it.component }
                 connections[1]?.let { contact.rightNeighbor = it.component }
+            }
+        }
+    }
+}
+
+class XmlJunctionBuilder : XmlCircuitComponentBuilder() {
+    override fun buildXmlComponent(attributes: Map<String, String>): XmlCircuitComponent {
+        val junction = Junction(name = attributes["Name"] ?: "")
+
+        return object : XmlCircuitComponent(junction, attributes) {
+            override fun setComponentConnections() {
+                connections[0]?.let { junction.leftNeighbor = it.component }
+                connections[1]?.let { junction.upNeighbor = it.component }
+                connections[2]?.let { junction.downNeighbor = it.component }
             }
         }
     }

@@ -22,6 +22,7 @@ class ClearsyCircuitParser {
         "C_CONTACT_NORMALLY_OPEN" to XmlRelayRegularContactBuilder(isNormallyOpen = true),
         "C_RELAY_MONOSTABLE" to XmlMonostableRelayBuilder(),
         "C_CONTACT_NORMALLY_CLOSED" to XmlRelayRegularContactBuilder(isNormallyOpen = false),
+        "C_JUNCTION" to XmlJunctionBuilder()
     )
 
     suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {
@@ -56,6 +57,7 @@ class ClearsyCircuitParser {
     private fun getObjectsFromDocument(document: Document): List<XmlCircuitComponent> {
         return document.documentElement.childrenByName("Object").filterIsInstance<Element>().mapNotNull {
             val category = it.attributeChild("Category") ?: return@mapNotNull null
+            if (category == "C_BEND") return@mapNotNull null
             val builder = xmlComponentBuilders[category] ?: return@mapNotNull null
             val attributes = it.nodeChildren().associate { node -> Pair(node.nodeName ?: "", node.textContent ?: "") }
             builder.buildXmlComponent(attributes)

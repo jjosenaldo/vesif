@@ -333,6 +333,14 @@ class CircuitCspData : ComponentVisitor {
         TODO("Not yet implemented")
     }
 
+    override fun visitJunction(junction: Junction) {
+        addComponentId(junction)
+        junctionIds.add(junction.id)
+        addConnection(junction.leftNeighbor, junction)
+        addConnection(junction, junction.upNeighbor)
+        addConnection(junction, junction.downNeighbor)
+    }
+
     /**
      * Convention: the endpoint is always the contact's right neighbor
      */

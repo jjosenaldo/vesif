@@ -8,4 +8,5 @@ interface ComponentVisitor {
     fun visitMonostableRelay(monostableRelay: MonostableRelay)
     fun visitRelayRegularContact(contact: RelayRegularContact)
     fun visitCapacitor(capacitor: Capacitor)
+    fun visitJunction(junction: Junction)
 }
