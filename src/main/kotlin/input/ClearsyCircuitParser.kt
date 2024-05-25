@@ -24,7 +24,9 @@ class ClearsyCircuitParser {
         "C_LEVER" to XmlLeverBuilder(),
         "C_LEVER_CONTACT" to XmlLeverContactBuilder(),
         "C_LAMP" to XmlLampBuilder(),
-        "C_CHANGEOVER_CONTACT" to XmlRelayChangeOverContactBuilder()
+        "C_CHANGEOVER_CONTACT" to XmlRelayChangeOverContactBuilder(),
+        "C_RESISTOR" to XmlResistorBuilder(),
+        "C_CAPACITOR" to XmlCapacitorBuilder()
     )
 
     suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {

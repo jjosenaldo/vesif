@@ -9,10 +9,6 @@ class RelayRegularContact(
     controller: ContactController = ContactController.DEFAULT,
     name: String,
 ) : Contact(controller, true, name) {
-    val endpoint = object : Component(name = "${name}_ENDPOINT") {
-        override fun acceptVisitor(visitor: ComponentVisitor) {}
-    }
-
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitRelayRegularContact(this)
     }

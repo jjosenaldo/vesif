@@ -1,6 +1,8 @@
 package verifier.model.assertions.ringbell
 
 import core.model.*
+import csp_generator.util.endpoint
+import csp_generator.util.endpointUp
 import verifier.model.common.AssertionGenerator
 
 class RingBellAssertionGenerator : AssertionGenerator {

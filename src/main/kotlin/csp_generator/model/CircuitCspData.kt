@@ -3,6 +3,7 @@ package csp_generator.model
 import core.model.*
 import core.model.visitor.ComponentVisitor
 import core.model.RelayChangeOverContact
+import csp_generator.util.*
 
 // TODO: do buffered writers need to be closed?
 // TODO: clear data after generating a file
@@ -57,8 +58,7 @@ class CircuitCspData : ComponentVisitor {
     val capLeftPoles = mutableSetOf<CspPair<String, String>>()
     val capRightPoles = mutableSetOf<CspPair<String, String>>()
     val initialCharges = mutableSetOf<CspPair<String, Int>>()
-    lateinit var initialMaxCharge: CspPair<String, Int>
-    lateinit var maxCharge: CspPair<String, String>
+    val initialMaxCharges = mutableListOf<CspPair<String, Int>>()
     val getBsContactOf = mutableSetOf<CspPair<String, String>>()
     val getCoilFromBsEndpointL = mutableSetOf<CspPair<String, String>>()
     val getCoilFromBsEndpointR = mutableSetOf<CspPair<String, String>>()
@@ -149,27 +149,24 @@ class CircuitCspData : ComponentVisitor {
         val defaultPlate1 = "PL_default"
         val defaultPlate2 = "PL2_default"
 
+        ids.run {
+            add(defaultCapacitorId)
+            add(defaultPlate1)
+            add(defaultPlate2)
+        }
+        capacitorIds.add(defaultCapacitorId)
+        capacitorPlatesIds.run {
+            add(defaultPlate1)
+            add(defaultPlate2)
+        }
+
         if (components.all { it !is Capacitor }) {
-            ids.run {
-                add(defaultCapacitorId)
-                add(defaultPlate1)
-                add(defaultPlate2)
-            }
-            capacitorIds.add(defaultCapacitorId)
-            capacitorPlatesIds.run {
-                add(defaultPlate1)
-                add(defaultPlate2)
-            }
             capPoles.add(CspPair(defaultCapacitorId, setOf(defaultPlate1, defaultPlate2)))
             capLeftPoles.add(CspPair(defaultCapacitorId, defaultPlate1))
             capRightPoles.add(CspPair(defaultCapacitorId, defaultPlate2))
             initialCharges.add(CspPair(defaultCapacitorId, 0))
-            initialMaxCharge = CspPair(defaultCapacitorId, 0)
-            maxCharge = CspPair("INITIAL_MAX_CHARGE", defaultCapacitorId)
+            initialMaxCharges.add(CspPair(defaultCapacitorId, 0))
             return
-        } else {
-            capacitorIds.add(defaultCapacitorId)
-            ids.add(defaultCapacitorId)
         }
     }
 
@@ -280,17 +277,63 @@ class CircuitCspData : ComponentVisitor {
         ids.add("PATH_MASTER_id")
         insertRegularContactEndpoints(components.filterIsInstance<RelayRegularContact>())
         insertChangeOverContactEndpoints(components.filterIsInstance<RelayChangeOverContact>())
+        insertCapacitorPlates(components.filterIsInstance<Capacitor>())
     }
 
     private fun addComponentId(component: Component) {
         ids.add(component.id)
     }
 
-    private fun addConnection(leftComponent: Component, rightComponent: Component, forceAdd: Boolean = false) {
-        if (!forceAdd && listOf(leftComponent, rightComponent).any { it is Contact && it.hasEndpoint }) {
-            return
+    private fun addConnection(left: Component, right: Component) {
+        if (left is RelayRegularContact
+            && right.id == left.rightNeighbor.id
+        ) {
+            addConnection(left, left.endpoint)
+            addConnection(left.endpoint, right)
+        } else if (right is RelayRegularContact
+            && left.id == right.rightNeighbor.id
+        ) {
+            addConnection(right.endpoint, right)
+            addConnection(left, right.endpoint)
+        } else if (left is RelayChangeOverContact
+            && right.id == left.upNeighbor.id
+        ) {
+            addConnection(left, left.endpointUp)
+            addConnection(left.endpointUp, right)
+        } else if (left is RelayChangeOverContact
+            && right.id == left.downNeighbor.id
+        ) {
+            addConnection(left, left.endpointDown)
+            addConnection(left.endpointDown, right)
+        } else if (right is RelayChangeOverContact
+            && left.id == right.upNeighbor.id
+        ) {
+            addConnection(right, right.endpointUp)
+            addConnection(right.endpointUp, left)
+        } else if (right is RelayChangeOverContact
+            && left.id == right.downNeighbor.id
+        ) {
+            addConnection(right, right.endpointDown)
+            addConnection(right.endpointDown, left)
+        } else if (left is Capacitor
+            && right.id == left.rightNeighbor.id
+        ) {
+            addConnection(left.rightPlate, right)
+        } else if (left is Capacitor
+            && right.id == left.leftNeighbor.id
+        ) {
+            addConnection(left.leftPlate, right)
+        } else if (right is Capacitor
+            && left.id == right.rightNeighbor.id
+        ) {
+            addConnection(right.rightPlate, left)
+        } else if (right is Capacitor
+            && left.id == right.leftNeighbor.id
+        ) {
+            addConnection(right.leftPlate, left)
+        } else {
+            addComponentPair(left, right, connections)
         }
-        addComponentPair(leftComponent, rightComponent, connections)
     }
 
     private fun addComponentPair(
@@ -335,11 +378,15 @@ class CircuitCspData : ComponentVisitor {
         addComponentId(contact)
         val openOrClosedListToAdd = if (contact.isNormallyOpen) contactOpenedIds else contactClosedIds
         openOrClosedListToAdd.add(contact.id)
-        addConnection(contact.leftNeighbor, contact, forceAdd = true)
+        addConnection(contact.leftNeighbor, contact)
+        addConnection(contact, contact.rightNeighbor)
     }
 
     override fun visitCapacitor(capacitor: Capacitor) {
-        TODO("Not yet implemented")
+        addComponentId(capacitor)
+        capacitorIds.add(capacitor.id)
+        initialCharges.add(CspPair(capacitor.id, capacitor.initialCharge))
+        initialMaxCharges.add(CspPair(capacitor.id, capacitor.maxCharge))
     }
 
     override fun visitJunction(junction: Junction) {
@@ -376,7 +423,16 @@ class CircuitCspData : ComponentVisitor {
     override fun visitRelayChangeOverContact(contact: RelayChangeOverContact) {
         addComponentId(contact)
         twoWayContactIds.add(contact.id)
-        addConnection(contact.leftNeighbor, contact, forceAdd = true)
+        addConnection(contact.leftNeighbor, contact)
+        addConnection(contact, contact.upNeighbor)
+        addConnection(contact, contact.downNeighbor)
+    }
+
+    override fun visitResistor(resistor: Resistor) {
+        addComponentId(resistor)
+        resistorIds.add(resistor.id)
+        addConnection(resistor.leftNeighbor, resistor)
+        addConnection(resistor, resistor.rightNeighbor)
     }
 
     /**
@@ -384,8 +440,6 @@ class CircuitCspData : ComponentVisitor {
      */
     private fun insertRegularContactEndpoints(contacts: List<RelayRegularContact>) {
         for (contact in contacts) {
-            addConnection(contact, contact.endpoint, forceAdd = true)
-            addConnection(contact.endpoint, contact.rightNeighbor)
             addComponentPair(contact.endpoint, contact.controller, relayOfs)
             addComponentPair(contact.endpoint, contact, getContactOfEndpoints)
             addComponentId(contact.endpoint)
@@ -400,10 +454,6 @@ class CircuitCspData : ComponentVisitor {
             addComponentId(contact.endpointDown)
             endpointUpIds.add(contact.endpointUp.id)
             endpointDownIds.add(contact.endpointDown.id)
-            addConnection(contact.endpointUp, contact, forceAdd = true)
-            addConnection(contact.endpointDown, contact, forceAdd = true)
-            addConnection(contact.endpointUp, contact.upNeighbor)
-            addConnection(contact.endpointDown, contact.downNeighbor)
             addComponentPair(contact.endpointUp, contact.controller, relayOfs)
             addComponentPair(contact.endpointDown, contact.controller, relayOfs)
             addComponentPair(contact.endpointUp, contact, getContactOfEndpoints)
@@ -412,6 +462,19 @@ class CircuitCspData : ComponentVisitor {
             addFunctionArg(contact.controller, contact.endpointDown, getEndpointDownOf)
             val openEndpoint = if (contact.isNormallyUp) contact.endpointUp else contact.endpointDown
             initialOpenComponentIds.add(openEndpoint.id)
+        }
+    }
+
+    private fun insertCapacitorPlates(capacitors: List<Capacitor>) {
+        for (capacitor in capacitors) {
+            addComponentId(capacitor.leftPlate)
+            addComponentId(capacitor.rightPlate)
+            listOf(capacitor.leftPlate.id, capacitor.rightPlate.id).let {
+                capacitorPlatesIds.addAll(it)
+                capPoles.add(CspPair(capacitor.id, it.toSet()))
+            }
+            capLeftPoles.add(CspPair(capacitor.id, capacitor.leftPlate.id))
+            capRightPoles.add(CspPair(capacitor.id, capacitor.rightPlate.id))
         }
     }
 }

@@ -21,7 +21,8 @@ abstract class XmlCircuitComponentBuilder(val className: String) {
         return attributes[index].second
     }
 
-    fun readMandatoryField(fields: List<Pair<String, String>>, field: String): String {
+    @Suppress("SameParameterValue")
+    private fun readMandatoryField(fields: List<Pair<String, String>>, field: String): String {
         return fields.firstOrNull { it.first == field }?.second ?: throw XmlComponentFieldException(
             className = className,
             name = field,
@@ -179,5 +180,93 @@ class XmlRelayChangeOverContactBuilder : XmlCircuitComponentBuilder("RelayChange
                 data = openSide
             )
         }
+    }
+}
+
+class XmlResistorBuilder : XmlCircuitComponentBuilder("Resistor") {
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val resistor = Resistor(name = readName(fields))
+
+        return object : XmlCircuitComponent(resistor, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { resistor.leftNeighbor = it.component }
+                connections[1]?.let { resistor.rightNeighbor = it.component }
+            }
+        }
+    }
+}
+
+class XmlCapacitorBuilder : XmlCircuitComponentBuilder("Capacitor") {
+    private val minMaxCharge = 1
+    private val maxMaxCharge = 50
+    private val minInitialCharge = 0
+    private val maxInitialCharge = maxMaxCharge
+    private val maxChargeIndex = 0
+    private val initialChargeIndex = 1
+
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val maxCharge = parseCharge(
+            readMandatoryAttributeAt(fields, maxChargeIndex),
+            minMaxCharge,
+            maxMaxCharge,
+            maxChargeIndex
+        )
+        val capacitor = Capacitor(
+            name = readName(fields),
+            maxCharge = maxCharge,
+            initialCharge = parseInitialCharge(
+                readMandatoryAttributeAt(fields, initialChargeIndex),
+                minInitialCharge,
+                maxInitialCharge,
+                initialChargeIndex,
+                maxCharge
+            )
+        )
+
+        return object : XmlCircuitComponent(capacitor, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { capacitor.leftNeighbor = it.component }
+                connections[1]?.let { capacitor.rightNeighbor = it.component }
+            }
+        }
+    }
+
+    private fun parseCharge(charge: String, min: Int, max: Int, index: Int): Int {
+        try {
+            val chargeInt = charge.toInt()
+
+            if (chargeInt < min || chargeInt > max) {
+                throw XmlComponentAttributeException(
+                    className = className,
+                    index = index,
+                    data = charge,
+                    details = "Must be between $min and $max."
+                )
+            }
+
+            return chargeInt
+        } catch (_: Exception) {
+            throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = charge
+            )
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun parseInitialCharge(charge: String, min: Int, max: Int, index: Int, maxCharge: Int): Int {
+        val chargeInt = parseCharge(charge, min, max, index)
+
+        if (chargeInt > maxCharge) {
+            throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = charge,
+                details = "Can't be higher than max charge."
+            )
+        }
+
+        return chargeInt
     }
 }

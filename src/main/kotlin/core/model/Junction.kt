@@ -8,6 +8,7 @@ class Junction(
     var downNeighbor: Component = DEFAULT,
     name: String
 ) : Component(name) {
+
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitJunction(this)
     }

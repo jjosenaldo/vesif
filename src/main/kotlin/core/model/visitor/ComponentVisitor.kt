@@ -13,4 +13,5 @@ interface ComponentVisitor {
     fun visitLeverContact(leverContact: LeverContact)
     fun visitLamp(lamp: Lamp)
     fun visitRelayChangeOverContact(contact: RelayChangeOverContact)
+    fun visitResistor(resistor: Resistor)
 }

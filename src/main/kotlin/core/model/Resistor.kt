@@ -2,12 +2,13 @@ package core.model
 
 import core.model.visitor.ComponentVisitor
 
-class Lamp(
+class Resistor(
     name: String,
     var leftNeighbor: Component = DEFAULT,
     var rightNeighbor: Component = DEFAULT
-) : Component(name) {
+) :
+    Component(name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {
-        visitor.visitLamp(this)
+        visitor.visitResistor(this)
     }
 }

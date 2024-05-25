@@ -19,6 +19,18 @@ front(s^<e>) = s
 elemAt(0, s) = head(s)
 elemAt(n, s) = elemAt(n - 1, tail(s))
 
+zip(<>, _) = <>
+zip(_, <>) = <>
+zip(<x>^xs, <y>^ys) = <(x, y)>^zip(xs, ys)
+
+max_map_value(m) = max_map_value_aux(mapToList(m))
+max_map_value_aux(<(_,val)>) = val
+max_map_value_aux(<(_,val)>^xs) =
+    let
+        max_remaining = max_map_value_aux(xs)
+    within
+        if val >= max_remaining then val else max_remaining
+
 ---------------------------------------------------------------------
 -- SET FUNCTIONS
 ---------------------------------------------------------------------
@@ -33,15 +45,15 @@ push(e, st) = {union({e}, s) | s <- st}
 build_map_on_false(cs) = mapFromList(< (c,false) | c <- seq(cs)>)
 build_map_on_empty(wires) = mapFromList(< (w,{}) | w <- wires>)
 
-all_true(map) = all_true_seq(mapToList(map)) 
+all_true(map) = all_true_seq(mapToList(map))
 
 all_true_seq(<>) = true
-all_true_seq(<(k,v)>^map) = 
+all_true_seq(<(k,v)>^map) =
     if v
-    then all_true_seq(map) 
+    then all_true_seq(map)
     else false
 
-map_equals(map1, map2) = 
+map_equals(map1, map2) =
 --    map1 <= map2 and map2 <= map1
     let domain_map1 = domain(map1)
     within
@@ -74,6 +86,7 @@ domainFromSet_seq(<(k,v)>^s) = union({k},domainFromSet_seq(s))
 ---------------------------------------------------------------------
 
 -- Returns a map containing the capacitor's id and its capacitance
+capacitances(idsAndAmounts)= mapFromList(idsAndAmounts)
 capacitance(id, amount)= mapFromList(<(id, amount)>)
 capacitance_mult(id1, id2, amount1, amount2)= mapFromList(<(id1, amount1), (id2, amount2)>) 
 -- Returns the capacitance value of an instantiated capacitor

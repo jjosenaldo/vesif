@@ -90,8 +90,11 @@ object CircuitCspWriter {
                 writeLine("INITIAL_POSITIVES = union(POSITIVE_IDS, {})")
                 writeLine("INITIAL_NEGATIVES = union(NEGATIVE_IDS, {})")
                 writeDefinition("INITIAL_CHARGES", data.initialCharges)
-                writeDefinition("INITIAL_MAX_CHARGE", "capacitance${data.initialMaxCharge}")
-                writeDefinition("MAX_CHARGE", "charge_max${data.maxCharge}")
+                writeDefinition(
+                    "INITIAL_MAX_CHARGE",
+                    "capacitances(${seq(data.initialMaxCharges)})"
+                )
+                writeDefinition("MAX_CHARGE", "max_map_value(INITIAL_MAX_CHARGE)")
                 newLine()
                 writeSingleArgFunctionDefinitions("GET_BS_CONTACT_OF", data.getBsContactOf)
                 writeSingleArgFunctionDefinitions("GET_COIL_FROM_BS_ENDPOINT_L", data.getCoilFromBsEndpointL)
@@ -124,6 +127,10 @@ object CircuitCspWriter {
         }
 
     }
+}
+
+private fun seq(list: List<Any>): String {
+    return "<${list.joinToString(", ")}>"
 }
 
 private fun BufferedWriter.writeLine(line: String) {
