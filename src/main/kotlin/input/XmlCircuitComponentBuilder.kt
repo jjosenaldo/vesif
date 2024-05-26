@@ -200,19 +200,19 @@ class XmlLampBuilder : XmlCircuitComponentBuilder("Lamp") {
     }
 }
 
-class XmlRelayChangeOverContactBuilder : XmlCircuitComponentBuilder("RelayChangeOverContact") {
+class XmlMonostableChangeoverContactBuilder : XmlCircuitComponentBuilder("MonostableChangeOverContact") {
     private val openSideAttributeName = "Open side"
     private val openSideAttributeIndex = 0
 
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
         val openSide = parseOpenSide(readMandatoryAttributeAt(fields, openSideAttributeIndex))
-        val contact = RelayChangeOverContact(name = readName(fields), isNormallyUp = openSide)
+        val contact = RelayChangeoverContact(name = readName(fields), isNormallyUp = openSide)
 
         return object : XmlCircuitComponent(contact, fields) {
             override fun setComponentConnections() {
-                connections[0]?.let { contact.leftNeighbor = it.component }
-                connections[1]?.let { contact.upNeighbor = it.component }
-                connections[2]?.let { contact.downNeighbor = it.component }
+                connections[0]?.let { contact.soloNeighbor = it.component }
+                connections[1]?.let { contact.pairNeighbor1 = it.component }
+                connections[2]?.let { contact.pairNeighbor2 = it.component }
             }
         }
     }
@@ -226,6 +226,20 @@ class XmlRelayChangeOverContactBuilder : XmlCircuitComponentBuilder("RelayChange
                 className = className,
                 data = openSide
             )
+        }
+    }
+}
+
+class XmlBistableChangeoverContactBuilder : XmlCircuitComponentBuilder("BistableChangeoverContact") {
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val contact = RelayChangeoverContact(name = readName(fields), isNormallyUp = true)
+
+        return object : XmlCircuitComponent(contact, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { contact.pairNeighbor1 = it.component }
+                connections[1]?.let { contact.pairNeighbor2 = it.component }
+                connections[2]?.let { contact.soloNeighbor = it.component }
+            }
         }
     }
 }

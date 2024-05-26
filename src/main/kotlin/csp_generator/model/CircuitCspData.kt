@@ -2,7 +2,7 @@ package csp_generator.model
 
 import core.model.*
 import core.model.visitor.ComponentVisitor
-import core.model.RelayChangeOverContact
+import core.model.RelayChangeoverContact
 import csp_generator.util.*
 
 // TODO: do buffered writers need to be closed?
@@ -123,7 +123,7 @@ class CircuitCspData : ComponentVisitor {
             relayOfs.add(CspPair("id0", "R_default"))
         }
 
-        if (components.all { it !is RelayChangeOverContact || it.controller !is MonostableRelay }) {
+        if (components.all { it !is RelayChangeoverContact || it.controller !is MonostableRelay }) {
             addFunctionArg("id", target = getEndpointUpOf)
             addFunctionArg("id", target = getEndpointDownOf)
         }
@@ -212,7 +212,7 @@ class CircuitCspData : ComponentVisitor {
             getBsContactOf.add(CspPair("C_ENDPOINT_default", "C_default"))
         }
 
-        if (bistableRelayContacts.none { it is RelayChangeOverContact }) {
+        if (bistableRelayContacts.none { it is RelayChangeoverContact }) {
             getBsEndpointLeftOf.add(CspPair("BS_C_default", setOf("BS_C_LEFT_default")))
             getBsEndpointRightOf.add(CspPair("BS_C_default", setOf("BS_C_RIGHT_default")))
         }
@@ -277,7 +277,7 @@ class CircuitCspData : ComponentVisitor {
     private fun generateAdditionalIds(components: List<Component>) {
         ids.add("PATH_MASTER_id")
         insertRegularContactEndpoints(components.filterIsInstance<RelayRegularContact>())
-        insertChangeOverContactEndpoints(components.filterIsInstance<RelayChangeOverContact>())
+        insertChangeoverContactEndpoints(components.filterIsInstance<RelayChangeoverContact>())
         insertCapacitorPlates(components.filterIsInstance<Capacitor>())
         insertBistableRelayCoils(components.filterIsInstance<BistableRelay>())
     }
@@ -297,26 +297,26 @@ class CircuitCspData : ComponentVisitor {
         ) {
             addConnection(right.endpoint, right)
             addConnection(left, right.endpoint)
-        } else if (left is RelayChangeOverContact
-            && right.id == left.upNeighbor.id
+        } else if (left is RelayChangeoverContact
+            && right.id == left.pairNeighbor1.id
         ) {
-            addConnection(left, left.endpointUp)
-            addConnection(left.endpointUp, right)
-        } else if (left is RelayChangeOverContact
-            && right.id == left.downNeighbor.id
+            addConnection(left, left.endpoint1)
+            addConnection(left.endpoint1, right)
+        } else if (left is RelayChangeoverContact
+            && right.id == left.pairNeighbor2.id
         ) {
-            addConnection(left, left.endpointDown)
-            addConnection(left.endpointDown, right)
-        } else if (right is RelayChangeOverContact
-            && left.id == right.upNeighbor.id
+            addConnection(left, left.endpoint2)
+            addConnection(left.endpoint2, right)
+        } else if (right is RelayChangeoverContact
+            && left.id == right.pairNeighbor1.id
         ) {
-            addConnection(right, right.endpointUp)
-            addConnection(right.endpointUp, left)
-        } else if (right is RelayChangeOverContact
-            && left.id == right.downNeighbor.id
+            addConnection(right, right.endpoint1)
+            addConnection(right.endpoint1, left)
+        } else if (right is RelayChangeoverContact
+            && left.id == right.pairNeighbor2.id
         ) {
-            addConnection(right, right.endpointDown)
-            addConnection(right.endpointDown, left)
+            addConnection(right, right.endpoint2)
+            addConnection(right.endpoint2, left)
         } else if (left is Capacitor
             && right.id == left.rightNeighbor.id
         ) {
@@ -450,12 +450,21 @@ class CircuitCspData : ComponentVisitor {
         addConnection(lamp, lamp.rightNeighbor)
     }
 
-    override fun visitRelayChangeOverContact(contact: RelayChangeOverContact) {
+    override fun visitRelayChangeoverContact(contact: RelayChangeoverContact) {
         addComponentId(contact)
-        twoWayContactIds.add(contact.id)
-        addConnection(contact.leftNeighbor, contact)
-        addConnection(contact, contact.upNeighbor)
-        addConnection(contact, contact.downNeighbor)
+        addConnection(contact.soloNeighbor, contact)
+        addConnection(contact, contact.pairNeighbor1)
+        addConnection(contact, contact.pairNeighbor2)
+
+        when (contact.controller) {
+            is MonostableRelay -> {
+                twoWayContactIds.add(contact.id)
+            }
+
+            is BistableRelay -> {
+                bistableRelayTwoWayContactIds.add(contact.id)
+            }
+        }
     }
 
     override fun visitResistor(resistor: Resistor) {
@@ -479,9 +488,12 @@ class CircuitCspData : ComponentVisitor {
      */
     private fun insertRegularContactEndpoints(contacts: List<RelayRegularContact>) {
         for (contact in contacts) {
-            when (contact.controller) {
+            addComponentId(contact.endpoint)
+            if (contact.isNormallyOpenOrIsLeftOpen) initialOpenComponentIds.add(contact.endpoint.id)
+
+            when (val controller = contact.controller) {
                 is MonostableRelay -> {
-                    addComponentPair(contact.endpoint, contact.controller, relayOfs)
+                    addComponentPair(contact.endpoint, controller, relayOfs)
                     addComponentPair(contact.endpoint, contact, getContactOfEndpoints)
                     endpointIds.add(contact.endpoint.id)
                 }
@@ -489,27 +501,47 @@ class CircuitCspData : ComponentVisitor {
                 is BistableRelay -> {
                     addComponentPair(contact.endpoint, contact, getBsContactOf)
                     bistableRelayEndpointIds.add(contact.endpoint.id)
+                    getCoilFromBsEndpointL.add(CspPair(contact.endpoint.id, controller.leftCoil.id))
+                    getCoilFromBsEndpointR.add(CspPair(contact.endpoint.id, controller.rightCoil.id))
                 }
             }
-            addComponentId(contact.endpoint)
-            if (contact.isNormallyOpenOrIsLeftOpen) initialOpenComponentIds.add(contact.endpoint.id)
         }
     }
 
-    private fun insertChangeOverContactEndpoints(contacts: List<RelayChangeOverContact>) {
+    private fun insertChangeoverContactEndpoints(contacts: List<RelayChangeoverContact>) {
         for (contact in contacts) {
-            addComponentId(contact.endpointUp)
-            addComponentId(contact.endpointDown)
-            endpointUpIds.add(contact.endpointUp.id)
-            endpointDownIds.add(contact.endpointDown.id)
-            addComponentPair(contact.endpointUp, contact.controller, relayOfs)
-            addComponentPair(contact.endpointDown, contact.controller, relayOfs)
-            addComponentPair(contact.endpointUp, contact, getContactOfEndpoints)
-            addComponentPair(contact.endpointDown, contact, getContactOfEndpoints)
-            addFunctionArg(contact.controller, contact.endpointUp, getEndpointUpOf)
-            addFunctionArg(contact.controller, contact.endpointDown, getEndpointDownOf)
-            val openEndpoint = if (contact.isNormallyUp) contact.endpointUp else contact.endpointDown
-            initialOpenComponentIds.add(openEndpoint.id)
+            addComponentId(contact.endpoint1)
+            addComponentId(contact.endpoint2)
+
+            when (val controller = contact.controller) {
+                is MonostableRelay -> {
+                    endpointUpIds.add(contact.endpoint1.id)
+                    endpointDownIds.add(contact.endpoint2.id)
+                    addComponentPair(contact.endpoint1, controller, relayOfs)
+                    addComponentPair(contact.endpoint2, controller, relayOfs)
+                    addComponentPair(contact.endpoint1, contact, getContactOfEndpoints)
+                    addComponentPair(contact.endpoint2, contact, getContactOfEndpoints)
+                    addFunctionArg(controller, contact.endpoint1, getEndpointUpOf)
+                    addFunctionArg(controller, contact.endpoint2, getEndpointDownOf)
+                    val openEndpoint = if (contact.isNormallyUp) contact.endpoint1 else contact.endpoint2
+                    initialOpenComponentIds.add(openEndpoint.id)
+                }
+
+                is BistableRelay -> {
+                    endpointLeftIds.add(contact.endpoint1.id)
+                    endpointRightIds.add(contact.endpoint2.id)
+                    addComponentPair(contact.endpoint1, contact, getBsContactOf)
+                    addComponentPair(contact.endpoint2, contact, getBsContactOf)
+                    getCoilFromBsEndpointL.add(CspPair(contact.endpoint1.id, controller.leftCoil.id))
+                    getCoilFromBsEndpointR.add(CspPair(contact.endpoint1.id, controller.rightCoil.id))
+                    getCoilFromBsEndpointL.add(CspPair(contact.endpoint2.id, controller.leftCoil.id))
+                    getCoilFromBsEndpointR.add(CspPair(contact.endpoint2.id, controller.rightCoil.id))
+                    getBsEndpointLeftOf.add(CspPair(contact.id, mutableSetOf(contact.endpoint1.id)))
+                    getBsEndpointRightOf.add(CspPair(contact.id, mutableSetOf(contact.endpoint2.id)))
+                    initialOpenComponentIds.add(contact.endpoint2.id)
+                }
+            }
+
         }
     }
 
@@ -532,16 +564,6 @@ class CircuitCspData : ComponentVisitor {
             addComponentId(relay.rightCoil)
             bistableRelayCoilLeftIds.add(relay.leftCoil.id)
             bistableRelayCoilRightIds.add(relay.rightCoil.id)
-
-            for (contact in relay.contacts) {
-                // TODO: missing changeover
-                when (contact) {
-                    is RelayRegularContact -> {
-                        getCoilFromBsEndpointL.add(CspPair(contact.endpoint.id, relay.leftCoil.id))
-                        getCoilFromBsEndpointR.add(CspPair(contact.endpoint.id, relay.rightCoil.id))
-                    }
-                }
-            }
         }
     }
 }

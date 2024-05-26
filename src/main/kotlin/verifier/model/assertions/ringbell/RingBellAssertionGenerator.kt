@@ -2,7 +2,7 @@ package verifier.model.assertions.ringbell
 
 import core.model.*
 import csp_generator.util.endpoint
-import csp_generator.util.endpointUp
+import csp_generator.util.endpoint1
 import verifier.model.common.AssertionGenerator
 
 class RingBellAssertionGenerator : AssertionGenerator {
@@ -51,7 +51,7 @@ class RingBellAssertionGenerator : AssertionGenerator {
     private fun getContactEndpoint(contact: Contact): Component {
         return when (contact) {
             is RelayRegularContact -> contact.endpoint
-            is RelayChangeOverContact -> contact.endpointUp
+            is RelayChangeoverContact -> contact.endpoint1
             else -> Component.DEFAULT
         }
     }

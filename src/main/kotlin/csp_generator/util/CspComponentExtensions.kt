@@ -10,8 +10,20 @@ val RelayRegularContact.endpoint: Component
             buildEndpoint(name)
         }
 
-val RelayChangeOverContact.endpointUp by LazyWithReceiver<RelayChangeOverContact, Component> { buildEndpointUp(name) }
-val RelayChangeOverContact.endpointDown by LazyWithReceiver<RelayChangeOverContact, Component> { buildEndpointDown(name) }
+val RelayChangeoverContact.endpoint1 by LazyWithReceiver<RelayChangeoverContact, Component> {
+    when (this.controller) {
+        is MonostableRelay -> buildEndpointUp(name)
+        is BistableRelay -> buildEndpointLeft(name)
+        else -> Component.DEFAULT
+    }
+}
+val RelayChangeoverContact.endpoint2 by LazyWithReceiver<RelayChangeoverContact, Component> {
+    when (this.controller) {
+        is MonostableRelay -> buildEndpointDown(name)
+        is BistableRelay -> buildEndpointRight(name)
+        else -> Component.DEFAULT
+    }
+}
 
 val Capacitor.leftPlate by LazyWithReceiver<Capacitor, Component> { buildLeftPlate(name) }
 val Capacitor.rightPlate by LazyWithReceiver<Capacitor, Component> { buildRightPlate(name) }
@@ -24,6 +36,10 @@ private fun buildEndpoint(name: String) = buildComponent("${name}_ENDPOINT")
 private fun buildEndpointUp(name: String) = buildComponent("${name}_ENDPOINT_UP")
 
 private fun buildEndpointDown(name: String) = buildComponent("${name}_ENDPOINT_DOWN")
+
+private fun buildEndpointLeft(name: String) = buildComponent("${name}_ENDPOINT_LEFT")
+
+private fun buildEndpointRight(name: String) = buildComponent("${name}_ENDPOINT_RIGHT")
 
 private fun buildLeftPlate(name: String) = buildComponent("${name}_L")
 

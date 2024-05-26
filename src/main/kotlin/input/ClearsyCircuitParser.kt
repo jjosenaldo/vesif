@@ -24,11 +24,12 @@ class ClearsyCircuitParser {
         "C_LEVER" to XmlLeverBuilder(),
         "C_LEVER_CONTACT" to XmlLeverContactBuilder(),
         "C_LAMP" to XmlLampBuilder(),
-        "C_CHANGEOVER_CONTACT" to XmlRelayChangeOverContactBuilder(),
+        "C_CHANGEOVER_CONTACT" to XmlMonostableChangeoverContactBuilder(),
         "C_RESISTOR" to XmlResistorBuilder(),
         "C_CAPACITOR" to XmlCapacitorBuilder(),
         "C_BISTABLE_CONTACT" to XmlBistableRelayRegularContactBuilder(),
-        "C_BISTABLE_RELAY" to XmlBistableRelayBuilder()
+        "C_BISTABLE_RELAY" to XmlBistableRelayBuilder(),
+        "C_BISTABLE_CHANGEOVER_CONTACT" to XmlBistableChangeoverContactBuilder()
     )
 
     suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {
@@ -113,7 +114,8 @@ class ClearsyCircuitParser {
     private fun connectReferences(components: List<XmlCircuitComponent>) {
         connectContactReferences<RelayRegularContact, MonostableRelay>(components)
         connectContactReferences<RelayRegularContact, BistableRelay>(components)
-        connectContactReferences<RelayChangeOverContact, MonostableRelay>(components)
+        connectContactReferences<RelayChangeoverContact, MonostableRelay>(components)
+        connectContactReferences<RelayChangeoverContact, BistableRelay>(components)
         connectContactReferences<LeverContact, Lever>(components)
     }
 
