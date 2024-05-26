@@ -72,15 +72,64 @@ class XmlMonostableRelayBuilder : XmlCircuitComponentBuilder("Monostable Relay")
     }
 }
 
+class XmlBistableRelayBuilder : XmlCircuitComponentBuilder("Bistable Relay") {
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val relay = BistableRelay(name = readName(fields))
+
+        return object : XmlCircuitComponent(relay, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { relay.leftUpNeighbor = it.component }
+                connections[1]?.let { relay.leftDownNeighbor = it.component }
+                connections[2]?.let { relay.rightUpNeighbor = it.component }
+                connections[3]?.let { relay.rightDownNeighbor = it.component }
+            }
+        }
+    }
+}
+
 class XmlRelayRegularContactBuilder(private val isNormallyOpen: Boolean) : XmlCircuitComponentBuilder("Relay contact") {
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
-        val contact = RelayRegularContact(name = readName(fields), isNormallyOpen = isNormallyOpen)
+        val contact = RelayRegularContact(name = readName(fields), isNormallyOpenOrIsLeftOpen = isNormallyOpen)
 
         return object : XmlCircuitComponent(contact, fields) {
             override fun setComponentConnections() {
                 connections[0]?.let { contact.leftNeighbor = it.component }
                 connections[1]?.let { contact.rightNeighbor = it.component }
             }
+        }
+    }
+}
+
+class XmlBistableRelayRegularContactBuilder : XmlCircuitComponentBuilder("Bistable contact") {
+    private val isLeftClosedIndex = 0
+
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val contact = RelayRegularContact(
+            name = readName(fields),
+            isNormallyOpenOrIsLeftOpen = parseIsLeftOpen(
+                readMandatoryAttributeAt(fields, isLeftClosedIndex),
+                isLeftClosedIndex
+            )
+        )
+
+        return object : XmlCircuitComponent(contact, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { contact.leftNeighbor = it.component }
+                connections[1]?.let { contact.rightNeighbor = it.component }
+            }
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun parseIsLeftOpen(closeSide: String, index: Int): Boolean {
+        return when (closeSide) {
+            "left" -> false
+            "right" -> true
+            else -> throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = closeSide
+            )
         }
     }
 }
@@ -138,7 +187,6 @@ class XmlLeverContactBuilder : XmlCircuitComponentBuilder("Lever contact") {
     }
 }
 
-
 class XmlLampBuilder : XmlCircuitComponentBuilder("Lamp") {
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
         val lamp = Lamp(name = readName(fields))
@@ -151,7 +199,6 @@ class XmlLampBuilder : XmlCircuitComponentBuilder("Lamp") {
         }
     }
 }
-
 
 class XmlRelayChangeOverContactBuilder : XmlCircuitComponentBuilder("RelayChangeOverContact") {
     private val openSideAttributeName = "Open side"

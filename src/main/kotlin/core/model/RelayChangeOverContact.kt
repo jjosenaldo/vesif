@@ -9,7 +9,7 @@ class RelayChangeOverContact(
     var leftNeighbor: Component = DEFAULT,
     var upNeighbor: Component = DEFAULT,
     var downNeighbor: Component = DEFAULT
-) : Contact(controller, true, name) {
+) : Contact(controller, name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitRelayChangeOverContact(this)
     }

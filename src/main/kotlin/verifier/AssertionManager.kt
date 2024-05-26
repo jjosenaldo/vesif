@@ -57,6 +57,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
                     )
                 }
             } catch (e: Exception) {
+                // TODO: rethrow
                 e.printStackTrace()
             } finally {
                 fdr.libraryExit()

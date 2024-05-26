@@ -8,7 +8,7 @@ class LeverContact(
     lever: Lever = Lever.DEFAULT,
     var leftNeighbor: Component = DEFAULT,
     var rightNeighbor: Component = DEFAULT
-) : Contact(name = name, controller = lever, hasEndpoint = false) {
+) : Contact(name = name, controller = lever) {
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitLeverContact(this)
     }

@@ -6,7 +6,7 @@ import core.model.*
 val exampleWithShortCircuit: Circuit by lazy {
     val p1 = Pole(isPositive = true, neighbor = Component.DEFAULT, name = "P1")
     val c2 = RelayRegularContact(
-        isNormallyOpen = true,
+        isNormallyOpenOrIsLeftOpen = true,
         controller = ContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,

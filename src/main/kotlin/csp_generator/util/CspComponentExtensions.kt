@@ -12,29 +12,31 @@ val RelayRegularContact.endpoint: Component
 
 val RelayChangeOverContact.endpointUp by LazyWithReceiver<RelayChangeOverContact, Component> { buildEndpointUp(name) }
 val RelayChangeOverContact.endpointDown by LazyWithReceiver<RelayChangeOverContact, Component> { buildEndpointDown(name) }
+
 val Capacitor.leftPlate by LazyWithReceiver<Capacitor, Component> { buildLeftPlate(name) }
 val Capacitor.rightPlate by LazyWithReceiver<Capacitor, Component> { buildRightPlate(name) }
 
+val BistableRelay.leftCoil by LazyWithReceiver<BistableRelay, Component> { buildLeftCoil(name) }
+val BistableRelay.rightCoil by LazyWithReceiver<BistableRelay, Component> { buildRightCoil(name) }
 
-private fun buildEndpoint(name: String) = object : Component(name = "${name}_ENDPOINT") {
+private fun buildEndpoint(name: String) = buildComponent("${name}_ENDPOINT")
+
+private fun buildEndpointUp(name: String) = buildComponent("${name}_ENDPOINT_UP")
+
+private fun buildEndpointDown(name: String) = buildComponent("${name}_ENDPOINT_DOWN")
+
+private fun buildLeftPlate(name: String) = buildComponent("${name}_L")
+
+private fun buildRightPlate(name: String) = buildComponent("${name}_R")
+
+private fun buildLeftCoil(name: String) = buildComponent("${name}_COIL_L")
+
+private fun buildRightCoil(name: String) = buildComponent("${name}_COIL_R")
+
+private fun buildComponent(name: String) = object : Component(name = name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {}
 }
 
-private fun buildEndpointUp(name: String) = object : Component(name = "${name}_ENDPOINT_UP") {
-    override fun acceptVisitor(visitor: ComponentVisitor) {}
-}
-
-private fun buildEndpointDown(name: String) = object : Component(name = "${name}_ENDPOINT_DOWN") {
-    override fun acceptVisitor(visitor: ComponentVisitor) {}
-}
-
-private fun buildLeftPlate(name: String) = object : Component("${name}_L") {
-    override fun acceptVisitor(visitor: ComponentVisitor) {}
-}
-
-private fun buildRightPlate(name: String) = object : Component("${name}_R") {
-    override fun acceptVisitor(visitor: ComponentVisitor) {}
-}
 
 // Inspired by: https://stackoverflow.com/a/38084930/13874413
 private class LazyWithReceiver<This, Return>(val initializer: This.() -> Return) {
