@@ -5,7 +5,7 @@ import core.model.visitor.ComponentVisitor
 class RelayChangeoverContact(
     controller: ContactController = ContactController.DEFAULT,
     name: String,
-    val isNormallyUp: Boolean,
+    val isClosedSideUpOrLeft: Boolean,
     var soloNeighbor: Component = DEFAULT,
     var pairNeighbor1: Component = DEFAULT,
     var pairNeighbor2: Component = DEFAULT

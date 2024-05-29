@@ -13,13 +13,15 @@ import kotlin.io.path.pathString
 
 class ClearsyCircuitParser {
     private val objectsFileExtension = "cdedatamodel"
+
+    // TODO: change ids so that they match the entities' names
     private val xmlComponentBuilders = mapOf(
         "C_BUTTON" to XmlButtonBuilder(),
         "C_POS_POLE" to XmlPoleBuilder(isPositive = true),
         "C_NEG_POLE" to XmlPoleBuilder(isPositive = false),
-        "C_CONTACT_NORMALLY_OPEN" to XmlRelayRegularContactBuilder(isNormallyOpen = true),
+        "C_CONTACT_NORMALLY_OPEN" to XmlMonostableSimpleContactBuilder(isNormallyOpen = true),
         "C_RELAY_MONOSTABLE" to XmlMonostableRelayBuilder(),
-        "C_CONTACT_NORMALLY_CLOSED" to XmlRelayRegularContactBuilder(isNormallyOpen = false),
+        "C_CONTACT_NORMALLY_CLOSED" to XmlMonostableSimpleContactBuilder(isNormallyOpen = false),
         "C_JUNCTION" to XmlJunctionBuilder(),
         "C_LEVER" to XmlLeverBuilder(),
         "C_LEVER_CONTACT" to XmlLeverContactBuilder(),
@@ -27,7 +29,7 @@ class ClearsyCircuitParser {
         "C_CHANGEOVER_CONTACT" to XmlMonostableChangeoverContactBuilder(),
         "C_RESISTOR" to XmlResistorBuilder(),
         "C_CAPACITOR" to XmlCapacitorBuilder(),
-        "C_BISTABLE_CONTACT" to XmlBistableRelayRegularContactBuilder(),
+        "C_BISTABLE_CONTACT" to XmlBistableSimpleContactBuilder(),
         "C_BISTABLE_RELAY" to XmlBistableRelayBuilder(),
         "C_BISTABLE_CHANGEOVER_CONTACT" to XmlBistableChangeoverContactBuilder(),
         "C_ACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = true),
@@ -113,9 +115,10 @@ class ClearsyCircuitParser {
         terminal1.component.connections[terminal1.index] = terminal2.component
     }
 
+    // TODO: Optimize for a single loop
     private fun connectReferences(components: List<XmlCircuitComponent>) {
-        connectContactReferences<RelayRegularContact, MonostableRelay>(components)
-        connectContactReferences<RelayRegularContact, BistableRelay>(components)
+        connectContactReferences<MonostableSimpleContact, MonostableRelay>(components)
+        connectContactReferences<BistableSimpleContact, BistableRelay>(components)
         connectContactReferences<RelayChangeoverContact, MonostableRelay>(components)
         connectContactReferences<RelayChangeoverContact, BistableRelay>(components)
         connectContactReferences<LeverContact, Lever>(components)

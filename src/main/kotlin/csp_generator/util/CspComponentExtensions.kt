@@ -5,8 +5,13 @@ import core.model.visitor.ComponentVisitor
 import java.util.*
 import kotlin.reflect.KProperty
 
-val RelayRegularContact.endpoint: Component
-        by LazyWithReceiver<RelayRegularContact, Component> {
+val MonostableSimpleContact.endpoint: Component
+        by LazyWithReceiver<MonostableSimpleContact, Component> {
+            buildEndpoint(name)
+        }
+
+val BistableSimpleContact.endpoint: Component
+        by LazyWithReceiver<BistableSimpleContact, Component> {
             buildEndpoint(name)
         }
 

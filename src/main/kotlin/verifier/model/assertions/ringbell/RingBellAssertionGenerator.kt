@@ -50,7 +50,7 @@ class RingBellAssertionGenerator : AssertionGenerator {
 
     private fun getContactEndpoint(contact: Contact): Component {
         return when (contact) {
-            is RelayRegularContact -> contact.endpoint
+            is MonostableSimpleContact -> contact.endpoint
             is RelayChangeoverContact -> contact.endpoint1
             else -> Component.DEFAULT
         }

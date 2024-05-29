@@ -4,6 +4,7 @@ import core.model.*
 import input.model.XmlComponentAttributeException
 import input.model.XmlComponentFieldException
 
+// TODO: default parsers for sides and bools
 abstract class XmlCircuitComponentBuilder(val className: String) {
     abstract fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent
 
@@ -87,9 +88,10 @@ class XmlBistableRelayBuilder : XmlCircuitComponentBuilder("Bistable Relay") {
     }
 }
 
-class XmlRelayRegularContactBuilder(private val isNormallyOpen: Boolean) : XmlCircuitComponentBuilder("Relay contact") {
+class XmlMonostableSimpleContactBuilder(private val isNormallyOpen: Boolean) :
+    XmlCircuitComponentBuilder("MonostableSimpleContact") {
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
-        val contact = RelayRegularContact(name = readName(fields), isNormallyOpenOrIsLeftOpen = isNormallyOpen)
+        val contact = MonostableSimpleContact(name = readName(fields), isNormallyOpen = isNormallyOpen)
 
         return object : XmlCircuitComponent(contact, fields) {
             override fun setComponentConnections() {
@@ -100,15 +102,20 @@ class XmlRelayRegularContactBuilder(private val isNormallyOpen: Boolean) : XmlCi
     }
 }
 
-class XmlBistableRelayRegularContactBuilder : XmlCircuitComponentBuilder("Bistable contact") {
-    private val isLeftClosedIndex = 0
+class XmlBistableSimpleContactBuilder : XmlCircuitComponentBuilder("Bistable contact") {
+    private val closeSideIndex = 0
+    private val isInitiallyOpenIndex = 1
 
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
-        val contact = RelayRegularContact(
+        val contact = BistableSimpleContact(
             name = readName(fields),
-            isNormallyOpenOrIsLeftOpen = parseIsLeftOpen(
-                readMandatoryAttributeAt(fields, isLeftClosedIndex),
-                isLeftClosedIndex
+            isCloseSideLeft = parseIsCloseSideLeft(
+                readMandatoryAttributeAt(fields, closeSideIndex),
+                closeSideIndex
+            ),
+            isInitiallyOpen = parseIsInitiallyOpen(
+                readMandatoryAttributeAt(fields, isInitiallyOpenIndex),
+                isInitiallyOpenIndex
             )
         )
 
@@ -121,7 +128,7 @@ class XmlBistableRelayRegularContactBuilder : XmlCircuitComponentBuilder("Bistab
     }
 
     @Suppress("SameParameterValue")
-    private fun parseIsLeftOpen(closeSide: String, index: Int): Boolean {
+    private fun parseIsCloseSideLeft(closeSide: String, index: Int): Boolean {
         return when (closeSide) {
             "left" -> false
             "right" -> true
@@ -129,6 +136,19 @@ class XmlBistableRelayRegularContactBuilder : XmlCircuitComponentBuilder("Bistab
                 className = className,
                 index = index,
                 data = closeSide
+            )
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun parseIsInitiallyOpen(isInitiallyOpen: String, index: Int): Boolean {
+        return when (isInitiallyOpen) {
+            "false" -> false
+            "true" -> true
+            else -> throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = isInitiallyOpen
             )
         }
     }
@@ -201,12 +221,13 @@ class XmlLampBuilder : XmlCircuitComponentBuilder("Lamp") {
 }
 
 class XmlMonostableChangeoverContactBuilder : XmlCircuitComponentBuilder("MonostableChangeOverContact") {
-    private val openSideAttributeName = "Open side"
-    private val openSideAttributeIndex = 0
+    // TODO: try fetch this name from the XML
+    private val initiallyClosedSideName = "Initially closed side"
+    private val initiallyClosedSideIndex = 0
 
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
-        val openSide = parseOpenSide(readMandatoryAttributeAt(fields, openSideAttributeIndex))
-        val contact = RelayChangeoverContact(name = readName(fields), isNormallyUp = openSide)
+        val closedSide = parseClosedSide(readMandatoryAttributeAt(fields, initiallyClosedSideIndex))
+        val contact = RelayChangeoverContact(name = readName(fields), isClosedSideUpOrLeft = closedSide)
 
         return object : XmlCircuitComponent(contact, fields) {
             override fun setComponentConnections() {
@@ -217,22 +238,33 @@ class XmlMonostableChangeoverContactBuilder : XmlCircuitComponentBuilder("Monost
         }
     }
 
-    private fun parseOpenSide(openSide: String): Boolean {
-        return when (openSide.lowercase()) {
+    private fun parseClosedSide(closedSide: String): Boolean {
+        return when (closedSide.lowercase()) {
             "up" -> true
             "down" -> false
             else -> throw XmlComponentFieldException(
-                name = openSideAttributeName,
+                name = initiallyClosedSideName,
                 className = className,
-                data = openSide
+                data = closedSide
             )
         }
     }
 }
 
 class XmlBistableChangeoverContactBuilder : XmlCircuitComponentBuilder("BistableChangeoverContact") {
+    private val initiallyClosedSideIndex = 0
+
     override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
-        val contact = RelayChangeoverContact(name = readName(fields), isNormallyUp = true)
+        val contact = RelayChangeoverContact(
+            name = readName(fields),
+            isClosedSideUpOrLeft = parseIsClosedSideLeft(
+                readMandatoryAttributeAt(
+                    fields,
+                    initiallyClosedSideIndex
+                ),
+                initiallyClosedSideIndex
+            )
+        )
 
         return object : XmlCircuitComponent(contact, fields) {
             override fun setComponentConnections() {
@@ -240,6 +272,19 @@ class XmlBistableChangeoverContactBuilder : XmlCircuitComponentBuilder("Bistable
                 connections[1]?.let { contact.pairNeighbor2 = it.component }
                 connections[2]?.let { contact.soloNeighbor = it.component }
             }
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun parseIsClosedSideLeft(closeSide: String, index: Int): Boolean {
+        return when (closeSide) {
+            "left" -> true
+            "right" -> false
+            else -> throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = closeSide
+            )
         }
     }
 }

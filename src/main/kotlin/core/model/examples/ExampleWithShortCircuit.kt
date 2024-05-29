@@ -5,8 +5,8 @@ import core.model.*
 // It's basically circuit01 without R1 (and C1 consequently)
 val exampleWithShortCircuit: Circuit by lazy {
     val p1 = Pole(isPositive = true, neighbor = Component.DEFAULT, name = "P1")
-    val c2 = RelayRegularContact(
-        isNormallyOpenOrIsLeftOpen = true,
+    val c2 = MonostableSimpleContact(
+        isNormallyOpen = true,
         controller = ContactController.DEFAULT,
         leftNeighbor = Component.DEFAULT,
         rightNeighbor = Component.DEFAULT,
