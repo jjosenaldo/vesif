@@ -39,7 +39,7 @@ class AssertionsViewModel(
         val typesToCheck = assertions.filterIsInstance<AssertionRunning>().map { it.type }
         val allFailingAssertions =
             assertionManager.runAssertionsReturnFailing(
-                circuitViewModel.circuit,
+                circuitViewModel.selectedCircuit.circuit,
                 typesToCheck
             )
         assertions = assertions.map {

@@ -10,7 +10,9 @@ import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import presentation.assertions.AssertionsViewModel
+import presentation.model.UiCircuit
 import presentation.select_project.ProjectViewModel
+import java.io.File
 
 class CircuitViewModel(
     private val circuitParser: ClearsyCircuitParser,
@@ -18,16 +20,48 @@ class CircuitViewModel(
 ) : KoinComponent {
     private val assertionsViewModel: AssertionsViewModel by inject()
     private val projectViewModel: ProjectViewModel by inject()
+    private var loadedCircuits by mutableStateOf<Map<String, UiCircuit>>(mapOf())
+    private val loadedCircuitImages = mutableMapOf<String, File>()
 
     var loadCircuitState by mutableStateOf<LoadCircuitState>(LoadCircuitInitial())
         private set
     var selectedCircuitPath by mutableStateOf("")
         private set
-    var circuit = Circuit.DEFAULT
+    var selectedCircuit = UiCircuit.DEFAULT
+        private set
+    var selectedCircuitImage by mutableStateOf<File?>(null)
         private set
 
-    fun selectCircuit(circuitPath: String) {
-        selectedCircuitPath = circuitPath
+    suspend fun selectCircuit(circuitPath: String) {
+        loadCircuitState = LoadCircuitLoading()
+
+        try {
+            val newCircuit: UiCircuit
+            val newImage: File?
+            val existingCircuit = loadedCircuits[circuitPath]
+
+            if (existingCircuit == null) {
+                val (circuit, imagePath) =
+                    circuitParser.parseCircuitXml(circuitPath = circuitPath, projectPath = projectViewModel.projectPath)
+                newCircuit = UiCircuit(circuit, imagePath)
+                val image = File(newCircuit.imagePath)
+                loadedCircuitImages[circuitPath] = image
+                newImage = image
+//                val types = assertionManager.getAssertionTypes()
+//                assertionsViewModel.setAssertionsFromTypes(types)
+
+            } else {
+                newCircuit = existingCircuit
+                newImage = loadedCircuitImages[circuitPath]
+            }
+
+            selectedCircuitImage = newImage
+            selectedCircuit = newCircuit
+            loadCircuitState = LoadCircuitSuccess()
+            selectedCircuitPath = circuitPath
+        } catch (e: Exception) {
+            loadCircuitState = LoadCircuitError()
+        }
     }
 
     fun getCircuitName(circuitPath: String): String {
@@ -35,22 +69,5 @@ class CircuitViewModel(
             .split(fileSep)
             .last()
             .replace(".xml", "")
-    }
-
-    suspend fun loadCircuitFromXml(circuitPath: String, onCircuitLoaded: () -> Unit) {
-        loadCircuitState = LoadCircuitLoading()
-
-        try {
-            val newCircuit =
-                circuitParser.parseCircuitXml(circuitPath = circuitPath, projectPath = projectViewModel.projectPath)
-            val types = assertionManager.getAssertionTypes()
-            assertionsViewModel.setAssertionsFromTypes(types)
-            circuit = newCircuit
-            loadCircuitState = LoadCircuitSuccess()
-            onCircuitLoaded()
-        } catch (e: Exception) {
-            loadCircuitState = LoadCircuitError()
-        }
-
     }
 }

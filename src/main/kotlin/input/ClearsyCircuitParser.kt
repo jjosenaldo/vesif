@@ -1,6 +1,7 @@
 package input
 
 import core.files.FileManager
+import core.files.fileSep
 import core.model.*
 import input.model.XmlNodeTerminal
 import org.w3c.dom.Document
@@ -36,10 +37,22 @@ class ClearsyCircuitParser {
         "C_DEACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = false)
     )
 
-    suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {
+    suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Pair<Circuit, String> {
+        val circuitXml = FileManager.readXml(circuitPath)
+        val components = getCircuitComponents(projectPath = projectPath, circuitXml)
+        val imagePath = getCircuitImagePath(circuitXml, projectPath = projectPath)
+
+        return Pair(Circuit(components = components), imagePath)
+    }
+
+    private suspend fun getCircuitComponents(
+        projectPath: String,
+        circuitXml: Document
+    ): List<Component> {
         val allObjects = getObjects(getObjectsPath(projectPath))
         val circuitObjectsNames = mutableSetOf<String>()
-        val components = FileManager.readXml(circuitPath)
+
+        return circuitXml
             .documentElement
             .childrenByName("Leg")
             .fold(allObjects) { currentObjects, leg ->
@@ -49,8 +62,13 @@ class ClearsyCircuitParser {
             }
             .map { it.apply { setComponentConnections() }.component }
             .filter { circuitObjectsNames.contains(it.name) }
+    }
 
-        return Circuit(components = components)
+    private fun getCircuitImagePath(circuitXml: Document, projectPath: String): String {
+        // TODO: meaningful exception
+        val relativePath = circuitXml.documentElement.attributeChild("BackgroundGraphics") ?: throw Exception()
+
+        return "$projectPath$fileSep$relativePath"
     }
 
     private fun getObjectsPath(projectPath: String): String {
