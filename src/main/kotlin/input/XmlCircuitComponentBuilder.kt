@@ -331,3 +331,85 @@ class XmlCapacitorBuilder : XmlCircuitComponentBuilder("Capacitor") {
         return chargeInt
     }
 }
+
+class XmlTimedBlockBuilder(private val isActivation: Boolean) :
+    XmlCircuitComponentBuilder(if (isActivation) "ActivationBlock" else "DeactivationBlock") {
+    private val minMaxTime = 1
+    private val maxMaxTime = 50
+    private val minInitialTime = 0
+    private val maxInitialTime = maxMaxTime
+    private val maxTimeIndex = 1
+    private val initialTimeIndex = 0
+
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val maxTime = parseTime(
+            readMandatoryAttributeAt(fields, maxTimeIndex),
+            minMaxTime,
+            maxMaxTime,
+            maxTimeIndex
+        )
+        val block = TimedBlock(
+            name = readName(fields),
+            maxTime = maxTime,
+            isActivation = isActivation,
+            initialTime = parseInitialTime(
+                readMandatoryAttributeAt(fields, initialTimeIndex),
+                minInitialTime,
+                maxInitialTime,
+                initialTimeIndex,
+                maxTime
+            )
+        )
+
+        return object : XmlCircuitComponent(block, fields) {
+            // TODO: check power sources
+            override fun setComponentConnections() {
+                connections[0]?.let { block.posSource = it.component as Pole }
+                connections[1]?.let { block.negSource = it.component as Pole }
+                connections[2]?.let { block.dependentPos = it.component }
+                connections[3]?.let { block.dependentNeg = it.component }
+                connections[4]?.let { block.independentUp = it.component }
+                connections[5]?.let { block.independentDown = it.component }
+            }
+        }
+    }
+
+    private fun parseTime(time: String, min: Int, max: Int, index: Int): Int {
+        try {
+            val timeInt = time.toInt()
+
+            if (timeInt < min || timeInt > max) {
+                throw XmlComponentAttributeException(
+                    className = className,
+                    index = index,
+                    data = time,
+                    details = "Must be between $min and $max."
+                )
+            }
+
+            return timeInt
+        } catch (_: Exception) {
+            throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = time
+            )
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun parseInitialTime(time: String, min: Int, max: Int, index: Int, maxTime: Int): Int {
+        val timeInt = parseTime(time, min, max, index)
+
+        if (timeInt > maxTime) {
+            throw XmlComponentAttributeException(
+                className = className,
+                index = index,
+                data = time,
+                details = "Can't be higher than max time."
+            )
+        }
+
+        return timeInt
+    }
+}

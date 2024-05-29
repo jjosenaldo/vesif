@@ -29,7 +29,9 @@ class ClearsyCircuitParser {
         "C_CAPACITOR" to XmlCapacitorBuilder(),
         "C_BISTABLE_CONTACT" to XmlBistableRelayRegularContactBuilder(),
         "C_BISTABLE_RELAY" to XmlBistableRelayBuilder(),
-        "C_BISTABLE_CHANGEOVER_CONTACT" to XmlBistableChangeoverContactBuilder()
+        "C_BISTABLE_CHANGEOVER_CONTACT" to XmlBistableChangeoverContactBuilder(),
+        "C_ACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = true),
+        "C_DEACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = false)
     )
 
     suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Circuit {

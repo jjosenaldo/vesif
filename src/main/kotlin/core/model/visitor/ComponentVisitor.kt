@@ -15,4 +15,5 @@ interface ComponentVisitor {
     fun visitRelayChangeoverContact(contact: RelayChangeoverContact)
     fun visitResistor(resistor: Resistor)
     fun visitBistableRelay(relay: BistableRelay)
+    fun visitTimedBlock(block: TimedBlock)
 }

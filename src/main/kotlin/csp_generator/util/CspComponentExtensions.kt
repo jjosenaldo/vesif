@@ -31,6 +31,16 @@ val Capacitor.rightPlate by LazyWithReceiver<Capacitor, Component> { buildRightP
 val BistableRelay.leftCoil by LazyWithReceiver<BistableRelay, Component> { buildLeftCoil(name) }
 val BistableRelay.rightCoil by LazyWithReceiver<BistableRelay, Component> { buildRightCoil(name) }
 
+val TimedBlock.independentConnection by LazyWithReceiver<TimedBlock, Component> {
+    buildIndependentConnection(name)
+}
+val TimedBlock.dependentEndpointPos by LazyWithReceiver<TimedBlock, Component> {
+    buildDependentEndpointPos(name)
+}
+val TimedBlock.dependentEndpointNeg by LazyWithReceiver<TimedBlock, Component> {
+    buildDependentEndpointNeg(name)
+}
+
 private fun buildEndpoint(name: String) = buildComponent("${name}_ENDPOINT")
 
 private fun buildEndpointUp(name: String) = buildComponent("${name}_ENDPOINT_UP")
@@ -48,6 +58,12 @@ private fun buildRightPlate(name: String) = buildComponent("${name}_R")
 private fun buildLeftCoil(name: String) = buildComponent("${name}_COIL_L")
 
 private fun buildRightCoil(name: String) = buildComponent("${name}_COIL_R")
+
+private fun buildIndependentConnection(name: String) = buildComponent("${name}_INDEPENDENT_CONNECTION")
+
+private fun buildDependentEndpointPos(name: String) = buildComponent("${name}_DEPENDENT_ENDPOINT_POS")
+
+private fun buildDependentEndpointNeg(name: String) = buildComponent("${name}_DEPENDENT_ENDPOINT_NEG")
 
 private fun buildComponent(name: String) = object : Component(name = name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {}

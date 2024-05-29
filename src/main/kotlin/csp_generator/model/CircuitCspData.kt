@@ -40,14 +40,12 @@ class CircuitCspData : ComponentVisitor {
     val deactBlockIndependentIds = mutableSetOf<String>()
     val deactBlockDependentIds = mutableSetOf<String>()
     val timeDeactSettings = mutableSetOf<CspPair<String, Int>>()
-    lateinit var initialMaxDeactTime: CspPair<String, Int>
-    val maxDeactTime = 0
+    val initialMaxDeactTime = mutableListOf<CspPair<String, Int>>()
     val actBlockIds = mutableSetOf<String>()
     val actBlockIndependentIds = mutableSetOf<String>()
     val actBlockDependentIds = mutableSetOf<String>()
     val timeActSettings = mutableSetOf<CspPair<String, Int>>()
-    lateinit var initialMaxActTime: CspPair<String, Int>
-    val maxActTime = 0
+    val initialMaxActTime = mutableListOf<CspPair<String, Int>>()
     val initialOpenComponentIds = mutableSetOf<String>()
     val relayOfs = mutableSetOf<CspPair<String, String>>()
     val getContactOfEndpoints = mutableSetOf<CspPair<String, String>>()
@@ -238,8 +236,9 @@ class CircuitCspData : ComponentVisitor {
         ids.add("BL_DEPENDENT_ENDPOINT_POS_default")
         ids.add("BL_DEPENDENT_ENDPOINT_NEG_default")
 
-        val actBlocks = components.filterIsInstance<ActivationBlock>()
-        val deactBlocks = components.filterIsInstance<DeactivationBlock>()
+        val blocks = components.filterIsInstance<TimedBlock>()
+        val actBlocks = blocks.filter { it.isActivation }
+        val deactBlocks = blocks.filter { !it.isActivation }
 
         if (actBlocks.isEmpty() && deactBlocks.isEmpty()) {
             ids.add("BL_DEPENDENT_CONNECTION_default")
@@ -254,7 +253,7 @@ class CircuitCspData : ComponentVisitor {
         if (actBlocks.isEmpty()) {
             actBlockIds.add("BL_default")
             timeActSettings.add(CspPair("BL_default", 0))
-            initialMaxActTime = CspPair("BL_default", 0)
+            initialMaxActTime.add(CspPair("BL_default", 0))
             getIndependentConnectionOfAct.add(CspPair("BL_default", "BL_INDEPENDENT_CONNECTION_default"))
             getPositiveOfActBlock.add(CspPair("BL_default", emptySet()))
             getNegativeOfActBlock.add(CspPair("BL_default", emptySet()))
@@ -263,7 +262,7 @@ class CircuitCspData : ComponentVisitor {
         if (deactBlocks.isEmpty()) {
             deactBlockIds.add("BL_default")
             timeDeactSettings.add(CspPair("BL_default", 0))
-            initialMaxDeactTime = CspPair("BL_default", 0)
+            initialMaxDeactTime.add(CspPair("BL_default", 0))
             getIndependentConnectionOfDeact.add(CspPair("BL_default", "BL_INDEPENDENT_CONNECTION_default"))
             getPositiveOfDeactBlock.add(CspPair("BL_default", emptySet()))
             getNegativeOfDeactBlock.add(CspPair("BL_default", emptySet()))
@@ -274,18 +273,22 @@ class CircuitCspData : ComponentVisitor {
      * Inserts ids of elements specific to the CSP translation, such as endpoint ids,
      * PATH_MASTER_id etc
      */
+    // TODO: no need to filter like this, make the functions not to receive lists
     private fun generateAdditionalIds(components: List<Component>) {
         ids.add("PATH_MASTER_id")
         insertRegularContactEndpoints(components.filterIsInstance<RelayRegularContact>())
         insertChangeoverContactEndpoints(components.filterIsInstance<RelayChangeoverContact>())
         insertCapacitorPlates(components.filterIsInstance<Capacitor>())
         insertBistableRelayCoils(components.filterIsInstance<BistableRelay>())
+        insertTimedBlockIndependentConnections(components.filterIsInstance<TimedBlock>())
+        insertTimedBlockDependentConnections(components.filterIsInstance<TimedBlock>())
     }
 
     private fun addComponentId(component: Component) {
         ids.add(component.id)
     }
 
+    // TODO: simplify IF expressions
     private fun addConnection(left: Component, right: Component) {
         if (left is RelayRegularContact
             && right.id == left.rightNeighbor.id
@@ -337,6 +340,10 @@ class CircuitCspData : ComponentVisitor {
             addBistableRelayConnections(left, right)
         } else if (right is BistableRelay && right.neighbors.any { it.id == left.id }) {
             addBistableRelayConnections(right, left)
+        } else if (left is TimedBlock) {
+            addTimedBlockConnections(left, right)
+        } else if (right is TimedBlock) {
+            addTimedBlockConnections(right, left)
         } else {
             addComponentPair(left, right, connections)
         }
@@ -352,6 +359,34 @@ class CircuitCspData : ComponentVisitor {
             relay.rightUpNeighbor.id, relay.rightDownNeighbor.id -> {
                 addConnection(relay.rightUpNeighbor, relay.rightCoil)
                 addConnection(relay.rightCoil, relay.rightDownNeighbor)
+            }
+        }
+    }
+
+    private fun addTimedBlockConnections(timedBlock: TimedBlock, neighbor: Component) {
+        when (neighbor.id) {
+            timedBlock.dependentPos.id -> {
+                addConnection(timedBlock.dependentEndpointPos, neighbor)
+
+                if (neighbor.id == timedBlock.dependentNeg.id) {
+                    addConnection(timedBlock.dependentEndpointNeg, neighbor)
+                }
+            }
+
+            timedBlock.dependentNeg.id -> {
+                addConnection(timedBlock.dependentEndpointNeg, neighbor)
+            }
+
+            timedBlock.posSource.id -> {
+                addConnection(timedBlock.independentDown, neighbor)
+            }
+
+            timedBlock.negSource.id -> {
+                addConnection(timedBlock.independentConnection, neighbor)
+            }
+
+            timedBlock.independentUp.id -> {
+                addConnection(timedBlock.independentConnection, neighbor)
             }
         }
     }
@@ -483,6 +518,27 @@ class CircuitCspData : ComponentVisitor {
         addConnection(relay, relay.rightDownNeighbor)
     }
 
+    override fun visitTimedBlock(block: TimedBlock) {
+        addComponentId(block)
+
+        if (block.isActivation) {
+            actBlockIds.add(block.id)
+            timeActSettings.add(CspPair(block.id, block.initialTime))
+            initialMaxActTime.add(CspPair(block.id, block.maxTime))
+        } else {
+            deactBlockIds.add(block.id)
+            timeDeactSettings.add(CspPair(block.id, block.initialTime))
+            initialMaxDeactTime.add(CspPair(block.id, block.maxTime))
+        }
+
+        addConnection(block, block.posSource)
+        addConnection(block, block.negSource)
+        addConnection(block, block.dependentPos)
+        addConnection(block, block.dependentNeg)
+        addConnection(block, block.independentUp)
+        addConnection(block, block.independentDown)
+    }
+
     /**
      * Convention: the endpoint is always the contact's right neighbor
      */
@@ -564,6 +620,35 @@ class CircuitCspData : ComponentVisitor {
             addComponentId(relay.rightCoil)
             bistableRelayCoilLeftIds.add(relay.leftCoil.id)
             bistableRelayCoilRightIds.add(relay.rightCoil.id)
+        }
+    }
+
+    private fun insertTimedBlockDependentConnections(blocks: List<TimedBlock>) {
+        for (block in blocks) {
+            addComponentId(block.dependentEndpointPos)
+            addComponentId(block.dependentEndpointNeg)
+            positiveIds.add(block.dependentEndpointPos.id)
+            negativeIds.add(block.dependentEndpointNeg.id)
+
+            if (block.isActivation) {
+                getPositiveOfActBlock.add(CspPair(block.id, setOf(block.dependentEndpointPos.id)))
+                getNegativeOfActBlock.add(CspPair(block.id, setOf(block.dependentEndpointNeg.id)))
+            } else {
+                getPositiveOfDeactBlock.add(CspPair(block.id, setOf(block.dependentEndpointPos.id)))
+                getNegativeOfDeactBlock.add(CspPair(block.id, setOf(block.dependentEndpointNeg.id)))
+            }
+        }
+    }
+
+    private fun insertTimedBlockIndependentConnections(blocks: List<TimedBlock>) {
+        for (block in blocks) {
+            addComponentId(block.independentConnection)
+
+            if (block.isActivation) {
+                getIndependentConnectionOfAct.add(CspPair(block.id, block.independentConnection.id))
+            } else {
+                getIndependentConnectionOfDeact.add(CspPair(block.id, block.independentConnection.id))
+            }
         }
     }
 }

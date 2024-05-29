@@ -62,16 +62,22 @@ object CircuitCspWriter {
                 writeDefinition("DEACTIVATION_BLOCKS_DEPENDENT_IDS", data.deactBlockDependentIds)
                 newLine()
                 writeDefinition("TIME_DEACTIVATION_SETTING", data.timeDeactSettings)
-                writeDefinition("INITIAL_MAX_DEACTIVATION_TIME", "setup_max_time${data.initialMaxDeactTime}")
-                writeDefinition("MAX_DEACTIVATION_TIME", data.maxDeactTime)
+                writeDefinition(
+                    "INITIAL_MAX_DEACTIVATION_TIME",
+                    "setup_max_times(${seq(data.initialMaxDeactTime)})"
+                )
+                writeDefinition("MAX_DEACTIVATION_TIME", "max_map_value(INITIAL_MAX_DEACTIVATION_TIME)")
                 newLine()
                 writeDefinition("ACTIVATION_BLOCKS_IDS", data.actBlockIds)
                 writeDefinition("ACTIVATION_BLOCKS_INDEPENDENT_IDS", data.actBlockIndependentIds)
                 writeDefinition("ACTIVATION_BLOCKS_DEPENDENT_IDS", data.actBlockDependentIds)
                 newLine()
                 writeDefinition("TIME_ACTIVATION_SETTING", data.timeActSettings)
-                writeDefinition("INITIAL_MAX_ACTIVATION_TIME", "setup_max_time${data.initialMaxActTime}")
-                writeDefinition("MAX_ACTIVATION_TIME", data.maxActTime)
+                writeDefinition(
+                    "INITIAL_MAX_ACTIVATION_TIME",
+                    "setup_max_times(${seq(data.initialMaxActTime)})"
+                )
+                writeDefinition("MAX_ACTIVATION_TIME", "max_map_value(INITIAL_MAX_ACTIVATION_TIME)")
                 newLine()
                 writeDefinition("INITIAL_OPEN_COMPONENTS", data.initialOpenComponentIds)
                 newLine()

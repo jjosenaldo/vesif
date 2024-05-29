@@ -131,4 +131,5 @@ aux_get_time(block_id, <time>^times) =
 
 setup_max_time(id, amount) = mapFromList(<(id, amount)>)
 setup_max_time_mult(id1, id2, amount1, amount2) = mapFromList(<(id1, amount1), (id2, amount2)>)
+setup_max_times(idsAndAmounts) = mapFromList(idsAndAmounts)
 get_max_time(stp_max_time, id) = mapLookup(stp_max_time, id)
