@@ -3,6 +3,8 @@ package input
 import core.files.FileManager
 import core.files.fileSep
 import core.model.*
+import input.model.ClearsyCircuit
+import input.model.ClearsyComponent
 import input.model.XmlNodeTerminal
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -37,18 +39,18 @@ class ClearsyCircuitParser {
         "C_DEACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = false)
     )
 
-    suspend fun parseCircuitXml(projectPath: String, circuitPath: String): Pair<Circuit, String> {
+    suspend fun parseClearsyCircuit(projectPath: String, circuitPath: String): ClearsyCircuit {
         val circuitXml = FileManager.readXml(circuitPath)
         val components = getCircuitComponents(projectPath = projectPath, circuitXml)
         val imagePath = getCircuitImagePath(circuitXml, projectPath = projectPath)
 
-        return Pair(Circuit(components = components), imagePath)
+        return ClearsyCircuit(components = components, circuitImagePath = imagePath)
     }
 
     private suspend fun getCircuitComponents(
         projectPath: String,
         circuitXml: Document
-    ): List<Component> {
+    ): List<ClearsyComponent> {
         val allObjects = getObjects(getObjectsPath(projectPath))
         val circuitObjectsNames = mutableSetOf<String>()
 
@@ -60,8 +62,13 @@ class ClearsyCircuitParser {
                 circuitObjectsNames.addAll(terminals.map { it.component.name })
                 newObjects
             }
-            .map { it.apply { setComponentConnections() }.component }
             .filter { circuitObjectsNames.contains(it.name) }
+            .map { xmlComponent ->
+                xmlComponent.apply { setComponentConnections() }.let {
+                    ClearsyComponent(it.component, it.positions.toList())
+                }
+            }
+
     }
 
     private fun getCircuitImagePath(circuitXml: Document, projectPath: String): String {
@@ -104,7 +111,7 @@ class ClearsyCircuitParser {
             .childrenByName("Terminal")
             .mapNotNull {
                 if (it !is Element) null
-                else XmlNodeTerminal.fromElementAndObjects(it, objects)
+                else XmlNodeTerminal.fromElementAndObjects(it, objects)?.apply { updatePositions() }
             }
 
         connectNeighbors(terminals)

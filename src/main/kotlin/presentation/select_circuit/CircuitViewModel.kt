@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import core.files.fileSep
 import input.ClearsyCircuitParser
-import core.model.Circuit
 import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -41,9 +40,11 @@ class CircuitViewModel(
             val existingCircuit = loadedCircuits[circuitPath]
 
             if (existingCircuit == null) {
-                val (circuit, imagePath) =
-                    circuitParser.parseCircuitXml(circuitPath = circuitPath, projectPath = projectViewModel.projectPath)
-                newCircuit = UiCircuit(circuit, imagePath)
+                val clearsyCircuit = circuitParser.parseClearsyCircuit(
+                    circuitPath = circuitPath,
+                    projectPath = projectViewModel.projectPath
+                )
+                newCircuit = UiCircuit(clearsyCircuit, clearsyCircuit.circuitImagePath)
                 val image = File(newCircuit.imagePath)
                 loadedCircuitImages[circuitPath] = image
                 newImage = image
@@ -62,6 +63,10 @@ class CircuitViewModel(
         } catch (e: Exception) {
             loadCircuitState = LoadCircuitError()
         }
+    }
+
+    fun setAssertionTypes() {
+        assertionsViewModel.setAssertionsFromTypes(assertionManager.getAssertionTypes())
     }
 
     fun getCircuitName(circuitPath: String): String {

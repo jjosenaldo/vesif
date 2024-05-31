@@ -11,11 +11,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.DialogWindow
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
 fun AssertionsScreen(
+    navController: NavHostController,
     viewModel: AssertionsViewModel = koinInject()
 ) {
     if (viewModel.assertions.isEmpty()) return
@@ -46,7 +48,7 @@ fun AssertionsScreen(
                 onClick = {
                     if (viewModel.assertions.none { it is AssertionRunning }) {
                         scope.launch {
-                            viewModel.runSelectedAssertions()
+                            viewModel.runSelectedAssertions(navController)
                         }
                     }
                 }
@@ -57,7 +59,10 @@ fun AssertionsScreen(
 }
 
 @Composable
-fun AssertionView(assertionState: AssertionState, viewModel: AssertionsViewModel = koinInject()) {
+fun AssertionView(
+    assertionState: AssertionState,
+    viewModel: AssertionsViewModel = koinInject()
+) {
     Column {
         when (assertionState) {
             is AssertionFailed -> Column {

@@ -10,6 +10,7 @@ import org.koin.compose.KoinApplication
 import org.koin.dsl.module
 import presentation.AppContent
 import presentation.assertions.AssertionsViewModel
+import presentation.failed_assertions.FailedAssertionsViewModel
 import presentation.select_circuit.CircuitViewModel
 import presentation.select_project.ProjectViewModel
 
@@ -21,6 +22,7 @@ fun appModule() = module {
     single { CircuitViewModel(get(), get()) }
     single { AssertionsViewModel(get(), get()) }
     single { ProjectViewModel(get()) }
+    single { FailedAssertionsViewModel() }
 }
 
 @Composable

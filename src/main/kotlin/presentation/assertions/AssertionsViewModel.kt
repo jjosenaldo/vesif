@@ -3,7 +3,12 @@ package presentation.assertions
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavHostController
 import core.files.FileManager
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import presentation.AppScreen
+import presentation.failed_assertions.FailedAssertionsViewModel
 import verifier.AssertionManager
 import presentation.select_circuit.CircuitViewModel
 import verifier.model.common.AssertionType
@@ -11,11 +16,14 @@ import verifier.model.common.AssertionType
 class AssertionsViewModel(
     private val assertionManager: AssertionManager,
     private val circuitViewModel: CircuitViewModel
-) {
+) : KoinComponent {
+    private val failedAssertionsViewModel: FailedAssertionsViewModel by inject()
+
     var assertions by mutableStateOf(listOf<AssertionState>())
         private set
     var assertionDetails by mutableStateOf<AssertionFailed?>(null)
         private set
+
 
     fun setAssertionsFromTypes(types: List<AssertionType>) {
         assertions = types.map { AssertionInitial(type = it) }
@@ -28,7 +36,7 @@ class AssertionsViewModel(
         assertions = newAssertions
     }
 
-    suspend fun runSelectedAssertions() {
+    suspend fun runSelectedAssertions(nav: NavHostController) {
         assertions = assertions.map {
             if (it is AssertionInitial && it.selected)
                 AssertionRunning(it.type)
@@ -39,7 +47,7 @@ class AssertionsViewModel(
         val typesToCheck = assertions.filterIsInstance<AssertionRunning>().map { it.type }
         val allFailingAssertions =
             assertionManager.runAssertionsReturnFailing(
-                circuitViewModel.selectedCircuit.circuit,
+                circuitViewModel.selectedCircuit.circuit.circuit,
                 typesToCheck
             )
         assertions = assertions.map {
@@ -55,9 +63,15 @@ class AssertionsViewModel(
                 else -> it
             }
         }
+
+        failedAssertionsViewModel.setup(
+            failedAssertions = allFailingAssertions.values.flatten(),
+            circuit = circuitViewModel.selectedCircuit.circuit
+        )
+        nav.navigate(AppScreen.FailedAssertions.name)
     }
 
     fun showAssertionDetails(assertion: AssertionFailed?) {
-        assertionDetails = assertion
+
     }
 }

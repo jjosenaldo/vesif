@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import presentation.AppScreen
+import presentation.assertions.AssertionsViewModel
 import presentation.select_project.ProjectViewModel
 import java.io.File
 
@@ -59,7 +60,7 @@ fun SelectCircuitScreen(
             SelectCircuitButton(navController)
         }
 
-        CircuitImageCanvas(circuitVm.selectedCircuitImage)
+        CircuitImage(circuitVm.selectedCircuitImage)
     }
 
 }
@@ -72,6 +73,7 @@ private fun SelectCircuitButton(
     Button(
         enabled = circuitVm.selectedCircuitPath.isNotEmpty() && circuitVm.loadCircuitState !is LoadCircuitLoading,
         onClick = {
+            circuitVm.setAssertionTypes()
             navController.navigate(
                 AppScreen.Assertions.name
             )
@@ -95,13 +97,4 @@ private fun CircuitImage(circuitImage: File?) {
         // TODO: circuit name
         contentDescription = "Image from circuit"
     )
-}
-
-@Composable
-private fun CircuitImageCanvas(circuitImage: File?) {
-    if (circuitImage == null) return
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawImage(loadImageBitmap(circuitImage.inputStream()))
-    }
 }

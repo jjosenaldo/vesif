@@ -1,6 +1,7 @@
 package input
 
 import core.model.Component
+import core.model.PositionDouble
 
 abstract class XmlCircuitComponent(
     val component: Component,
@@ -9,6 +10,7 @@ abstract class XmlCircuitComponent(
     val reference: String? = readAttribute(attributes, "Reference"),
     val connections: MutableMap<Int, XmlCircuitComponent> = mutableMapOf()
 ) {
+    val positions = mutableSetOf<PositionDouble>()
     abstract fun setComponentConnections()
 
     companion object {

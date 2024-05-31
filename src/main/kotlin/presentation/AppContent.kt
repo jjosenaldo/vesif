@@ -5,13 +5,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import presentation.assertions.AssertionsScreen
+import presentation.failed_assertions.FailedAssertionsScreen
 import presentation.select_circuit.SelectCircuitScreen
 import presentation.select_project.SelectProjectScreen
 
 enum class AppScreen {
     SelectProject,
     SelectCircuit,
-    Assertions
+    Assertions,
+    FailedAssertions
 }
 
 @Composable
@@ -29,7 +31,10 @@ fun AppContent() {
             SelectCircuitScreen(navController)
         }
         composable(route = AppScreen.Assertions.name) {
-            AssertionsScreen()
+            AssertionsScreen(navController)
+        }
+        composable(route = AppScreen.FailedAssertions.name) {
+            FailedAssertionsScreen()
         }
     }
 }

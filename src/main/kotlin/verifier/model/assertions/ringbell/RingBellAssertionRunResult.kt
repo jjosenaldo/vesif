@@ -3,18 +3,20 @@ package verifier.model.assertions.ringbell
 import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType
 
-class RingBellAssertionRunResult(private val assertion: RingBellAssertion, passed: Boolean) :
+class RingBellAssertionRunResult(assertion: RingBellAssertion, passed: Boolean) :
     AssertionRunResult(AssertionType.RingBell, passed) {
-    override val details =
-        "Contact: ${assertion.contact.name}, pressed buttons: ${pressedButtons()}"
+    override val details by lazy {
+        "Contact: ${assertion.contact.name}, pressed buttons: ${pressedButtonsDescription()}"
+    }
 
-    private fun pressedButtons(): String {
-        val buttons = assertion.buttonsState.filterValues { it }.keys
+    val contact = assertion.contact
+    val pressedButtons = assertion.buttonsState.filterValues { it }.keys.toList()
 
-        if (buttons.isEmpty()) return "None"
+    private fun pressedButtonsDescription(): String {
+        if (pressedButtons.isEmpty()) return "None"
 
         return "{${
-            buttons.joinToString(
+            pressedButtons.joinToString(
                 ", "
             ) { it.name }
         }}"
