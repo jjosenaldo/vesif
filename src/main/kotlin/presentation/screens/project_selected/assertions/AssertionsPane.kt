@@ -1,4 +1,4 @@
-package presentation.assertions
+package presentation.screens.project_selected.assertions
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,35 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.window.DialogWindow
-import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-fun AssertionsScreen(
-    navController: NavHostController,
+fun AssertionsPane(
     viewModel: AssertionsViewModel = koinInject()
 ) {
     if (viewModel.assertions.isEmpty()) return
 
 
     val scope = rememberCoroutineScope()
-    val assertionDetails = viewModel.assertionDetails
-
-    if (assertionDetails != null) {
-        DialogWindow(
-            onCloseRequest = { viewModel.showAssertionDetails(null) },
-            title = "Details",
-        ) {
-            Column {
-                Text(assertionDetails.details)
-                Button(onClick = { viewModel.showAssertionDetails(null) }) {
-                    Text("Ok")
-                }
-            }
-        }
-    }
 
     Column {
         viewModel.assertions.map { AssertionView(it) }
@@ -48,7 +30,7 @@ fun AssertionsScreen(
                 onClick = {
                     if (viewModel.assertions.none { it is AssertionRunning }) {
                         scope.launch {
-                            viewModel.runSelectedAssertions(navController)
+                            viewModel.runSelectedAssertions()
                         }
                     }
                 }
@@ -74,7 +56,7 @@ fun AssertionView(
                     )
                     Text(text = assertionState.name)
                 }
-                Button(onClick = { viewModel.showAssertionDetails(assertionState) }) {
+                Button(onClick = { viewModel.goToFailedAssertion(assertionState.results) }) {
                     Text("View details")
                 }
             }

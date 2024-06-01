@@ -1,29 +1,27 @@
-package presentation.assertions
+package presentation.screens.project_selected.assertions
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavHostController
-import core.files.FileManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import presentation.AppScreen
-import presentation.failed_assertions.FailedAssertionsViewModel
+import presentation.screens.project_selected.failed_assertion.FailedAssertionViewModel
+import presentation.screens.project_selected.ProjectSelectedScreenId
+import presentation.screens.project_selected.ProjectSelectedViewModel
 import verifier.AssertionManager
-import presentation.select_circuit.CircuitViewModel
+import presentation.screens.project_selected.select_circuit.CircuitViewModel
+import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType
 
 class AssertionsViewModel(
-    private val assertionManager: AssertionManager,
-    private val circuitViewModel: CircuitViewModel
+    private val assertionManager: AssertionManager
 ) : KoinComponent {
-    private val failedAssertionsViewModel: FailedAssertionsViewModel by inject()
+    private val circuitViewModel: CircuitViewModel by inject()
+    private val failedAssertionsViewModel: FailedAssertionViewModel by inject()
+    private val projectSelectedViewModel: ProjectSelectedViewModel by inject()
 
     var assertions by mutableStateOf(listOf<AssertionState>())
         private set
-    var assertionDetails by mutableStateOf<AssertionFailed?>(null)
-        private set
-
 
     fun setAssertionsFromTypes(types: List<AssertionType>) {
         assertions = types.map { AssertionInitial(type = it) }
@@ -36,7 +34,7 @@ class AssertionsViewModel(
         assertions = newAssertions
     }
 
-    suspend fun runSelectedAssertions(nav: NavHostController) {
+    suspend fun runSelectedAssertions() {
         assertions = assertions.map {
             if (it is AssertionInitial && it.selected)
                 AssertionRunning(it.type)
@@ -47,31 +45,22 @@ class AssertionsViewModel(
         val typesToCheck = assertions.filterIsInstance<AssertionRunning>().map { it.type }
         val allFailingAssertions =
             assertionManager.runAssertionsReturnFailing(
-                circuitViewModel.selectedCircuit.circuit.circuit,
+                circuitViewModel.selectedCircuit.circuit,
                 typesToCheck
             )
         assertions = assertions.map {
             val failingAssertions = allFailingAssertions[it.type] ?: listOf()
 
             when {
-                failingAssertions.isNotEmpty() -> AssertionFailed(
-                    it.type,
-                    details = failingAssertions.joinToString(FileManager.newLine) { result -> result.details }
-                )
-
+                failingAssertions.isNotEmpty() -> AssertionFailed(it.type, failingAssertions)
                 typesToCheck.contains(it.type) -> AssertionPassed(it.type)
                 else -> it
             }
         }
-
-        failedAssertionsViewModel.setup(
-            failedAssertions = allFailingAssertions.values.flatten(),
-            circuit = circuitViewModel.selectedCircuit.circuit
-        )
-        nav.navigate(AppScreen.FailedAssertions.name)
     }
 
-    fun showAssertionDetails(assertion: AssertionFailed?) {
-
+    fun goToFailedAssertion(results: List<AssertionRunResult>) {
+        failedAssertionsViewModel.setup(results)
+        projectSelectedViewModel.currentScreen = ProjectSelectedScreenId.FailedAssertion
     }
 }

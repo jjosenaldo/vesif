@@ -1,4 +1,4 @@
-package presentation.select_circuit
+package presentation.screens.project_selected.select_circuit
 
 sealed class LoadCircuitState {
 }

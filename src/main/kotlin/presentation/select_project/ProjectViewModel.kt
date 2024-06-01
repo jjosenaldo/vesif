@@ -13,14 +13,13 @@ class ProjectViewModel(private val projectParser: ClearsyProjectParser) {
     var selectProjectState by mutableStateOf<SelectProjectState>(SelectProjectInitial())
         private set
 
-    suspend fun loadClearsyProject(path: String, onProjectSelected: () -> Unit) {
+    suspend fun loadClearsyProject(path: String) {
         selectProjectState = SelectProjectLoading()
         try {
             val circuitsPaths = projectParser.getCircuitsPaths(path)
             selectProjectState = SelectProjectSuccess()
             this.circuitsPaths = circuitsPaths
             projectPath = path
-            onProjectSelected()
         } catch (e: Exception) {
             selectProjectState = SelectProjectError()
         }

@@ -1,22 +1,29 @@
-package presentation.failed_assertions
+package presentation.screens.project_selected.failed_assertion
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import input.model.ClearsyCircuit
-import presentation.model.UiCircuit
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import presentation.model.UiComponent
 import presentation.model.UiFailedAssertion
 import presentation.model.UiFailedRingBell
+import presentation.screens.project_selected.select_circuit.CircuitViewModel
 import verifier.model.assertions.ringbell.RingBellAssertionRunResult
 import verifier.model.common.AssertionRunResult
 import java.io.File
 
-class FailedAssertionsViewModel {
+class FailedAssertionViewModel : KoinComponent {
+    private val circuitViewModel: CircuitViewModel by inject()
+
+    var selectedFailedAssertion by mutableStateOf(UiFailedAssertion.DEFAULT)
+        private set
     var failedAssertions by mutableStateOf(listOf<UiFailedAssertion>())
         private set
 
-    fun setup(failedAssertions: List<AssertionRunResult>, circuit: ClearsyCircuit) {
+    fun setup(failedAssertions: List<AssertionRunResult>) {
+        val circuit = circuitViewModel.selectedCircuit
+
         this.failedAssertions = failedAssertions.mapNotNull {
             when (it) {
                 is RingBellAssertionRunResult -> {
@@ -33,6 +40,7 @@ class FailedAssertionsViewModel {
                 else -> null
             }
         }
+        selectedFailedAssertion = this.failedAssertions.first()
     }
 
 }

@@ -1,5 +1,6 @@
 package presentation.select_project
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
@@ -10,20 +11,25 @@ import com.darkrockstudios.libraries.mpfilepicker.DirectoryPicker
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import presentation.AppScreen
+import presentation.screens.project_selected.ProjectSelectedScreenId
+import presentation.screens.project_selected.ProjectSelectedViewModel
 
 @Composable
-fun SelectProjectScreen(navController: NavHostController) {
-    ProjectSelector(onProjectSelected = { navController.navigate(AppScreen.SelectCircuit.name) })
-}
-
-@Composable
-fun ProjectSelector(
+fun SelectProjectScreen(
+    navController: NavHostController,
     viewModel: ProjectViewModel = koinInject(),
-    onProjectSelected: () -> Unit
+    projectSelectedViewModel: ProjectSelectedViewModel = koinInject()
 ) {
     var showPicker by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val state = viewModel.selectProjectState
+
+    LaunchedEffect(state) {
+        if (state is SelectProjectSuccess) {
+            projectSelectedViewModel.currentScreen = ProjectSelectedScreenId.SelectCircuit
+            navController.navigate(AppScreen.ProjectSelected.name)
+        }
+    }
 
     Column {
         when (state) {
@@ -39,12 +45,12 @@ fun ProjectSelector(
                 CircularProgressIndicator()
             }
 
-            is SelectProjectSuccess -> Text("")
+            is SelectProjectSuccess -> Box {}
         }
         ClearsyProjectPicker(
             show = showPicker,
             onShowChanged = { showPicker = it },
-            onFolderSelected = { scope.launch { viewModel.loadClearsyProject(it, onProjectSelected) } }
+            onFolderSelected = { scope.launch { viewModel.loadClearsyProject(it) } }
         )
     }
 }

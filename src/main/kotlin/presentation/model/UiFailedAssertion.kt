@@ -1,6 +1,7 @@
 package presentation.model
 
-import java.io.File
-
-abstract class UiFailedAssertion(val circuitImage: File) {
+abstract class UiFailedAssertion(val circuitParams: UiCircuitParams) {
+    companion object {
+        val DEFAULT = object : UiFailedAssertion(UiCircuitParams.DEFAULT) {}
+    }
 }

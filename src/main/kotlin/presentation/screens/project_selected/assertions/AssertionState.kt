@@ -1,5 +1,6 @@
-package presentation.assertions
+package presentation.screens.project_selected.assertions
 
+import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType
 
 sealed class AssertionState(val type: AssertionType) {
@@ -16,4 +17,4 @@ class AssertionInitial(type: AssertionType, val selected: Boolean = false) : Ass
 
 class AssertionNotSelected(type: AssertionType) : AssertionState(type)
 class AssertionPassed(type: AssertionType) : AssertionState(type)
-class AssertionFailed(type: AssertionType, val details: String) : AssertionState(type)
+class AssertionFailed(type: AssertionType, val results: List<AssertionRunResult>) : AssertionState(type)
