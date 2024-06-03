@@ -5,7 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import presentation.screens.project_selected.ProjectSelectedScreen
-import presentation.select_project.SelectProjectScreen
+import presentation.screens.select_project.SelectProjectScreen
 
 enum class AppScreen {
     SelectProject,

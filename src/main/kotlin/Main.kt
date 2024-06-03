@@ -13,7 +13,7 @@ import presentation.screens.project_selected.assertions.AssertionsViewModel
 import presentation.screens.project_selected.failed_assertion.FailedAssertionViewModel
 import presentation.screens.project_selected.ProjectSelectedViewModel
 import presentation.screens.project_selected.select_circuit.CircuitViewModel
-import presentation.select_project.ProjectViewModel
+import presentation.screens.select_project.ProjectViewModel
 
 fun appModule() = module {
     single { CspGenerator() }

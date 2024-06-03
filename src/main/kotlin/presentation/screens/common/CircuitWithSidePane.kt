@@ -1,4 +1,4 @@
-package presentation.screens
+package presentation.screens.common
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Row
@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.loadImageBitmap
 import presentation.model.UiCircuitParams
@@ -18,6 +17,7 @@ fun CircuitWithSidePane(
 ) {
     Row {
         pane()
+        VerticalDivider()
         CircuitImage(params)
     }
 }
@@ -34,7 +34,7 @@ private fun CircuitImage(params: UiCircuitParams) {
         params.circles(Size(image.width.toFloat(), image.height.toFloat())).forEach {
             drawCircle(
                 center = it.center,
-                color = Color.Red,
+                color = it.color,
                 radius = it.radius,
                 style = Stroke(
                     width = 3.0f

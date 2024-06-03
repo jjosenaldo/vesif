@@ -12,7 +12,7 @@ import org.koin.core.component.inject
 import presentation.screens.project_selected.assertions.AssertionsViewModel
 import presentation.screens.project_selected.ProjectSelectedScreenId
 import presentation.screens.project_selected.ProjectSelectedViewModel
-import presentation.select_project.ProjectViewModel
+import presentation.screens.select_project.ProjectViewModel
 import java.io.File
 
 class CircuitViewModel(

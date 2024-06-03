@@ -1,4 +1,4 @@
-package presentation.select_project
+package presentation.screens.select_project
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

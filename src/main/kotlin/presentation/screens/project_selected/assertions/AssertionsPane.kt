@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import presentation.screens.common.Pane
 
 @Composable
 fun AssertionsPane(
@@ -22,7 +23,7 @@ fun AssertionsPane(
 
     val scope = rememberCoroutineScope()
 
-    Column {
+    Pane {
         viewModel.assertions.map { AssertionView(it) }
 
         if (viewModel.assertions.all { it is AssertionInitial || it is AssertionRunning })

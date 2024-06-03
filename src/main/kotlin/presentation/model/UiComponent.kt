@@ -10,6 +10,8 @@ import presentation.middlePoint
 import presentation.toOffset
 
 data class UiComponent(val positions: List<PositionDouble>, val component: Component) {
+    val name = component.name
+
     fun circle(canvasSize: Size): UiCircleInfo {
         val center: Offset
         val radius: Float

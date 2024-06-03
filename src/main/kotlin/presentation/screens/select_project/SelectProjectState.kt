@@ -1,4 +1,4 @@
-package presentation.select_project
+package presentation.screens.select_project
 
 sealed class SelectProjectState()
 
