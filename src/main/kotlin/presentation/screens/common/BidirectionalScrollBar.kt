@@ -7,9 +7,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun BidirectionalScrollColumn(
+fun BidirectionalScrollBar(
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable () -> Unit
 ) {
     Box(modifier = modifier) {
         val stateVertical = rememberScrollState(0)

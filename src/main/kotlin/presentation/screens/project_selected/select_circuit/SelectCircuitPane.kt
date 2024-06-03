@@ -1,6 +1,5 @@
 package presentation.screens.project_selected.select_circuit
 
-import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
@@ -12,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import presentation.screens.common.BidirectionalScrollColumn
+import presentation.screens.common.BidirectionalScrollBar
 import presentation.screens.common.Pane
 import presentation.screens.select_project.ProjectViewModel
 
@@ -25,7 +24,7 @@ fun SelectCircuitPane(
     val scope = rememberCoroutineScope()
 
     Pane {
-        BidirectionalScrollColumn(modifier = Modifier.fillMaxHeight().weight(1f)) {
+        BidirectionalScrollBar(modifier = Modifier.fillMaxHeight().weight(1f)) {
             projectVm.circuitsPaths.forEach { path ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
