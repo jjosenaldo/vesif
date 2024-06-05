@@ -8,12 +8,12 @@ import input.ClearsyProjectParser
 import verifier.AssertionManager
 import org.koin.compose.KoinApplication
 import org.koin.dsl.module
-import presentation.AppContent
-import presentation.screens.project_selected.assertions.AssertionsViewModel
-import presentation.screens.project_selected.failed_assertion.FailedAssertionViewModel
-import presentation.screens.project_selected.ProjectSelectedViewModel
-import presentation.screens.project_selected.select_circuit.CircuitViewModel
-import presentation.screens.select_project.ProjectViewModel
+import ui.AppContent
+import ui.screens.project_selected.assertions.AssertionsViewModel
+import ui.screens.project_selected.failed_assertion.FailedAssertionViewModel
+import ui.screens.project_selected.ProjectSelectedViewModel
+import ui.screens.project_selected.select_circuit.CircuitViewModel
+import ui.screens.select_project.ProjectViewModel
 
 fun appModule() = module {
     single { CspGenerator() }

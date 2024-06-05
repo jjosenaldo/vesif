@@ -11,7 +11,6 @@ import verifier.util.*
 
 class DeterminismAssertionRunResult(val fdrAssertion: Assertion, val session: Session) :
     AssertionRunResult(AssertionType.Determinism, fdrAssertion.passed()) {
-    override val details = buildDetails()
 
     private fun buildDetails(): String {
         val behaviors = fdrAssertion.rootBehaviors()

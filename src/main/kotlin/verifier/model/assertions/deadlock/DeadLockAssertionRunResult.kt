@@ -13,7 +13,6 @@ class DeadLockAssertionRunResult(
     private val fdrAssertion: Assertion
 ) :
     AssertionRunResult(AssertionType.Deadlock, fdrAssertion.passed()) {
-    override val details = buildDetails()
 
     private fun buildDetails(): String {
         val trace =

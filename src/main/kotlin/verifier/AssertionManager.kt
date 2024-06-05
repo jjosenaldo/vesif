@@ -52,7 +52,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
                     results.addAll(
                         assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
                             fdrAssertion.execute(null)
-                            assertion.buildRunResult(this, fdrAssertion)
+                            assertion.buildRunResult(this, fdrAssertion, circuit.components)
                         }
                     )
                 }

@@ -1,5 +1,6 @@
 package verifier.model.assertions.deadlock
 
+import core.model.Component
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
 import verifier.model.common.AssertionDefinition
@@ -10,7 +11,11 @@ class DeadlockAssertion : AssertionDefinition() {
     override val definition = "assert SYSTEM:[deadlock free]"
     override val type = AssertionType.Deadlock
 
-    override fun buildRunResult(session: Session, fdrAssertion: Assertion): AssertionRunResult {
+    override fun buildRunResult(
+        session: Session,
+        fdrAssertion: Assertion,
+        components: List<Component>
+    ): AssertionRunResult {
         return DeadLockAssertionRunResult(this, session, fdrAssertion)
     }
 }

@@ -47,6 +47,10 @@ fun Assertion.getFirstTraceBehavior() = getFirstBehavior<TraceBehaviour>()
 fun Assertion.getFirstLoopBehavior() = getFirstBehavior<LoopBehaviour>()
 fun Assertion.getFirstMinAcceptanceBehavior() = getFirstBehavior<MinAcceptanceBehaviour>()
 
+fun TraceBehaviour.errorEvent(session: Session): String {
+    return session.uncompileEvent(errorEvent()).toString()
+}
+
 private inline fun <reified T1 : Behaviour> Assertion.getFirstBehavior(): T1? {
     val counterExample = counterexamples().firstOrNull() ?: return null
     val context = when (counterExample) {

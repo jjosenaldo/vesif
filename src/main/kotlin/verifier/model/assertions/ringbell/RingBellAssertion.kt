@@ -11,7 +11,10 @@ class RingBellAssertion(val contact: Contact, endpoint: Component, val buttonsSt
     override val definition =
         "assert not $mainProcessName(${endpoint.id}, (| ${buttonsState.entries.joinToString(", ") { "${it.key.id} => ${it.value}" }} |)) [T= RUN({switch})"
     override val type: AssertionType = AssertionType.RingBell
-    override fun buildRunResult(session: Session, fdrAssertion: Assertion) =
+    override fun buildRunResult(
+        session: Session, fdrAssertion: Assertion,
+        components: List<Component>
+    ) =
         RingBellAssertionRunResult(this, fdrAssertion.passed())
 
     private val mainProcessName

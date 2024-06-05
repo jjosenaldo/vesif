@@ -4,35 +4,49 @@ import core.model.Component
 import uk.ac.ox.cs.fdr.*
 import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType
+import verifier.util.errorEvent
 import verifier.util.getFirstTraceBehavior
-import verifier.util.prettyTrace
+import verifier.util.trace
 
-class ShortCircuitAssertionRunResult(private val session: Session, private val fdrAssertion: Assertion) :
+// TODO(ft): group multiple results into one
+class ShortCircuitAssertionRunResult(
+    private val session: Session,
+    private val fdrAssertion: Assertion,
+    private val components: List<Component>
+) :
     AssertionRunResult(AssertionType.ShortCircuit, fdrAssertion.passed()) {
-    override val details = buildDetails()
+    val shortCircuit by lazy {
+        val shortCircuitEvent =
+            shortCircuitTrace.lastOrNull() ?: return@lazy listOf()
+        val shortCircuitComponents = shortCircuitEvent.split(".")
+        // TODO(td): move short_circuit_path and friends to a dedicated file
+        if (shortCircuitComponents.size < 2 || shortCircuitComponents.first() != "short_circuit_path")
+            return@lazy listOf()
 
-    private fun buildDetails(): String {
-        val behavior = fdrAssertion.getFirstTraceBehavior() ?: return ""
-        val poles = getPolesFromBehavior(session, behavior)
-        if (poles.size != 2) return ""
-        val trace = behavior.prettyTrace(session)
-        return buildDetailsFromPolesAndTrace(poles, trace)
+        shortCircuitComponents[1]
+            .removeSurrounding("<", ">")
+            .replace(" ", "")
+            .split(",")
+            .mapNotNull { id -> components.firstOrNull { it.id == id } }
     }
 
-    private fun buildDetailsFromPolesAndTrace(poles: List<String>, trace: String): String {
-        return "Short circuit found from ${poles[0]} to ${poles[1]} with trace: $trace"
+    // TODO(ft): consider levers
+    val inputs by lazy {
+        shortCircuitTrace
+            .filter { it.contains("press") }
+            .mapNotNull {
+                val split = it.split(".")
+                if (split.size < 3) return@mapNotNull null
+
+                val id = split[1]
+                val state = split[2]
+
+                if (state != "true") return@mapNotNull null
+                components.firstOrNull { comp -> comp.id == id }
+            }
     }
-
-    private fun getPolesFromBehavior(session: Session, behavior: TraceBehaviour): List<String> {
-        val event = session.uncompileEvent(behavior.errorEvent())
-        return getPolesFromEvent(event)
-    }
-
-    private fun getPolesFromEvent(event: Event): List<String> {
-        val components = event.toString().split(".")
-
-        if (components[0] != "short_circuit" || components.size != 3) return listOf()
-
-        return listOf(components[1], components[2]).map(Component::getNameFromId)
+    private val shortCircuitTrace by lazy {
+        val behavior = fdrAssertion.getFirstTraceBehavior() ?: return@lazy listOf()
+        behavior.trace(session) + behavior.errorEvent(session)
     }
 }
