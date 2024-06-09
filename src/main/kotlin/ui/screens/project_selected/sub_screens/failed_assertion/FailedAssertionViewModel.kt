@@ -1,4 +1,4 @@
-package ui.screens.project_selected.failed_assertion
+package ui.screens.project_selected.sub_screens.failed_assertion
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,7 +9,7 @@ import ui.model.UiComponent
 import ui.model.assertions.UiFailedAssertion
 import ui.model.assertions.UiFailedRingBell
 import ui.model.assertions.UiFailedShortCircuit
-import ui.screens.project_selected.select_circuit.CircuitViewModel
+import ui.screens.project_selected.sub_screens.select_circuit.CircuitViewModel
 import verifier.model.assertions.ringbell.RingBellAssertionRunResult
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionRunResult
 import verifier.model.common.AssertionRunResult

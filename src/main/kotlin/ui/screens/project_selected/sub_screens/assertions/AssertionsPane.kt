@@ -1,4 +1,4 @@
-package ui.screens.project_selected.assertions
+package ui.screens.project_selected.sub_screens.assertions
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import ui.screens.common.Pane
+import ui.navigation.AppNavigator
+import ui.common.Pane
 
 @Composable
 fun AssertionsPane(
@@ -44,7 +45,8 @@ fun AssertionsPane(
 @Composable
 fun AssertionView(
     assertionState: AssertionState,
-    viewModel: AssertionsViewModel = koinInject()
+    viewModel: AssertionsViewModel = koinInject(),
+    navigator: AppNavigator = koinInject()
 ) {
     Column {
         when (assertionState) {
@@ -57,7 +59,7 @@ fun AssertionView(
                     )
                     Text(text = assertionState.name)
                 }
-                Button(onClick = { viewModel.goToFailedAssertion(assertionState.results) }) {
+                Button(onClick = { navigator.navToFailedAssertions(assertionState.results) }) {
                     Text("View details")
                 }
             }

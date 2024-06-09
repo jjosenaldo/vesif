@@ -1,6 +1,6 @@
 package ui.screens.project_selected
 
-enum class ProjectSelectedScreenId {
+enum class ProjectSelectedSubScreenId {
     SelectCircuit,
     Assertions,
     FailedAssertion,

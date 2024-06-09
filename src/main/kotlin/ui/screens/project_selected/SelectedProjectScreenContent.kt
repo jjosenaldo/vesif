@@ -1,6 +1,7 @@
-package ui.screens.common
+package ui.screens.project_selected
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -12,18 +13,25 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
+import ui.common.BidirectionalScrollBar
+import ui.common.SecondaryMenuBar
+import ui.common.VerticalDivider
 import ui.model.UiCircuitParams
 
 @Composable
-fun CircuitWithSidePane(
+fun SelectedProjectScreenContent(
     params: UiCircuitParams,
     pane: @Composable () -> Unit
 ) {
-    Row {
-        pane()
-        VerticalDivider()
-        CircuitImage(params)
+    Column {
+        SecondaryMenuBar()
+        Row {
+            pane()
+            VerticalDivider()
+            CircuitImage(params)
+        }
     }
+
 }
 
 

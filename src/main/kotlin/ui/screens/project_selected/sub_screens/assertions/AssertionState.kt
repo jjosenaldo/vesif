@@ -1,4 +1,4 @@
-package ui.screens.project_selected.assertions
+package ui.screens.project_selected.sub_screens.assertions
 
 import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType

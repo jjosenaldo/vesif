@@ -6,19 +6,15 @@ import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.navigation.NavHostController
 import com.darkrockstudios.libraries.mpfilepicker.DirectoryPicker
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import ui.AppScreen
-import ui.screens.project_selected.ProjectSelectedScreenId
-import ui.screens.project_selected.ProjectSelectedViewModel
+import ui.navigation.AppNavigator
 
 @Composable
 fun SelectProjectScreen(
-    navController: NavHostController,
-    viewModel: ProjectViewModel = koinInject(),
-    projectSelectedViewModel: ProjectSelectedViewModel = koinInject()
+    navigator: AppNavigator = koinInject(),
+    viewModel: ProjectViewModel = koinInject()
 ) {
     var showPicker by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -26,8 +22,7 @@ fun SelectProjectScreen(
 
     LaunchedEffect(state) {
         if (state is SelectProjectSuccess) {
-            projectSelectedViewModel.currentScreen = ProjectSelectedScreenId.SelectCircuit
-            navController.navigate(AppScreen.ProjectSelected.name)
+            navigator.navToSelectCircuit()
         }
     }
 

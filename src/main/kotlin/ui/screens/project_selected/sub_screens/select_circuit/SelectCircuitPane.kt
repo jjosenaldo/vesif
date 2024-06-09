@@ -1,4 +1,4 @@
-package ui.screens.project_selected.select_circuit
+package ui.screens.project_selected.sub_screens.select_circuit
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -11,8 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import ui.screens.common.BidirectionalScrollBar
-import ui.screens.common.Pane
+import ui.common.BidirectionalScrollBar
+import ui.navigation.AppNavigator
+import ui.common.Pane
 import ui.screens.select_project.ProjectViewModel
 
 
@@ -49,11 +50,12 @@ fun SelectCircuitPane(
 
 @Composable
 private fun SelectCircuitButton(
-    circuitVm: CircuitViewModel = koinInject()
+    circuitVm: CircuitViewModel = koinInject(),
+    navigator: AppNavigator = koinInject()
 ) {
     Button(
         enabled = circuitVm.selectedCircuitPath.isNotEmpty() && circuitVm.loadCircuitState !is LoadCircuitLoading,
-        onClick = circuitVm::confirmCircuitSelection
+        onClick = { circuitVm.confirmCircuitSelection(navigator) }
     ) {
         if (circuitVm.loadCircuitState is LoadCircuitLoading)
             CircularProgressIndicator()

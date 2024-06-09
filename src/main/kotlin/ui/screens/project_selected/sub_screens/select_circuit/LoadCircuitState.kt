@@ -1,4 +1,4 @@
-package ui.screens.project_selected.select_circuit
+package ui.screens.project_selected.sub_screens.select_circuit
 
 sealed class LoadCircuitState {
 }

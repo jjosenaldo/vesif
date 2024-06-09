@@ -5,9 +5,9 @@ import androidx.compose.ui.geometry.Size
 import core.model.Component
 import core.model.PositionDouble
 import input.model.ClearsyComponent
-import ui.distanceBetween
-import ui.middlePoint
-import ui.toOffset
+import ui.common.distanceBetween
+import ui.common.middlePoint
+import ui.common.toOffset
 
 data class UiComponent(val positions: List<PositionDouble>, val component: Component) {
     val name = component.name

@@ -1,4 +1,4 @@
-package ui.screens.project_selected.select_circuit
+package ui.screens.project_selected.sub_screens.select_circuit
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,9 +9,7 @@ import input.model.ClearsyCircuit
 import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ui.screens.project_selected.assertions.AssertionsViewModel
-import ui.screens.project_selected.ProjectSelectedScreenId
-import ui.screens.project_selected.ProjectSelectedViewModel
+import ui.navigation.AppNavigator
 import ui.screens.select_project.ProjectViewModel
 import java.io.File
 
@@ -19,9 +17,7 @@ class CircuitViewModel(
     private val circuitParser: ClearsyCircuitParser,
     private val assertionManager: AssertionManager
 ) : KoinComponent {
-    private val assertionsViewModel: AssertionsViewModel by inject()
     private val projectViewModel: ProjectViewModel by inject()
-    private val projectSelectedViewModel: ProjectSelectedViewModel by inject()
     private var loadedCircuits by mutableStateOf<Map<String, ClearsyCircuit>>(mapOf())
     private val loadedCircuitImages = mutableMapOf<String, File>()
 
@@ -65,9 +61,8 @@ class CircuitViewModel(
         }
     }
 
-    fun confirmCircuitSelection() {
-        assertionsViewModel.setAssertionsFromTypes(assertionManager.getAssertionTypes())
-        projectSelectedViewModel.currentScreen = ProjectSelectedScreenId.Assertions
+    fun confirmCircuitSelection(navigator: AppNavigator) {
+        navigator.navToAssertions(assertionManager.getAssertionTypes())
     }
 
     fun getCircuitName(circuitPath: String): String {

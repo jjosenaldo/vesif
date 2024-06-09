@@ -1,4 +1,4 @@
-package ui.screens.common
+package ui.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
