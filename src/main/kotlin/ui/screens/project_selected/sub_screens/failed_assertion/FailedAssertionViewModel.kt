@@ -16,7 +16,6 @@ import ui.screens.project_selected.sub_screens.select_circuit.CircuitViewModel
 import verifier.model.assertions.ringbell.RingBellAssertionRunResult
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionRunResult
 import verifier.model.common.AssertionRunResult
-import java.io.File
 
 class FailedAssertionViewModel : KoinComponent {
     private val circuitViewModel: CircuitViewModel by inject()
@@ -65,7 +64,6 @@ class FailedAssertionViewModel : KoinComponent {
     ): List<UiFailedAssertion> {
         return results.map {
             UiFailedShortCircuit(
-                circuitImage = File(circuit.circuitImagePath),
                 shortCircuit = it.shortCircuit.toUiComponents(circuit),
                 inputs = it.inputs.toUiComponents(circuit)
             )
@@ -78,7 +76,6 @@ class FailedAssertionViewModel : KoinComponent {
     ): List<UiFailedAssertion> {
         return results.groupBy { it.pressedButtons.joinToString(",") { button -> button.name } }.values.map { resultsByState ->
             UiFailedRingBell(
-                circuitImage = File(circuit.circuitImagePath),
                 contacts = resultsByState.map { it.contact }.toUiComponents(circuit),
                 inputs = resultsByState.first().pressedButtons.toUiComponents(circuit)
             )

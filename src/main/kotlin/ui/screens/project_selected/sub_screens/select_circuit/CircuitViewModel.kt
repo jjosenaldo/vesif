@@ -9,6 +9,7 @@ import input.model.ClearsyCircuit
 import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import ui.model.UiCircuitParams
 import ui.navigation.AppNavigator
 import ui.screens.select_project.ProjectViewModel
 import java.io.File
@@ -27,7 +28,7 @@ class CircuitViewModel(
         private set
     var selectedCircuit = ClearsyCircuit.DEFAULT
         private set
-    var selectedCircuitImage by mutableStateOf<File?>(null)
+    var selectedCircuitParams by mutableStateOf(UiCircuitParams.DEFAULT)
         private set
 
     suspend fun selectCircuit(circuitPath: String) {
@@ -52,7 +53,7 @@ class CircuitViewModel(
                 newImage = loadedCircuitImages[circuitPath]
             }
 
-            selectedCircuitImage = newImage
+            selectedCircuitParams = UiCircuitParams(newImage)
             selectedCircuit = newCircuit
             loadCircuitState = LoadCircuitSuccess()
             selectedCircuitPath = circuitPath
@@ -70,5 +71,13 @@ class CircuitViewModel(
             .split(fileSep)
             .last()
             .replace(".xml", "")
+    }
+
+    fun zoom(isIn: Boolean) {
+        if (selectedCircuitParams.image != null) {
+            val currentZoom = selectedCircuitParams.zoomLevel
+            val newZoom = if (isIn) currentZoom.zoomIn() else currentZoom.zoomOut()
+            selectedCircuitParams = selectedCircuitParams.copy(zoomLevel = newZoom)
+        }
     }
 }

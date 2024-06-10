@@ -8,24 +8,12 @@ import androidx.compose.ui.text.withStyle
 import ui.model.UiCircuitParams
 import ui.model.UiComponent
 import ui.model.UiPathInfo
-import java.io.File
 
 // TODO(ft): consider levers on inputs
 class UiFailedShortCircuit(
     private val shortCircuit: List<UiComponent>,
-    private val inputs: List<UiComponent>,
-    circuitImage: File
-) :
-    UiFailedAssertion(
-        circuitParams = UiCircuitParams(
-            circuitImage,
-            { inputs.map { input -> input.circle(it).copy(color = inputColor) } }
-        ) {
-            listOf(UiPathInfo(color = pathColor, path = shortCircuit.map { component ->
-                component.center(it)
-            }))
-        }
-    ) {
+    private val inputs: List<UiComponent>
+) : UiFailedAssertion() {
     override val details = buildAnnotatedString {
         append("Short circuit found from ")
         appendWithColor(shortCircuit.first().name, pathColor)
@@ -37,6 +25,16 @@ class UiFailedShortCircuit(
         appendWithColor(inputs, ", ", inputColor, UiComponent::name)
     }
     override val id = shortCircuit.joinToString { it.name } + inputs.joinToString { it.name }
+    override fun modifyCircuitParams(circuitParams: UiCircuitParams): UiCircuitParams {
+        return circuitParams.copy(
+            circles = { inputs.map { input -> input.circle(it).copy(color = inputColor) } },
+            paths = {
+                listOf(UiPathInfo(color = pathColor, path = shortCircuit.map { component ->
+                    component.center(it)
+                }))
+            }
+        )
+    }
 
     private fun AnnotatedString.Builder.appendWithColor(text: String, color: Color) {
         withStyle(style = SpanStyle(color = color)) {
