@@ -36,6 +36,7 @@ class UiFailedShortCircuit(
         append(" ")
         appendWithColor(inputs, ", ", inputColor, UiComponent::name)
     }
+    override val id = shortCircuit.joinToString { it.name } + inputs.joinToString { it.name }
 
     private fun AnnotatedString.Builder.appendWithColor(text: String, color: Color) {
         withStyle(style = SpanStyle(color = color)) {

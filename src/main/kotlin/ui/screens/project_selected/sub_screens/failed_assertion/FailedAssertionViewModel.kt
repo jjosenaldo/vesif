@@ -3,6 +3,9 @@ package ui.screens.project_selected.sub_screens.failed_assertion
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import core.model.Component
+import input.model.ClearsyCircuit
+import input.model.ClearsyComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.model.UiComponent
@@ -26,34 +29,68 @@ class FailedAssertionViewModel : KoinComponent {
     fun setup(failedAssertions: List<AssertionRunResult>) {
         val circuit = circuitViewModel.selectedCircuit
 
-        this.failedAssertions = failedAssertions.mapNotNull {
-            when (it) {
-                is RingBellAssertionRunResult -> {
-                    val contact = circuit.findComponentById(it.contact.id) ?: return
-                    val inputs = it.pressedButtons.mapNotNull { button -> circuit.findComponentById(button.id) }
-
-                    UiFailedRingBell(
-                        circuitImage = File(circuit.circuitImagePath),
-                        contact = UiComponent.fromClearsyComponent(contact),
-                        inputs = inputs.map(UiComponent::fromClearsyComponent)
-                    )
-                }
-
-                is ShortCircuitAssertionRunResult -> {
-                    val inputs = it.inputs.mapNotNull { input -> circuit.findComponentById(input.id) }
-                    val path = it.shortCircuit.mapNotNull { component -> circuit.findComponentById(component.id) }
-
-                    UiFailedShortCircuit(
-                        circuitImage = File(circuit.circuitImagePath),
-                        shortCircuit = path.map(UiComponent::fromClearsyComponent),
-                        inputs = inputs.map(UiComponent::fromClearsyComponent)
-                    )
-                }
-
-                else -> null
-            }
-        }
+        this.failedAssertions = buildFailedAssertions(circuit, failedAssertions)
         selectedFailedAssertion = this.failedAssertions.first()
+    }
+
+    fun select(failedAssertion: UiFailedAssertion) {
+        selectedFailedAssertion = failedAssertion
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun buildFailedAssertions(
+        circuit: ClearsyCircuit,
+        results: List<AssertionRunResult>
+    ): List<UiFailedAssertion> {
+        return results.groupBy { it.javaClass.kotlin }.map { (klass, results) ->
+            when (klass) {
+                ShortCircuitAssertionRunResult::class -> buildShortCircuitAssertions(
+                    circuit,
+                    results as List<ShortCircuitAssertionRunResult>
+                )
+
+                RingBellAssertionRunResult::class -> buildRingBellAssertions(
+                    circuit,
+                    results as List<RingBellAssertionRunResult>
+                )
+
+                else -> listOf()
+            }
+        }.flatten()
+    }
+
+    private fun buildShortCircuitAssertions(
+        circuit: ClearsyCircuit,
+        results: List<ShortCircuitAssertionRunResult>
+    ): List<UiFailedAssertion> {
+        return results.map {
+            UiFailedShortCircuit(
+                circuitImage = File(circuit.circuitImagePath),
+                shortCircuit = it.shortCircuit.toUiComponents(circuit),
+                inputs = it.inputs.toUiComponents(circuit)
+            )
+        }
+    }
+
+    private fun buildRingBellAssertions(
+        circuit: ClearsyCircuit,
+        results: List<RingBellAssertionRunResult>
+    ): List<UiFailedAssertion> {
+        return results.groupBy { it.pressedButtons.joinToString(",") { button -> button.name } }.values.map { resultsByState ->
+            UiFailedRingBell(
+                circuitImage = File(circuit.circuitImagePath),
+                contacts = resultsByState.map { it.contact }.toUiComponents(circuit),
+                inputs = resultsByState.first().pressedButtons.toUiComponents(circuit)
+            )
+        }
+    }
+
+    private fun List<Component>.toUiComponents(circuit: ClearsyCircuit): List<UiComponent> {
+        return toClearsyComponents(circuit).map(UiComponent::fromClearsyComponent)
+    }
+
+    private fun List<Component>.toClearsyComponents(circuit: ClearsyCircuit): List<ClearsyComponent> {
+        return mapNotNull { circuit.findComponentById(it.id) }
     }
 
 }

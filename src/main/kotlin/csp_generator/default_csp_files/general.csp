@@ -117,17 +117,16 @@ channel activation_timer : ACTIVATION_BLOCKS_IDS.{0..MAX_ACTIVATION_TIME}
 channel tick
 channel input
 channel short_circuit: POSITIVE_IDS.NEGATIVE_IDS
-channel short_circuit_path: Set(IDS)
 
-ALPHA_PATH_MASTER = {| mono_relay_status, 
-                       bistable_relay_status, 
-                       press, 
-                       move, 
-                       cap_charge, 
-                       output_status, 
-                       tick, 
-                       input, 
-                       deactivation_timer, 
+ALPHA_PATH_MASTER = {| mono_relay_status,
+                       bistable_relay_status,
+                       press,
+                       move,
+                       cap_charge,
+                       output_status,
+                       tick,
+                       input,
+                       deactivation_timer,
                        activation_timer |}
 
 PATH_MASTER = PATH_MASTER_AUX(INITIAL_OPEN_COMPONENTS,
@@ -137,61 +136,61 @@ PATH_MASTER = PATH_MASTER_AUX(INITIAL_OPEN_COMPONENTS,
                               INITIAL_CHARGES,
                               TIME_DEACTIVATION_SETTING,
                               TIME_ACTIVATION_SETTING)
-                                                  
 
-PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) =              
-    let 
+
+PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) =
+    let
         remaining_input_ids = rem_def(union(LEVER_IDS, BUTTON_IDS))
         remaining_cap_block_ids = rem_def(union(CAPACITOR_IDS,union(ACTIVATION_BLOCKS_IDS, DEACTIVATION_BLOCKS_IDS)))
     within
-    (remaining_input_ids != {}) & 
-        input -> INPUTS(remaining_input_ids,  
-                     open_components, 
-                     positives, 
-                     negatives, 
-                     capacitors, 
-                     charges, 
+    (remaining_input_ids != {}) &
+        input -> INPUTS(remaining_input_ids,
+                     open_components,
+                     positives,
+                     negatives,
+                     capacitors,
+                     charges,
                      time_deactivation_setting,
-                     time_activation_setting) 
+                     time_activation_setting)
 
 
-    [] tick -> EVOLVE_TIME(remaining_cap_block_ids, 
-                            open_components, 
-                            positives, 
-                            negatives, 
-                            capacitors, 
-                            charges, 
+    [] tick -> EVOLVE_TIME(remaining_cap_block_ids,
+                            open_components,
+                            positives,
+                            negatives,
+                            capacitors,
+                            charges,
                             time_deactivation_setting,
-                            time_activation_setting) 
+                            time_activation_setting)
 
     [] mono_relay_status?id?
                          c_id:{(GET_CONTACT_OF_ENDPOINT(id))}?
                          r_id:{(RELAY_OF(id))}?
-                         r_status:{(is_relay_active(r_id, open_components, positives))} -> 
-                         PATH_MASTER_AUX(update_contacts(open_components, id, r_status), 
-                                                         positives, 
-                                                         negatives, 
-                                                         capacitors, 
+                         r_status:{(is_relay_active(r_id, open_components, positives))} ->
+                         PATH_MASTER_AUX(update_contacts(open_components, id, r_status),
+                                                         positives,
+                                                         negatives,
+                                                         capacitors,
                                                          charges,
                                                          time_deactivation_setting,
                                                          time_activation_setting)
-                          
 
-                       
+
+
     [] bistable_relay_status?id?
-                              br_contact_id:{(GET_BS_CONTACT_OF(id))}? 
+                              br_contact_id:{(GET_BS_CONTACT_OF(id))}?
                               br_coil_l:{(GET_COIL_FROM_BS_ENDPOINT_L(id))}?
                               br_coil_r:{(GET_COIL_FROM_BS_ENDPOINT_R(id))}?
-                              br_status_left:{(is_b_relay_active(br_coil_l, open_components, positives))}? 
+                              br_status_left:{(is_b_relay_active(br_coil_l, open_components, positives))}?
                               br_status_right:{(is_b_relay_active(br_coil_r, open_components, positives))} ->
                               PATH_MASTER_AUX(update_bistable_relay_contacts_v14(id, br_status_left, br_status_right, open_components),
-                                                                       positives, 
-                                                                       negatives, 
-                                                                       capacitors, 
+                                                                       positives,
+                                                                       negatives,
+                                                                       capacitors,
                                                                        charges,
                                                                        time_deactivation_setting,
                                                                        time_activation_setting)
-                                                                    
+
     [] output_status?id?l_status:{(is_output_active(id, open_components, positives))} ->
                            PATH_MASTER_AUX(open_components,
                                            positives,
@@ -200,33 +199,33 @@ PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time
                                            charges,
                                            time_deactivation_setting,
                                            time_activation_setting)
-    
+
 
     [] ([] (start):positives @
          [] (target):negatives @
             short_circuit_test(start, target, positives, negatives, open_components) &
-                short_circuit_path.get_path(start, target, open_components) ->
+                short_circuit.start.target ->
                 PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting)
-        )                                                                                          
+        )
 ---------------------------------------------------------------------
 -- Path Master Functions
----------------------------------------------------------------------  
+---------------------------------------------------------------------
 
-EVOLVE_TIME(remaining_ids, open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) = 
+EVOLVE_TIME(remaining_ids, open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) =
                     if (remaining_ids == {})
-                    then 
+                    then
                         PATH_MASTER_AUX(open_components,
-                                        positives, 
+                                        positives,
                                         negatives,
                                         capacitors,
                                         charges,
                                         time_deactivation_setting,
-                                        time_activation_setting) 
+                                        time_activation_setting)
                     else ([] id:remaining_ids @ --source of indeterminism
                             if (member(id,CAPACITOR_IDS))
                             then
-                                cap_charge.id.get_charge(id, charges) -> 
-                                let 
+                                cap_charge.id.get_charge(id, charges) ->
+                                let
                                   aux_charge = get_charge(id, charges)
                                 within
                                 EVOLVE_TIME(diff(remaining_ids, {id}),
@@ -236,8 +235,8 @@ EVOLVE_TIME(remaining_ids, open_components, positives, negatives, capacitors, ch
                                             capacitors,
                                             update_charges(id, aux_charge, diff(charges, {(id, aux_charge)}), open_components, negatives, positives),
                                             time_deactivation_setting,
-                                            time_activation_setting) 
-                            else 
+                                            time_activation_setting)
+                            else
                                 if (member(id,DEACTIVATION_BLOCKS_IDS))
                                 then
                                     (deactivation_timer.id.get_time(id, time_deactivation_setting) ->
@@ -250,13 +249,13 @@ EVOLVE_TIME(remaining_ids, open_components, positives, negatives, capacitors, ch
                                                     negative_deactivation(id, update_get_deactivation_time, open_components, positives, negatives),
                                                     capacitors,
                                                     charges,
-                                                    update_deactivation_time(id, update_get_deactivation_time, time_deactivation_setting, open_components, positives, negatives), 
+                                                    update_deactivation_time(id, update_get_deactivation_time, time_deactivation_setting, open_components, positives, negatives),
                                                     time_activation_setting
                                                 )
                                     )
-                                else 
+                                else
                                     if (member(id, ACTIVATION_BLOCKS_IDS))
-                                    then 
+                                    then
                                         (activation_timer.id.get_time(id, time_activation_setting) ->
                                         let
                                          update_get_activation_time = get_time(id, time_activation_setting)
@@ -271,10 +270,10 @@ EVOLVE_TIME(remaining_ids, open_components, positives, negatives, capacitors, ch
                                                     update_activation_time(id, update_get_activation_time, time_activation_setting, open_components, positives, negatives)
                                                    )
                                         )
-                                                                
-                                else 
+
+                                else
                                     PATH_MASTER_AUX(open_components,
-                                                   positives, 
+                                                   positives,
                                                    negatives,
                                                    capacitors,
                                                    charges,
@@ -285,7 +284,7 @@ INPUTS(remaining_ids, open_components, positives, negatives, capacitors, charges
                     if (remaining_ids == {})
                     then
                         PATH_MASTER_AUX(open_components,
-                                        positives, 
+                                        positives,
                                         negatives,
                                         capacitors,
                                         charges,
@@ -294,64 +293,42 @@ INPUTS(remaining_ids, open_components, positives, negatives, capacitors, charges
 
                     else([] id:remaining_ids @
                             if(member(id, BUTTON_IDS))
-                            then 
+                            then
                                 press?id?ns ->
-                                    INPUTS(diff(remaining_ids, {id}), 
+                                    INPUTS(diff(remaining_ids, {id}),
                                                update_buttons(open_components, id, ns),
-                                               positives, 
-                                               negatives, 
-                                               capacitors, 
-                                               charges, 
-                                               time_deactivation_setting, 
+                                               positives,
+                                               negatives,
+                                               capacitors,
+                                               charges,
+                                               time_deactivation_setting,
                                                time_activation_setting)
 
-                            else 
+                            else
                                 if(member(id, LEVER_IDS))
                                 then
                                 move?id?l_side ->
                                     INPUTS(diff(remaining_ids, {id}),
-                                           update_lever_contacts(open_components, id, l_side), 
-                                           positives, 
-                                           negatives, 
-                                           capacitors, 
+                                           update_lever_contacts(open_components, id, l_side),
+                                           positives,
+                                           negatives,
+                                           capacitors,
                                            charges,
                                            time_deactivation_setting,
-                                           time_activation_setting) 
+                                           time_activation_setting)
                                 else
                                     PATH_MASTER_AUX(open_components,
-                                        positives, 
+                                        positives,
                                         negatives,
                                         capacitors,
                                         charges,
                                         time_deactivation_setting,
                                         time_activation_setting)
-                         )            
-                                        
+                         )
+
 ---------------------------------------------------------------------
 -- Interface Functions
----------------------------------------------------------------------  
-
--- Returns a closed path from start to target, or an empty list if none found
-get_path(start, target, open_components) =
-    let ws = seq(get_neighbours(start))
-        neighbour = elemAt(0, ws)
-    within
-        get_path_aux(neighbour, {start}, open_components, target)
-
-get_path_aux(id, path, open_components, target) =
-    let ns = diff(get_neighbours(id), path)
-        n_open_components = inter(ns, open_components)
-    within
-        if id == target then union(path,{target})
-        else
-            if empty(ns) or member(id, open_components)
-            then {}
-            else
-                let all_paths = {get_path_aux(n, union(path,{id}), open_components, target) | n <- ns }
-                    non_empty_paths = diff(all_paths, {{}})
-                within
-                    if empty(non_empty_paths) then {}
-                    else head(seq(non_empty_paths))
+---------------------------------------------------------------------
 
 short_circuit_test(start, target, positives, negatives, open_components) =
     let

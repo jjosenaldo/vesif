@@ -8,7 +8,7 @@ import java.io.File
 
 // TODO(ft): consider levers on inputs
 class UiFailedRingBell(
-    val contact: UiComponent,
+    val contacts: List<UiComponent>,
     private val inputs: List<UiComponent>,
     circuitImage: File
 ) :
@@ -17,19 +17,23 @@ class UiFailedRingBell(
             circuitImage,
             paths = { listOf() },
             circles = { canvasSize ->
-                listOf(contact.circle(canvasSize).copy(color = contactColor)) +
+                contacts.map { it.circle(canvasSize).copy(color = contactColor) } +
                         inputs.map { it.circle(canvasSize).copy(color = buttonColor) }
             }
         )
     ) {
     override val details = buildAnnotatedString {
-        append("Ring-bell effect detected on contact ")
-        appendWithColor(contact.name, contactColor)
+        append("Ring-bell effect detected on contact")
+        if (contacts.size > 1) append("s")
+        append(" ")
+        appendWithColor(contacts, ", ", contactColor, UiComponent::name)
+        if (inputs.isEmpty()) return@buildAnnotatedString
         append(" when pressing the button")
         if (inputs.size > 1) append("s")
         append(" ")
         appendWithColor(inputs, ", ", buttonColor, UiComponent::name)
     }
+    override val id = contacts.joinToString { it.name } + inputs.joinToString { it.name }
 
     private fun AnnotatedString.Builder.appendWithColor(text: String, color: Color) {
         withStyle(style = SpanStyle(color = color)) {
