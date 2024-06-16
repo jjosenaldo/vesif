@@ -41,6 +41,11 @@ push(e, st) = {union({e}, s) | s <- st}
 ---------------------------------------------------------------------
 -- MAPPING FUNCTIONS
 ---------------------------------------------------------------------
+find_key_by_value(map, value) = find_key_by_value_aux(mapToList(map), value)
+
+find_key_by_value_aux(<>, value) = -1
+find_key_by_value_aux(< x @@ (x1,x2)>^xs, value) =
+    if x2 == value then x1 else find_key_by_value_aux(xs, value)
 
 build_map_on_false(cs) = mapFromList(< (c,false) | c <- seq(cs)>)
 build_map_on_empty(wires) = mapFromList(< (w,{}) | w <- wires>)

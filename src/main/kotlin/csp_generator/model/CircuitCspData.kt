@@ -69,7 +69,7 @@ class CircuitCspData : ComponentVisitor {
     val getNegativeOfActBlock = mutableSetOf<CspPair<String, Set<String>>>()
     val connections = mutableSetOf<CspPair<String, String>>()
 
-    fun generate(components: List<Component>) {
+    fun fillData(components: List<Component>) {
         visitComponents(components)
         generateAdditionalIds(components)
         addDefaultIds(components)

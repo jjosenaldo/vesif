@@ -116,7 +116,7 @@ channel deactivation_timer : DEACTIVATION_BLOCKS_IDS.{0..MAX_DEACTIVATION_TIME}
 channel activation_timer : ACTIVATION_BLOCKS_IDS.{0..MAX_ACTIVATION_TIME}
 channel tick
 channel input
-channel short_circuit: POSITIVE_IDS.NEGATIVE_IDS
+channel short_circuit: Int
 
 ALPHA_PATH_MASTER = {| mono_relay_status,
                        bistable_relay_status,
@@ -203,9 +203,19 @@ PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time
 
     [] ([] (start):positives @
          [] (target):negatives @
-            short_circuit_test(start, target, positives, negatives, open_components) &
-                short_circuit.start.target ->
-                PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting)
+            let
+                path = get_path(start, target, open_components)
+                short_circuit_path_index =
+                    if
+                        path == <> or not is_path_short_circuit(path, positives, negatives)
+                    then
+                        -1
+                    else
+                        get_path_index(path)
+            within
+                short_circuit_path_index != -1 &
+                    short_circuit.short_circuit_path_index ->
+                    PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting)
         )
 ---------------------------------------------------------------------
 -- Path Master Functions
@@ -326,18 +336,19 @@ INPUTS(remaining_ids, open_components, positives, negatives, capacitors, charges
                                         time_activation_setting)
                          )
 
+
 ---------------------------------------------------------------------
--- Interface Functions
+-- Short-circuit
 ---------------------------------------------------------------------
 
 short_circuit_test(start, target, positives, negatives, open_components) =
     let
-       -- catch the set of IDs connected to the positive source 
+       -- catch the set of IDs connected to the positive source
        path = get_reachable_solo(start, open_components, 0)
-       
+
        --to remove from the path the ID of contacts and energy sources
        contacts = union(CONTACT_IDS, CONTACT_ENDPOINTS_IDS)
-       energy_source = union(positives, negatives) 
+       energy_source = union(positives, negatives)
        path_aux = diff(path, contacts)
 
        --only the IDs of components that consume energy will remain
@@ -346,9 +357,47 @@ short_circuit_test(start, target, positives, negatives, open_components) =
     within
         if (path_test == {}) and member(target,path)
         -- if target don't be a member of start path, don't make sense to analyse if short circuit exists
-        -- path_test analyses if exists at least one component that consume energy in the circuit 
+        -- path_test analyses if exists at least one component that consume energy in the circuit
         then true
         else false
+
+-- Returns a closed path from start to target, or an empty list if none found
+get_path_index(path) = find_key_by_value(PATHS, path)
+
+is_path_short_circuit(path, positives, negatives) =
+    let
+        contacts = union(CONTACT_IDS, CONTACT_ENDPOINTS_IDS)
+        energy_source = union(positives, negatives)
+        path_minus_contacts_and_energy = diff(diff(set(path), contacts), energy_source)
+    within
+        path_minus_contacts_and_energy == {}
+
+get_path(start, target, open_components) =
+    let ws = seq(get_neighbours(start))
+        neighbour = elemAt(0, ws)
+    within
+        get_path_aux(neighbour, <start>, open_components, target)
+
+get_path_aux(id, path, open_components, target) =
+    let path_ids = set(path)
+        ns = diff(get_neighbours(id), path_ids)
+        n_open_components = inter(ns, open_components)
+    within
+        if id == target then path^<target>
+        else
+            if empty(ns) or member(id, open_components)
+            then <>
+            else
+                let all_paths = {get_path_aux(n, path^<id>, open_components, target) | n <- ns }
+                    non_empty_paths = diff(all_paths, {<>})
+                within
+                    if empty(non_empty_paths) then <>
+                    else head(seq(non_empty_paths))
+
+---------------------------------------------------------------------
+-- Interface Functions
+---------------------------------------------------------------------
+
 
 positive_activation(block_id, update_get_activation_time, open_components, positives, negatives) =
     if (is_activation_block_independent_connection_active(block_id, open_components, positives, negatives))
