@@ -32,6 +32,15 @@ object FileManager {
         file.bufferedWriter().use { out -> out.apply { lines.map { line -> write(line);newLine() } } }
     }
 
+    suspend fun upsertFile(path: String, text: String) = withContext(Dispatchers.IO) {
+        val file = File(path)
+        if (!file.exists()) {
+            file.createNewFile()
+        }
+
+        file.writeText(text)
+    }
+
     fun createFileIfNotExists(output: String) {
         val file = File(output)
 

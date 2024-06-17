@@ -4,7 +4,7 @@ import core.model.Component
 import core.model.Pole
 
 object PathsCspGenerator {
-    fun generatePaths(components: List<Component>, connections: Set<CspPair<String, String>>): Map<Int, List<String>> {
+    fun generatePaths(components: List<Component>, connections: Set<CspPair<String, String>>): CspPaths {
         // TODO(ft): act/deact block
         val positives =
             components.filter { it is Pole && it.isPositive }.map { it.id }

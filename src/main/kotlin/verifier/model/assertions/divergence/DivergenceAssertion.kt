@@ -1,6 +1,7 @@
 package verifier.model.assertions.divergence
 
 import core.model.Component
+import csp_generator.model.CspPaths
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
 import verifier.model.common.AssertionDefinition
@@ -13,7 +14,8 @@ class DivergenceAssertion : AssertionDefinition() {
 
     override fun buildRunResult(
         session: Session, fdrAssertion: Assertion,
-        components: List<Component>
+        components: List<Component>,
+        paths: CspPaths
     ): AssertionRunResult {
         return DivergenceAssertionRunResult(fdrAssertion, session)
     }

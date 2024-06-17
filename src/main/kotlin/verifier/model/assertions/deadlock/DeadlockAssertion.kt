@@ -1,6 +1,7 @@
 package verifier.model.assertions.deadlock
 
 import core.model.Component
+import csp_generator.model.CspPaths
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
 import verifier.model.common.AssertionDefinition
@@ -14,7 +15,8 @@ class DeadlockAssertion : AssertionDefinition() {
     override fun buildRunResult(
         session: Session,
         fdrAssertion: Assertion,
-        components: List<Component>
+        components: List<Component>,
+        paths: CspPaths
     ): AssertionRunResult {
         return DeadLockAssertionRunResult(this, session, fdrAssertion)
     }

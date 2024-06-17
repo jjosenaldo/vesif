@@ -4,52 +4,64 @@ import core.files.*
 import core.model.Circuit
 import core.model.Component
 import csp_generator.model.CircuitCspData
+import csp_generator.model.CspPaths
 import csp_generator.model.PathsCspGenerator
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class CspGenerator {
-    private val cspFilesPath =
+    private val defaultCspFilesPath =
         "$projectPath/src/main/kotlin/csp_generator/default_csp_files"
+    private val generalOutputPath = "$outputPath${fileSep}general.csp"
+    private val defaultGeneralPath = "$defaultCspFilesPath${fileSep}general.csp"
+    private val defaultFunctionsPath = "$defaultCspFilesPath${fileSep}functions.csp"
+    private val functionsOutputPath = "$outputPath${fileSep}functions.csp"
 
     // TODO(ft): write files in parallel
-    suspend fun generateCircuitCsp(circuit: Circuit) {
+    suspend fun generateCircuitCsp(circuit: Circuit): CspPaths {
         val circuitData = CircuitCspData().apply { fillData(circuit.components) }
-        generateCircuitCsp(circuitPath, circuitData)
-        generatePathsCsp(pathsPath, circuit.components, circuitData)
-        copyDefaultCspFiles(outputPath)
+        generateCircuitCsp(circuitData)
+        val paths = generatePathsCsp(circuit.components, circuitData)
+        val (minPathIndex, maxPathIndex) = paths.keys.let { Pair(it.min(), it.max()) }
+        generateGeneralCsp(minPathIndex, maxPathIndex)
+        generateFunctionsPath()
+        return paths
     }
 
     private suspend fun generateCircuitCsp(
-        outputPath: String,
         circuitCspData: CircuitCspData
     ) {
-        CspWriter.write(circuitCspData, outputPath)
+        CspWriter.writePaths(circuitCspData, circuitOutputPath)
     }
 
     private suspend fun generatePathsCsp(
-        outputPath: String,
         components: List<Component>,
         circuitCspData: CircuitCspData
-    ) {
+    ): CspPaths {
         val paths = PathsCspGenerator.generatePaths(components, circuitCspData.connections)
-        CspWriter.write("PATHS", paths, outputPath)
+        CspWriter.writePaths("PATHS", paths, pathsOutputPath)
+        return paths
     }
 
-    private fun copyDefaultCspFiles(destinationFolderPath: String) {
-        val sourceFolder = Paths.get(cspFilesPath)
-        val destinationFolder = Paths.get(destinationFolderPath)
+    private suspend fun generateGeneralCsp(
+        minPathIndex: Int,
+        maxPathIndex: Int
+    ) = withContext(Dispatchers.IO) {
+        val defaultGeneralCspFile = File(defaultGeneralPath)
+        val defaultGeneralContent = defaultGeneralCspFile.readText()
+        // TODO(td): move "short_circuit" elsewhere
+        val defaultShortCircuitChannelDefinition = "channel short_circuit: Int"
+        val newShortCircuitChannelDefinition = "channel short_circuit: {${minPathIndex}..${maxPathIndex}}"
+        val newContent =
+            defaultGeneralContent.replace(defaultShortCircuitChannelDefinition, newShortCircuitChannelDefinition)
 
-        try {
-            Files.newDirectoryStream(sourceFolder).use { directoryStream ->
-                directoryStream.forEach { file ->
-                    val destinationFile = destinationFolder.resolve(file.fileName)
-                    Files.copy(file, destinationFile, StandardCopyOption.REPLACE_EXISTING)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        FileManager.upsertFile(generalOutputPath, text = newContent)
+    }
+
+    private suspend fun generateFunctionsPath() =
+        withContext(Dispatchers.IO) {
+            File(defaultFunctionsPath).copyTo(File(functionsOutputPath), overwrite = true)
         }
-    }
+
 }

@@ -1,6 +1,7 @@
 package verifier.model.assertions.ringbell
 
 import core.model.*
+import csp_generator.model.CspPaths
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
 import verifier.model.common.AssertionDefinition
@@ -13,7 +14,8 @@ class RingBellAssertion(val contact: Contact, endpoint: Component, val buttonsSt
     override val type: AssertionType = AssertionType.RingBell
     override fun buildRunResult(
         session: Session, fdrAssertion: Assertion,
-        components: List<Component>
+        components: List<Component>,
+        paths: CspPaths
     ) =
         RingBellAssertionRunResult(this, fdrAssertion.passed())
 

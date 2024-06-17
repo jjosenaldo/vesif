@@ -2,7 +2,7 @@ package verifier
 
 import core.files.outputPath
 import core.files.FileManager
-import core.files.circuitPath
+import core.files.circuitOutputPath
 import core.model.Circuit
 import csp_generator.generator.CspGenerator
 import kotlinx.coroutines.Dispatchers
@@ -42,17 +42,17 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
 
     private suspend fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> =
         withContext(Dispatchers.IO) {
-            cspGenerator.generateCircuitCsp(circuit)
+            val paths = cspGenerator.generateCircuitCsp(circuit)
             val results = mutableListOf<AssertionRunResult>()
             val assertionDefinitions = buildAssertions(circuit, assertionTypes)
 
             try {
                 Session().apply {
-                    loadFile(circuitPath)
+                    loadFile(circuitOutputPath)
                     results.addAll(
                         assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
                             fdrAssertion.execute(null)
-                            assertion.buildRunResult(this, fdrAssertion, circuit.components)
+                            assertion.buildRunResult(this, fdrAssertion, circuit.components, paths)
                         }
                     )
                 }
@@ -77,7 +77,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
     fun exampleCheckAssertions() {
         try {
             val session = Session()
-            session.loadFile(circuitPath)
+            session.loadFile(circuitOutputPath)
 
             for (assertion: Assertion in session.assertions()) {
                 assertion.execute(null)

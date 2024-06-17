@@ -2,23 +2,24 @@ package csp_generator.generator
 
 import core.files.FileManager
 import core.files.fileSep
-import core.files.pathsPath
+import core.files.pathsOutputPath
 import csp_generator.model.CircuitCspData
 import csp_generator.model.CspPair
+import csp_generator.model.CspPaths
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.io.File
 
 object CspWriter {
-    suspend fun write(data: CircuitCspData, output: String) = withContext(Dispatchers.IO) {
+    suspend fun writePaths(data: CircuitCspData, output: String) = withContext(Dispatchers.IO) {
         val file = File(output)
         FileManager.createFileIfNotExists(output)
 
         file.bufferedWriter().use { out ->
             out.apply {
                 writeLine("include \"general.csp\"")
-                writeLine("include \"${pathsPath.split(fileSep).last()}\"")
+                writeLine("include \"${pathsOutputPath.split(fileSep).last()}\"")
                 newLine()
                 writeDataDefinition("IDS", data.ids)
                 writeDefinition("POSITIVE_IDS", data.positiveIds)
@@ -140,7 +141,7 @@ object CspWriter {
 
     }
 
-    suspend fun <K, V> write(name: String, data: Map<K, List<V>>, output: String) = withContext(Dispatchers.IO) {
+    suspend fun writePaths(name: String, data: CspPaths, output: String) = withContext(Dispatchers.IO) {
         val file = File(output)
         FileManager.createFileIfNotExists(output)
 
