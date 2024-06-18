@@ -14,6 +14,8 @@ fun main() = application {
         modules(appModule())
     }
 
+    System.loadLibrary("libfdr_java")
+
     App()
 }
 

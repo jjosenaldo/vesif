@@ -28,14 +28,10 @@ dependencies {
     implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
 }
 
-tasks.withType<JavaExec> {
-    classpath += files("C:\\Program Files\\FDR\\bin\\fdr.jar:.")
-}
-
 compose.desktop {
     application {
         mainClass = "MainKt"
-        jvmArgs += "-Djava.library.path=C:\\Program Files\\FDR\\bin"
+//        jvmArgs += "-Djava.library.path=C:\\Program Files\\FDR\\bin;%PATH%"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
