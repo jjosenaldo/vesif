@@ -8,11 +8,9 @@ import csp_generator.model.CspPaths
 import csp_generator.model.PathsCspGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class CspGenerator {
-    private val defaultCspFilesPath =
-        "$projectPath/src/main/kotlin/csp_generator/default_csp_files"
+    private val defaultCspFilesPath = "default_csp_files"
     private val generalOutputPath = "$outputPath${fileSep}general.csp"
     private val defaultGeneralPath = "$defaultCspFilesPath${fileSep}general.csp"
     private val defaultFunctionsPath = "$defaultCspFilesPath${fileSep}functions.csp"
@@ -48,20 +46,25 @@ class CspGenerator {
         minPathIndex: Int,
         maxPathIndex: Int
     ) = withContext(Dispatchers.IO) {
-        val defaultGeneralCspFile = File(defaultGeneralPath)
-        val defaultGeneralContent = defaultGeneralCspFile.readText()
-        // TODO(td): move "short_circuit" elsewhere
-        val defaultShortCircuitChannelDefinition = "channel short_circuit: Int"
-        val newShortCircuitChannelDefinition = "channel short_circuit: {${minPathIndex}..${maxPathIndex}}"
-        val newContent =
-            defaultGeneralContent.replace(defaultShortCircuitChannelDefinition, newShortCircuitChannelDefinition)
+        FileManager.getResource(defaultGeneralPath).let {
+            val defaultGeneralContent = it.readText()
+            // TODO(td): move "short_circuit" elsewhere
+            val defaultShortCircuitChannelDefinition = "channel short_circuit: Int"
+            val newShortCircuitChannelDefinition = "channel short_circuit: {${minPathIndex}..${maxPathIndex}}"
+            val newContent =
+                defaultGeneralContent.replace(defaultShortCircuitChannelDefinition, newShortCircuitChannelDefinition)
 
-        FileManager.upsertFile(generalOutputPath, text = newContent)
+            FileManager.upsertFile(generalOutputPath, text = newContent)
+
+        }
     }
 
     private suspend fun generateFunctionsPath() =
         withContext(Dispatchers.IO) {
-            File(defaultFunctionsPath).copyTo(File(functionsOutputPath), overwrite = true)
+            FileManager.getResource(defaultFunctionsPath).let {
+                val defaultFunctionsContent = it.readText()
+                FileManager.upsertFile(functionsOutputPath, text = defaultFunctionsContent)
+            }
         }
 
 }

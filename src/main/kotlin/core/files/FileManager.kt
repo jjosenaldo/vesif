@@ -14,6 +14,10 @@ object FileManager {
     val newLine = System.lineSeparator() ?: "\n"
     val tab = " ".repeat(4)
     val fileSeparator = File.separatorChar
+    
+    fun getResource(path: String): File {
+        return File(System.getProperty("compose.application.resources.dir")).resolve(path)
+    }
 
     suspend fun readXml(xmlPath: String): Document {
         val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()

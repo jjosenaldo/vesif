@@ -1,0 +1,1035 @@
+---------------------------------------------------------------------
+-- GENERIC DEFINITIONS OF OUR APPROACH
+---------------------------------------------------------------------
+DEFAULT_IDS = { P_default, N_default, R_default,
+                J_default, C_default, LC_default,
+                B_default, L_default, CP_default,
+                RES_default, PL_default, PL2_default, BS_R_default,
+                LAMP_default, BS_R_COIL_default, BS_L_COIL_default,
+                BS_C_LEFT_default, BS_C_RIGHT_default, C_ENDPOINT_default,
+                BL_default, BL_INDEPENDENT_CONNECTION_default, 
+                BL_INDEPENDENT_CONNECTION_default, BL_DEPENDENT_ENDPOINT_POS_default,
+                BL_DEPENDENT_ENDPOINT_NEG_default}
+
+---------------------------------------------------------------------
+-- Functions on components and wires
+---------------------------------------------------------------------
+
+is_component_active(id, open_components, positives, reachable_l, reachable_r) =
+    let left_positive = not(empty(inter(reachable_l, positives)))
+        left_negative = not(empty(inter(reachable_l, NEGATIVE_IDS)))
+        right_positive = not(empty(inter(reachable_r, positives)))
+        right_negative = not(empty(inter(reachable_r, NEGATIVE_IDS)))
+    within
+        (left_positive and right_negative)
+        or
+        (left_negative and right_positive)
+      
+is_relay_active(id, open_components, positives) =
+    let 
+        reachable_l = get_reachable_solo(id, open_components, 0)
+        reachable_r = get_reachable_solo(id, open_components, 1)
+    within
+        is_component_active(id, open_components, positives, reachable_l, reachable_r)     
+
+is_output_active(l_id, open_components, positives) = 
+    let
+        reachable_l = get_reachable_solo(l_id, open_components, 0)
+        reachable_r = get_reachable_solo(l_id, open_components, 1) 
+    within
+        is_component_active(l_id, open_components, positives, reachable_l, reachable_r)
+
+is_b_relay_active(br_coil, open_components, positives) =
+    let
+     coil_active(coil_id) = is_relay_active(coil_id, open_components, positives)
+
+     right_coil_active = (coil_active(br_coil)) and member(br_coil, BISTABLE_RELAY_COILS_RIGHT_IDS)
+     left_coil_active = (coil_active(br_coil)) and member(br_coil, BISTABLE_RELAY_COILS_LEFT_IDS)
+
+    within
+       (left_coil_active)
+       or
+       (right_coil_active)
+
+is_deactivation_block_independent_connection_active(block_id, open_components, positives, negatives) =
+    let
+        reachable_l = get_reachable_solo(GET_INDEPENDENT_CONNECTION_OF_DEACTIVATION(block_id), open_components, 0)
+        reachable_r = get_reachable_solo(GET_INDEPENDENT_CONNECTION_OF_DEACTIVATION(block_id), open_components, 1)
+    within
+        is_component_active(GET_INDEPENDENT_CONNECTION_OF_DEACTIVATION(block_id), open_components, positives, reachable_l, reachable_r)
+
+is_activation_block_independent_connection_active(block_id, open_components, positives, negatives) =
+    let
+        reachable_l = get_reachable_solo(GET_INDEPENDENT_CONNECTION_OF_ACTIVATION(block_id), open_components, 0)
+        reachable_r = get_reachable_solo(GET_INDEPENDENT_CONNECTION_OF_ACTIVATION(block_id), open_components, 1)
+
+    within
+        is_component_active(GET_INDEPENDENT_CONNECTION_OF_ACTIVATION(block_id), open_components, positives, reachable_l, reachable_r)
+
+-- PRE: Component has exactly two heighbours
+get_reachable_solo(id, open_components, n) = 
+    let ws = seq(get_neighbours(id))
+        neighbour = elemAt(n, ws)
+    within
+        get_reachable_aux_ver2(neighbour, {id}, open_components)
+
+get_reachable(id, open_components) = 
+    let ws = seq(get_neighbours(id))
+        n1 = elemAt(0, ws)
+        n2 = elemAt(1, ws)
+    within
+        ( get_reachable_aux_ver2(n1, {id}, open_components),
+          get_reachable_aux_ver2(n2, {id}, open_components) )
+
+get_reachable_aux_ver2(id, checked_ids, open_components) =
+    let ns = diff(get_neighbours(id), checked_ids)
+        n_open_components = inter(ns, open_components)
+    within
+        if empty(ns) or member(id, open_components)
+        then {id}
+        else union({id}, Union({get_reachable_aux_ver2(n, union(checked_ids,{id}), open_components) | n <- ns }))
+
+-- Returns the neighbours of a given component
+-- based on the definition of CONNECTIONS
+get_neighbours(c) =
+    diff(Union({ w | w <- CONNECTIONS, member(c, w)}), {c})
+
+---------------------------------------------------------------------
+-- PATH MASTER
+---------------------------------------------------------------------
+
+-- Remove DEFAULT_IDS
+rem_def(S) = diff(S, DEFAULT_IDS)
+
+-- Communication with relays/master
+datatype SIDE = LEFT | RIGHT
+channel move : rem_def(LEVER_IDS).SIDE
+
+B_STATUS = {true, false}
+
+channel press : rem_def(BUTTON_IDS).B_STATUS
+channel mono_relay_status : rem_def(CONTACT_ENDPOINTS_IDS).rem_def(CONTACT_IDS).rem_def(RELAY_IDS).Bool
+channel bistable_relay_status : rem_def(BS_CONTACT_ENDPOINTS_IDS).rem_def(BISTABLE_CONTACT_IDS).BISTABLE_RELAY_COILS_LEFT_IDS.BISTABLE_RELAY_COILS_RIGHT_IDS.Bool.Bool
+channel cap_charge : CAPACITOR_IDS.{0..MAX_CHARGE}
+channel output_status : rem_def(LAMP_IDS).Bool
+channel deactivation_timer : DEACTIVATION_BLOCKS_IDS.{0..MAX_DEACTIVATION_TIME}
+channel activation_timer : ACTIVATION_BLOCKS_IDS.{0..MAX_ACTIVATION_TIME}
+channel tick
+channel input
+channel short_circuit: Int
+
+ALPHA_PATH_MASTER = {| mono_relay_status,
+                       bistable_relay_status,
+                       press,
+                       move,
+                       cap_charge,
+                       output_status,
+                       tick,
+                       input,
+                       deactivation_timer,
+                       activation_timer |}
+
+PATH_MASTER = PATH_MASTER_AUX(INITIAL_OPEN_COMPONENTS,
+                              INITIAL_POSITIVES,
+                              INITIAL_NEGATIVES,
+                              CAPACITOR_IDS,
+                              INITIAL_CHARGES,
+                              TIME_DEACTIVATION_SETTING,
+                              TIME_ACTIVATION_SETTING)
+
+
+PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) =
+    let
+        remaining_input_ids = rem_def(union(LEVER_IDS, BUTTON_IDS))
+        remaining_cap_block_ids = rem_def(union(CAPACITOR_IDS,union(ACTIVATION_BLOCKS_IDS, DEACTIVATION_BLOCKS_IDS)))
+    within
+    (remaining_input_ids != {}) &
+        input -> INPUTS(remaining_input_ids,
+                     open_components,
+                     positives,
+                     negatives,
+                     capacitors,
+                     charges,
+                     time_deactivation_setting,
+                     time_activation_setting)
+
+
+    [] tick -> EVOLVE_TIME(remaining_cap_block_ids,
+                            open_components,
+                            positives,
+                            negatives,
+                            capacitors,
+                            charges,
+                            time_deactivation_setting,
+                            time_activation_setting)
+
+    [] mono_relay_status?id?
+                         c_id:{(GET_CONTACT_OF_ENDPOINT(id))}?
+                         r_id:{(RELAY_OF(id))}?
+                         r_status:{(is_relay_active(r_id, open_components, positives))} ->
+                         PATH_MASTER_AUX(update_contacts(open_components, id, r_status),
+                                                         positives,
+                                                         negatives,
+                                                         capacitors,
+                                                         charges,
+                                                         time_deactivation_setting,
+                                                         time_activation_setting)
+
+
+
+    [] bistable_relay_status?id?
+                              br_contact_id:{(GET_BS_CONTACT_OF(id))}?
+                              br_coil_l:{(GET_COIL_FROM_BS_ENDPOINT_L(id))}?
+                              br_coil_r:{(GET_COIL_FROM_BS_ENDPOINT_R(id))}?
+                              br_status_left:{(is_b_relay_active(br_coil_l, open_components, positives))}?
+                              br_status_right:{(is_b_relay_active(br_coil_r, open_components, positives))} ->
+                              PATH_MASTER_AUX(update_bistable_relay_contacts_v14(id, br_status_left, br_status_right, open_components),
+                                                                       positives,
+                                                                       negatives,
+                                                                       capacitors,
+                                                                       charges,
+                                                                       time_deactivation_setting,
+                                                                       time_activation_setting)
+
+    [] output_status?id?l_status:{(is_output_active(id, open_components, positives))} ->
+                           PATH_MASTER_AUX(open_components,
+                                           positives,
+                                           negatives,
+                                           capacitors,
+                                           charges,
+                                           time_deactivation_setting,
+                                           time_activation_setting)
+
+
+    [] ([] (start):positives @
+         [] (target):negatives @
+            let
+                path = get_short_circuit_path(start, target, open_components, positives, negatives)
+                short_circuit_path_index =
+                    if path == <>
+                    then -1
+                    else get_path_index(path)
+            within
+                short_circuit_path_index != -1 &
+                    short_circuit.short_circuit_path_index ->
+                    PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting)
+        )
+---------------------------------------------------------------------
+-- Path Master Functions
+---------------------------------------------------------------------
+
+EVOLVE_TIME(remaining_ids, open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) =
+                    if (remaining_ids == {})
+                    then
+                        PATH_MASTER_AUX(open_components,
+                                        positives,
+                                        negatives,
+                                        capacitors,
+                                        charges,
+                                        time_deactivation_setting,
+                                        time_activation_setting)
+                    else ([] id:remaining_ids @ --source of indeterminism
+                            if (member(id,CAPACITOR_IDS))
+                            then
+                                cap_charge.id.get_charge(id, charges) ->
+                                let
+                                  aux_charge = get_charge(id, charges)
+                                within
+                                EVOLVE_TIME(diff(remaining_ids, {id}),
+                                            open_components,
+                                            update_positives(id, aux_charge, open_components, positives, negatives),
+                                            update_negatives(id, aux_charge, open_components, positives, negatives),
+                                            capacitors,
+                                            update_charges(id, aux_charge, diff(charges, {(id, aux_charge)}), open_components, negatives, positives),
+                                            time_deactivation_setting,
+                                            time_activation_setting)
+                            else
+                                if (member(id,DEACTIVATION_BLOCKS_IDS))
+                                then
+                                    (deactivation_timer.id.get_time(id, time_deactivation_setting) ->
+                                    let
+                                      update_get_deactivation_time = get_time(id, time_deactivation_setting)
+                                    within
+                                    EVOLVE_TIME(diff(remaining_ids, {id}),
+                                                    open_components,
+                                                    positive_deactivation(id, update_get_deactivation_time, open_components, positives, negatives),
+                                                    negative_deactivation(id, update_get_deactivation_time, open_components, positives, negatives),
+                                                    capacitors,
+                                                    charges,
+                                                    update_deactivation_time(id, update_get_deactivation_time, time_deactivation_setting, open_components, positives, negatives),
+                                                    time_activation_setting
+                                                )
+                                    )
+                                else
+                                    if (member(id, ACTIVATION_BLOCKS_IDS))
+                                    then
+                                        (activation_timer.id.get_time(id, time_activation_setting) ->
+                                        let
+                                         update_get_activation_time = get_time(id, time_activation_setting)
+                                        within
+                                        EVOLVE_TIME(diff(remaining_ids, {id}),
+                                                    open_components,
+                                                    positive_activation(id, update_get_activation_time, open_components, positives, negatives),
+                                                    negative_activation(id, update_get_activation_time, open_components, positives, negatives),
+                                                    capacitors,
+                                                    charges,
+                                                    time_deactivation_setting,
+                                                    update_activation_time(id, update_get_activation_time, time_activation_setting, open_components, positives, negatives)
+                                                   )
+                                        )
+
+                                else
+                                    PATH_MASTER_AUX(open_components,
+                                                   positives,
+                                                   negatives,
+                                                   capacitors,
+                                                   charges,
+                                                   time_deactivation_setting,
+                                                   time_activation_setting) )
+
+INPUTS(remaining_ids, open_components, positives, negatives, capacitors, charges, time_deactivation_setting, time_activation_setting) =
+                    if (remaining_ids == {})
+                    then
+                        PATH_MASTER_AUX(open_components,
+                                        positives,
+                                        negatives,
+                                        capacitors,
+                                        charges,
+                                        time_deactivation_setting,
+                                        time_activation_setting)
+
+                    else([] id:remaining_ids @
+                            if(member(id, BUTTON_IDS))
+                            then
+                                press?id?ns ->
+                                    INPUTS(diff(remaining_ids, {id}),
+                                               update_buttons(open_components, id, ns),
+                                               positives,
+                                               negatives,
+                                               capacitors,
+                                               charges,
+                                               time_deactivation_setting,
+                                               time_activation_setting)
+
+                            else
+                                if(member(id, LEVER_IDS))
+                                then
+                                move?id?l_side ->
+                                    INPUTS(diff(remaining_ids, {id}),
+                                           update_lever_contacts(open_components, id, l_side),
+                                           positives,
+                                           negatives,
+                                           capacitors,
+                                           charges,
+                                           time_deactivation_setting,
+                                           time_activation_setting)
+                                else
+                                    PATH_MASTER_AUX(open_components,
+                                        positives,
+                                        negatives,
+                                        capacitors,
+                                        charges,
+                                        time_deactivation_setting,
+                                        time_activation_setting)
+                         )
+
+
+---------------------------------------------------------------------
+-- Short-circuit
+---------------------------------------------------------------------
+
+-- Returns a closed path from start to target, or an empty list if none found
+get_path_index(path) = find_key_by_value(PATHS, path)
+
+is_path_short_circuit(path, positives, negatives) =
+    let
+        contacts = union(CONTACT_IDS, CONTACT_ENDPOINTS_IDS)
+        energy_sources = union(positives, negatives)
+        energy_consuming_components = diff_all(set(path),
+            {contacts, energy_sources, JUNCTION_IDS, BEND_IDS}
+        )
+    within
+        energy_consuming_components == {}
+
+-- Returns a path from start to target containing a short-circuit,
+-- or <> if none was found
+get_short_circuit_path(start, target, open_components, positives, negatives) =
+    let ws = seq(get_neighbours(start))
+        neighbour = elemAt(0, ws)
+    within
+        get_short_circuit_path_aux(neighbour, <start>, open_components, target, positives, negatives)
+
+get_short_circuit_path_aux(id, path, open_components, target, positives, negatives) =
+    let path_ids = set(path)
+        ns = diff(get_neighbours(id), path_ids)
+        n_open_components = inter(ns, open_components)
+    within
+        if id == target
+        then
+            let
+                complete_path = path^<target>
+                is_short_circuit = is_path_short_circuit(complete_path, positives, negatives)
+            within
+                if is_short_circuit then complete_path else <>
+        else
+            if empty(ns) or member(id, open_components)
+            then <>
+            else
+                let all_paths = {get_short_circuit_path_aux(n, path^<id>, open_components, target, positives, negatives) | n <- ns }
+                    non_empty_paths = diff(all_paths, {<>})
+                within
+                    if empty(non_empty_paths) then <>
+                    else head(seq(non_empty_paths))
+
+---------------------------------------------------------------------
+-- Interface Functions
+---------------------------------------------------------------------
+
+
+positive_activation(block_id, update_get_activation_time, open_components, positives, negatives) =
+    if (is_activation_block_independent_connection_active(block_id, open_components, positives, negatives))
+        and
+       (update_get_activation_time == get_max_time(INITIAL_MAX_ACTIVATION_TIME, block_id))
+    then union(positives, GET_POSITIVE_OF_ACTIVATION_BLOCK(block_id))
+    else diff(positives, GET_POSITIVE_OF_ACTIVATION_BLOCK(block_id))
+
+negative_activation(block_id, update_get_activation_time, open_components, positives, negatives) =
+    if (is_activation_block_independent_connection_active(block_id, open_components, positives, negatives))
+        and
+        (update_get_activation_time == get_max_time(INITIAL_MAX_ACTIVATION_TIME, block_id)) 
+    then union(negatives, GET_NEGATIVE_OF_ACTIVATION_BLOCK(block_id))
+    else diff(negatives, GET_NEGATIVE_OF_ACTIVATION_BLOCK(block_id))
+
+update_activation_time(block_id, update_get_time, time_setting, open_components, positives, negatives) =
+    let
+        activation_start = is_activation_block_independent_connection_active(block_id, open_components, positives, negatives)
+    within
+
+    if (activation_start and update_get_time == 0)
+    then union( {(block_id, (update_get_time + 1))}, diff(time_setting, {(block_id, update_get_time)}))
+    else
+        if (activation_start and (update_get_time < get_max_time(INITIAL_MAX_ACTIVATION_TIME, block_id)))
+        then union( {(block_id, (update_get_time + 1))}, diff(time_setting, {(block_id, update_get_time)}))
+        else
+           if (activation_start and (update_get_time == get_max_time(INITIAL_MAX_ACTIVATION_TIME, block_id)))
+           then time_setting
+           else
+                if (not(activation_start) and (update_get_time == get_max_time(INITIAL_MAX_ACTIVATION_TIME, block_id)))
+                then union({(block_id, (update_get_time - 1))}, diff(time_setting, {(block_id, update_get_time)}))
+                else
+                    if (not(activation_start) and (update_get_time == 0))
+                    then time_setting
+                    else 
+                        if (not(activation_start) and (update_get_time < get_max_time(INITIAL_MAX_ACTIVATION_TIME, block_id)))
+                        then union({(block_id, (update_get_time - 1))}, diff(time_setting, {(block_id, update_get_time)}))
+                        else
+                        time_setting
+
+positive_deactivation(block_id, update_get_time, open_components, positives, negatives) =
+    if (not(is_deactivation_block_independent_connection_active(block_id, open_components, positives, negatives)) 
+        and 
+        (update_get_time == 0))
+    then diff(positives, GET_POSITIVE_OF_DEACTIVATION_BLOCK(block_id))
+    else union(positives, GET_POSITIVE_OF_DEACTIVATION_BLOCK(block_id))
+
+negative_deactivation(block_id, update_get_time, open_components, positives, negatives) =
+    if (not(is_deactivation_block_independent_connection_active(block_id, open_components, positives, negatives)) 
+        and 
+        (update_get_time == 0))
+    then diff(negatives, GET_NEGATIVE_OF_DEACTIVATION_BLOCK(block_id))
+    else union(negatives, GET_NEGATIVE_OF_DEACTIVATION_BLOCK(block_id))
+
+update_deactivation_time(block_id, update_get_time, time_setting, open_components, positives, negatives) =
+    let
+        deactivation_start = is_deactivation_block_independent_connection_active(block_id, open_components, positives, negatives)
+    within
+
+    if (deactivation_start and update_get_time == 0)
+    then union({(block_id, (update_get_time + 1))}, diff(time_setting, {(block_id, update_get_time)}) )
+    else
+        if (deactivation_start and update_get_time < get_max_time(INITIAL_MAX_DEACTIVATION_TIME, block_id))
+        then union({(block_id, (update_get_time + 1))}, diff(time_setting, {(block_id, update_get_time)}) )
+        else
+            if ((deactivation_start) and (update_get_time == get_max_time(INITIAL_MAX_DEACTIVATION_TIME, block_id)))
+            then time_setting
+            else
+                if (not(deactivation_start) and (update_get_time == get_max_time(INITIAL_MAX_DEACTIVATION_TIME, block_id)))
+                then union({(block_id, (update_get_time - 1))}, diff(time_setting, {(block_id, update_get_time)}))
+                else
+                    if (not(deactivation_start) and (update_get_time == 0))
+                    then time_setting
+                    else
+                        if (not(deactivation_start) and (update_get_time < get_max_time(INITIAL_MAX_DEACTIVATION_TIME, block_id)))
+                        then union({(block_id, (update_get_time - 1))}, diff(time_setting, {(block_id, update_get_time)}))
+                        else        
+                            time_setting 
+           
+
+--Function used for verification tests of contacts activated concurrently.        
+is_contact_disconnected(c_id, r_status) = 
+    (member(c_id, CONTACT_CLOSED_IDS) and r_status)
+            or (member(c_id, CONTACT_OPENED_IDS) and not(r_status))
+
+--Function used for verification tests of bistable contacts status. 
+is_bs_contact_disconnected(br_endpoint_id, br_status_left, br_status_right) =
+    (member(GET_BS_CONTACT_OF(br_endpoint_id), BS_CONTACT_LEFT_IDS) and not(br_status_left) and br_status_right)
+        or 
+        (member(GET_BS_CONTACT_OF(br_endpoint_id), BS_CONTACT_RIGHT_IDS) and br_status_left and not(br_status_right))
+
+update_contacts(open_components, endpoint_id, r_status) =
+    -- If an endpoint is part of the UP endpoint set of the two connections contacts, and its relay is active
+    -- then the UP endpoint in question leaves the set of open components, at the same time the other endpoint (endpoint DOWN),
+    -- from the same contact is inserted into the set of open components.
+    if  member(endpoint_id, ENDPOINT_TYPE_UP) and r_status 
+    then union(GET_ENDPOINT_DOWN_OF(RELAY_OF(endpoint_id)), 
+               diff(open_components, {endpoint_id}))
+    else
+        -- If an endpoint is part of the DOWN endpoint set of contacts for two connections, and its relay is inactive
+        -- then the DOWN endpoint in question leaves the set of open components, at the same time the other endpoint (endpoint UP),
+        -- from the same contact is inserted into the set of open components.
+        if member(endpoint_id, ENDPOINT_TYPE_DOWN) and not(r_status)
+        then union(GET_ENDPOINT_UP_OF(RELAY_OF(endpoint_id)), 
+                   diff(open_components, {endpoint_id}))
+        else
+            -- For contacts that have only one endpoint, membership verification is performed
+            -- from contact to normally open or normally closed contact assemblies:
+            if member(GET_CONTACT_OF_ENDPOINT(endpoint_id), CONTACT_OPENED_IDS) and r_status
+            -- For a normally open contact, having its corresponding relay activated its behavior
+            -- is to leave the set of open components and assume the "Work" position.
+            then diff(open_components, {endpoint_id})
+            else
+                if member(GET_CONTACT_OF_ENDPOINT(endpoint_id), CONTACT_OPENED_IDS) and not(r_status)
+                -- When the relay of a normally open contact is deactivated it must assume the "Rest" position,
+                -- and therefore must be inserted in the set of open components.
+                then union(open_components, {endpoint_id})
+                else
+                    -- For a normally closed contact, having its corresponding relay activated, the behavior
+                    -- expected is to insert your endpoint into the set of open components
+                    -- and assume the "Rest" position.
+                    if member(GET_CONTACT_OF_ENDPOINT(endpoint_id), CONTACT_CLOSED_IDS) and r_status
+                    then union(open_components, {endpoint_id})
+                    else
+                        -- When the relay of a normally closed contact is deactivated, it must assume the "Work" position,
+                        -- so it must be taken from the set of open components.
+                       if member(GET_CONTACT_OF_ENDPOINT(endpoint_id), CONTACT_CLOSED_IDS) and not(r_status)
+                       then diff(open_components, {endpoint_id})
+                       else
+                            open_components          
+
+update_buttons(open_components, b_id, b_status) =
+    if not(b_status)
+    then union(open_components, {b_id})
+    else diff(open_components, {b_id})
+
+other_side(LEFT) = RIGHT
+other_side(RIGHT) = LEFT
+
+update_lever_contacts(open_components, l_id, l_side) =
+    union(OPEN_LEVER_CONTACTS_OF(l_id, l_side),
+          diff(open_components,
+               OPEN_LEVER_CONTACTS_OF(l_id, other_side(l_side))))
+
+
+update_bistable_relay_contacts_v14(br_endpoint_id, br_status_left, br_status_right, open_components) =
+    -- This function needs to control switching of bistable relay contacts with one and with two endpoints:
+    if br_status_left and br_status_right -- If both coils of the bistable relay are active at the same time:
+    then open_components -- The set of inputs is not changed, remaining the previous/initial state of the bistable contacts.
+    else
+        -- For contacts with two endpoints if the function receives an endpoint of type closing left
+        -- and the left coil is active
+        if member(br_endpoint_id, ENDPOINT_TYPE_LEFT) and br_status_left
+        -- then with the help of the finds defined in the installation file, the right endpoint related to the same contact
+        -- is inserted into the set of inputs/open components at the same time as the left endpoint of the contact is
+        -- "enabled" being taken from the set of inputs/open components. 
+        then union(GET_BS_ENDPOINT_RIGHT_OF(GET_BS_CONTACT_OF(br_endpoint_id)), 
+                   diff(open_components, {br_endpoint_id}) ) 
+        else
+            -- For contacts with two endpoints if the function receives an endpoint of type closing right
+            -- and the right coil is active
+            if member(br_endpoint_id, ENDPOINT_TYPE_RIGHT) and br_status_right
+            -- then with the help of the finds defined in the installation file, the left endpoint related to the same contact
+            -- is inserted into the set of inputs/open components at the same time the contact's right endpoint is
+            -- "enabled" being taken from the set of inputs/open components.
+            then union( GET_BS_ENDPOINT_LEFT_OF(GET_BS_CONTACT_OF(br_endpoint_id)), 
+                       diff(open_components, {br_endpoint_id}) )
+            else 
+                -- For contacts with only one endpoint, this contact being of the type that closes on the left side
+                -- and the left coil is active
+                if member(GET_BS_CONTACT_OF(br_endpoint_id), BS_CONTACT_LEFT_IDS) and br_status_left
+                -- then the endpoint is taken from the input set\open components.
+                then diff(open_components, {br_endpoint_id})
+                else
+                    -- For contacts with only one endpoint, this contact being the type that closes on the left side
+                    -- and the right coil is active
+                    if member(GET_BS_CONTACT_OF(br_endpoint_id), BS_CONTACT_LEFT_IDS) and br_status_right
+                    -- então o endpoint é inserido no conjunto de entradas\open components.
+                    then union(open_components, {br_endpoint_id})
+                    else
+                        -- For contacts with only one endpoint, this contact being of the type that closes on the right side
+                        -- and the left coil is active
+                        if member(GET_BS_CONTACT_OF(br_endpoint_id), BS_CONTACT_RIGHT_IDS) and br_status_left
+                        -- then the endpoint is inserted into the input set\open components.
+                        then union(open_components, {br_endpoint_id})
+                        else
+                            -- For contacts with only one endpoint, this contact being of the type that closes on the right side
+                            -- and the right coil is active
+                            if member(GET_BS_CONTACT_OF(br_endpoint_id), BS_CONTACT_RIGHT_IDS) and br_status_right
+                            -- then the endpoint is taken from the input set\open components.
+                            then diff(open_components, {br_endpoint_id})
+                            else
+                                --If both coils are deactivated, the set of open components remains unchanged.
+                                open_components
+
+update_positives(cp_id, charge, open_components, positives, negatives) =
+    let         
+        polo_left_n = not(empty(inter(get_reachable_solo(CapLeftPole(cp_id), open_components, 0), negatives))) 
+        polo_left_p = not(empty(inter(get_reachable_solo(CapLeftPole(cp_id), open_components, 0), positives))) 
+
+        polo_right_n = not(empty(inter(get_reachable_solo(CapRightPole(cp_id), open_components, 0), negatives))) 
+        polo_right_p = not(empty(inter(get_reachable_solo(CapRightPole(cp_id), open_components, 0), positives))) 
+
+        --capacitor connections
+        pos_and_neg = (polo_left_p and polo_right_n)
+        neg_and_pos = (polo_left_n and polo_right_p)
+    
+        disconected = not(pos_and_neg or neg_and_pos)
+
+    within
+	-- If the capacitor is connected to the two power sources, it has a charge greater than zero, the negative pole is on the right,
+    -- and the left pole is positive, energy flows through the right, so the right pole is in the positives set.
+    if (pos_and_neg and (charge > 0) and not(empty(inter({CapRightPole(cp_id)}, positives)))) 
+	-- Although the pole is connected to a negative source, it is positively charged,
+    -- so it remains in the positive group until its charge runs out.
+    then union({CapRightPole(cp_id)}, positives)  
+	else        
+        -- If the capacitor is connected to the two power sources, it has a charge greater than zero, the negative pole is on the left,
+        -- so the right pole is positive, energy flows to the left, so the left pole remains in the positives set.
+        if (neg_and_pos and (charge > 0) and not(empty(inter({CapLeftPole(cp_id)}, positives)))) 
+		then union({CapLeftPole(cp_id)}, positives)
+		else
+			-- If the capacitor is connected to both power sources, it is at full charge, the positive pole is on the left,
+            -- the left pole will enter in the positives set.
+            if (pos_and_neg and (charge == charge_max(INITIAL_MAX_CHARGE, cp_id))) 
+			then union({CapLeftPole(cp_id)}, positives)
+			else
+				-- If the capacitor is connected to both power sources, it is fully charged, the positive pole is on the right,
+                -- the plate on the right will enter in the positives set.
+                if (neg_and_pos and (charge == charge_max(INITIAL_MAX_CHARGE, cp_id))) 
+				then union({CapRightPole(cp_id)}, positives)
+                else
+                    -- If the capacitor is not connected to positive and negative source at the same time, but it has charge,
+                    -- it sticks with the poles in the positives and negatives sets if they are already there.
+                    if (disconected and (charge > 0)) 
+                    then positives
+			        else 
+                        --If the capacitor is not connected to positive and negative source at the same time, but it has full charge,
+                        --it sticks with the poles in the positives and negatives sets if they are already there.
+                        if (disconected and (charge == charge_max(INITIAL_MAX_CHARGE, cp_id))) 
+                        then positives
+                        else
+                        -- If it is not connected to the positives and negatives and the charge is zero, the poles are removed from the positive groups.
+                        diff(positives, CapPoles(cp_id)) 
+
+update_negatives(cp_id, charge, open_components, positives, negatives) =
+    let         
+        polo_left_n = not(empty(inter(get_reachable_solo(CapLeftPole(cp_id), open_components, 0), negatives))) -- is the left side of the capacitor connected to the negative pole?
+        polo_left_p = not(empty(inter(get_reachable_solo(CapLeftPole(cp_id), open_components, 0), positives))) -- is the left side of the capacitor connected to the positive pole?
+       
+        polo_right_n = not(empty(inter(get_reachable_solo(CapRightPole(cp_id), open_components, 0), negatives))) -- is the right side of the capacitor connected to the negative pole?
+        polo_right_p = not(empty(inter(get_reachable_solo(CapRightPole(cp_id), open_components, 0), positives))) -- is the right side of the capacitor connected to the positive pole?
+
+        --capacitor connections
+        pos_and_neg = (polo_left_p and polo_right_n)
+		neg_and_pos = (polo_left_n and polo_right_p)
+        
+        disconected = not(pos_and_neg or neg_and_pos)
+
+    within
+	-- If the capacitor is connected to both poles, it is charged, the positive pole is on the left and the pole on the right
+    -- is negative, energy flows from the left, so the right plate is in the negatives set
+    if (pos_and_neg and (charge > 0) and not(empty(inter({CapLeftPole(cp_id)}, negatives)))) 
+	-- Although the plate is connected to a positive pole, it is negatively charged,
+    -- so it remains in the negatives set until its charge runs out.
+    then union({CapLeftPole(cp_id)}, negatives)  
+	else
+        -- If the capacitor is connected to both poles, it is charged, the positive pole is on the left,
+        -- and the right pole is negative, energy flows from the left, so the right pole
+        -- remains in the negatives set
+		if (neg_and_pos and (charge > 0) and not(empty(inter({CapRightPole(cp_id)}, negatives)))) 
+		then union({CapRightPole(cp_id)}, negatives)
+		else
+			-- If the capacitor is connected to both poles, it is fully charged, the negative pole is on the right,
+            -- the pole on the right will enter in the negatives set
+            if (pos_and_neg and (charge == charge_max(INITIAL_MAX_CHARGE, cp_id))) 
+			then union({CapRightPole(cp_id)}, negatives)
+			else
+				-- If the capacitor is connected to both poles, it is fully charged, the negative pole is on the left,
+                -- the left plate will enter the negatives set.
+                if (neg_and_pos and (charge == charge_max(INITIAL_MAX_CHARGE, cp_id))) 
+				then union({CapLeftPole(cp_id)}, negatives)
+			    else
+                    -- If the capacitor is not connected to positive and negative at the same time, but it has charge,
+                    -- it keeps the poles in the negatives set if they are already there.
+                    if (disconected and (charge > 0)) 
+                    then negatives
+                    else
+                        if (disconected and (charge == charge_max(INITIAL_MAX_CHARGE, cp_id)))
+                        then negatives
+                        else
+                        -- If it is not connected to the positives and negatives and the load is zero, the poles are removed from the negative group.
+                        diff(negatives, CapPoles(cp_id)) 
+
+update_charges(cp_id, charge, charges, open_components, negatives, positives) =
+    let         
+        polo_left_n = not(empty(inter(get_reachable_solo(CapLeftPole(cp_id), open_components, 0), negatives))) -- is the left side of the capacitor connected to the negative pole?
+        polo_left_p = not(empty(inter(get_reachable_solo(CapLeftPole(cp_id), open_components, 0), positives))) -- is the left side of the capacitor connected to the positive pole?
+
+        polo_right_n = not(empty(inter(get_reachable_solo(CapRightPole(cp_id), open_components, 0), negatives))) -- is the right side of the capacitor connected to the negative pole?
+        polo_right_p = not(empty(inter(get_reachable_solo(CapRightPole(cp_id), open_components, 0), positives))) -- is the right side of the capacitor connected to the positive pole?
+
+        pos_and_neg = (polo_left_p and polo_right_n)
+        neg_and_pos = (polo_left_n and polo_right_p)
+        connected = (pos_and_neg or neg_and_pos) 
+
+
+        pos_and_pos = not(connected) and (polo_left_p and polo_right_p)
+        neg_and_neg = not(connected) and (polo_left_n and polo_right_n)
+
+    within
+    -- If the capacitor is connected to both power sources and its negative pole is not in the negatives set,
+    -- means it is charging, so the charge increases.
+    if (pos_and_neg and empty(inter({CapLeftPole(cp_id)}, negatives)) )
+    then union(charges, {(cp_id, CapMoreCharge(cp_id, charge))})
+    else
+        -- If the capacitor is connected to both power sources and its negative pole is not in the negatives set,
+        -- means it is charging, so the charge increases.
+        if (neg_and_pos and empty(inter({CapRightPole(cp_id)}, negatives)) )
+        then union(charges, {(cp_id, CapMoreCharge(cp_id, charge))})
+        else 
+            if (pos_and_pos) -- If the capacitor is connected to only one power source, it loses charge.
+            then union(charges, {(cp_id, CapLessCharge(charge))})
+            else
+                if (neg_and_neg) -- If the capacitor is connected to only one power source, it loses charge.
+                then union(charges, {(cp_id, CapLessCharge(charge))})
+                else
+                    -- From the moment the negative pole of the capacitor becomes part of the negatives set,
+                    -- means it supplies power, so its charge goes down.
+                    if (pos_and_neg and not(empty(inter({CapLeftPole(cp_id)}, negatives))) )
+                    then union(charges, {(cp_id, CapLessCharge(charge))}) 
+                    else
+                       -- From the moment the negative pole of the capacitor becomes part of the negatives set,
+                       -- means it supplies power, so its charge goes down.
+                       if (neg_and_pos and not(empty(inter({CapRightPole(cp_id)}, negatives))) )      
+                       then union(charges, {(cp_id, CapLessCharge(charge))})
+                       else 
+                        union(charges, {(cp_id, charge)}) -- Ultimately, the charge on the capacitor remains the same.
+
+---------------------------------------------------------------------
+-- SYSTEM Definition and Verification
+---------------------------------------------------------------------
+
+SYSTEM = PATH_MASTER
+
+-----------------------------
+-- MONITOR OF UNSTABLE RELAYS
+-----------------------------
+channel switch
+
+FIX_INPUTS(stub_buttons_map) =
+    let PROC_LEVER_IDS = diff(LEVER_IDS, DEFAULT_IDS)
+        PROC_BUTTON_IDS = diff(BUTTON_IDS, union(DEFAULT_IDS,STUB_BUTTON_IDS))
+    within
+        (; l_id: seq(PROC_LEVER_IDS) @ (|~| s:SIDE @ move.l_id.s -> SKIP));
+        (; b_id: seq(PROC_BUTTON_IDS) @ (|~| b:B_STATUS @ press.b_id.b -> SKIP));
+        (; b_id: seq(STUB_BUTTON_IDS) @ press.b_id.(mapLookup(stub_buttons_map,b_id)) -> SKIP)
+
+ALPHA_FIX_INPUTS = {| move, press |}
+
+SYSTEM_WITH_FIXED_INPUTS(stub_buttons_map) =
+    SYSTEM [| ALPHA_FIX_INPUTS |] FIX_INPUTS(stub_buttons_map)
+
+MONITOR_UNSTABLE_CONTACT(endpoint_id) = MONITOR_UNSTABLE_CONTACT_AUX(endpoint_id,false)
+
+MONITOR_UNSTABLE_CONTACT_AUX(endpoint_id_3,status_2) =
+     mono_relay_status.endpoint_id_3.(GET_CONTACT_OF_ENDPOINT(endpoint_id_3)).(RELAY_OF(endpoint_id_3))?new_status_1->
+        if (new_status_1 != status_2)
+        then switch -> MONITOR_UNSTABLE_CONTACT_AUX(endpoint_id_3, new_status_1)
+        else MONITOR_UNSTABLE_CONTACT_AUX(endpoint_id_3, status_2)
+
+ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id) = {| mono_relay_status.endpoint_id.(GET_CONTACT_OF_ENDPOINT(endpoint_id)).(RELAY_OF(endpoint_id)) |}
+
+MONITORED_SYSTEM_UNSTABLE_CONTACT(endpoint_id,stub_buttons_map) =
+     (SYSTEM_WITH_FIXED_INPUTS(stub_buttons_map) \ (diff(Events, ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id))))
+       [| ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id) |]
+      MONITOR_UNSTABLE_CONTACT(endpoint_id)  \ ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id)
+
+----------------------------------------
+-- MONITOR OF UNSTABLE BISTABLERELAYS --
+----------------------------------------
+
+MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) = MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id,false,false)
+
+MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id,l_st,r_st) =
+     bistable_relay_status.bs_endpoint_id?
+                           br_contact_id:{(GET_BS_CONTACT_OF(bs_endpoint_id))}? 
+                           br_coil_l:{GET_COIL_FROM_BS_ENDPOINT_L(bs_endpoint_id)}?   
+                           br_coil_r:{GET_COIL_FROM_BS_ENDPOINT_R(bs_endpoint_id)}?
+                           new_l_st? 
+                           new_r_st->
+   
+        --if (new_l_st == l_st) and (new_r_st == r_st)
+        --then MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
+        --else
+            if (new_l_st != l_st) and (new_r_st == r_st)
+            then switch -> MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, new_l_st, new_r_st)
+            else 
+                if (new_r_st != r_st) and (new_l_st == l_st)
+                then switch -> MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, new_l_st, new_r_st)
+                else  MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
+                   -- if (new_l_st != l_st) and (new_r_st != r_st)
+                   -- then MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
+                    --else MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
+            
+
+ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) = 
+                {| bistable_relay_status.
+                   bs_endpoint_id.
+                   (GET_BS_CONTACT_OF(bs_endpoint_id)).
+                   (GET_COIL_FROM_BS_ENDPOINT_L(bs_endpoint_id)).
+                   (GET_COIL_FROM_BS_ENDPOINT_R(bs_endpoint_id)) |}
+
+
+MONITORED_SYSTEM_UNSTABLE_BS_CONTACT(bs_endpoint_id, stub_buttons_map) =
+    ( (SYSTEM_WITH_FIXED_INPUTS(stub_buttons_map) \ (diff(Events, ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id))))
+       [| ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) |]
+      MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) ) \ ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id)
+
+--------------------------------------------
+-- MONITOR OF CONCOMITANT CONNECTED CONTACTS
+--------------------------------------------
+channel error
+
+EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) =
+    EXCLUSIVE_ACTIVE_CONTACTS_AUX(build_map_on_false(endpoint_ids))
+EXCLUSIVE_ACTIVE_CONTACTS_AUX(endp_map) =
+    let problem = all_true(endp_map)
+    within
+        (problem) & error -> STOP
+        []
+        (not problem) &
+            [] endpoint_id:domain(endp_map) @
+                 mono_relay_status.endpoint_id?
+                                   c_id?
+                                   r_id?
+                                   r_status ->
+            EXCLUSIVE_ACTIVE_CONTACTS_AUX(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)))
+
+ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) = Union({ {| mono_relay_status.endpoint_id |}  | endpoint_id <- endpoint_ids})
+
+EXCLUSIVE_SYSTEM_ACTIVE_CONTACTS(endpoint_ids) =
+    ((SYSTEM \ diff(Events,ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)))
+      [| ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) |]
+     EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)) \ ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)
+
+--------------------------------------------
+-- MONITOR OF CONTACTS STATUS
+--------------------------------------------
+-- CONTACTS_STATUS(set of endpoint id, map from endpoint ids to boolean)
+CONTACTS_STATUS(status_map) = 
+    let endpoint_ids = domain(status_map)
+    within
+        CONTACTS_STATUS_AUX_READ(build_map_on_false(endpoint_ids), status_map, endpoint_ids, endpoint_ids)
+
+CONTACTS_STATUS_AUX_READ(endp_map, status_map, all_endpoint_ids, missing_endpoint_ids) =
+    if missing_endpoint_ids == {}
+    then CONTACTS_STATUS_AUX(endp_map, status_map)
+    else [] endpoint_id:all_endpoint_ids @
+                mono_relay_status.endpoint_id?
+                        c_id?
+                        r_id?
+                        r_status ->
+                        CONTACTS_STATUS_AUX_READ(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)),
+                                                 status_map,
+                                                 all_endpoint_ids,
+                                                 diff(missing_endpoint_ids,{endpoint_id}))
+
+CONTACTS_STATUS_AUX(endp_map, status_map) =
+    let problem = map_equals(endp_map, status_map)
+    within
+        (problem) & error -> STOP
+        []
+        (not problem) &
+            [] endpoint_id:domain(endp_map) @
+                 mono_relay_status.endpoint_id?
+                                   c_id?
+                                   r_id?
+                                   r_status ->
+            CONTACTS_STATUS_AUX(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)), 
+                                status_map)
+
+SYSTEM_CONTACTS_STATUS(status_map) =
+    let endpoint_ids = domain(status_map)
+    within
+        ((SYSTEM \ diff(Events,ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)))
+        [| ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) |]
+       CONTACTS_STATUS(status_map)) \ ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)
+
+--------------------------------------------------------
+-- MONITOR OF CONCOMITANT CONNECTED BISTABLE CONTACTS --
+--------------------------------------------------------
+
+EXCLUSIVE_ACTIVE_BS_CONTACTS(bs_endpoint_ids) = 
+    EXCLUSIVE_ACTIVE_BS_CONTACTS_AUX(build_map_on_false(bs_endpoint_ids))
+
+EXCLUSIVE_ACTIVE_BS_CONTACTS_AUX(bs_endp_map) =
+    let problem = all_true(bs_endp_map)
+    within
+        (problem) & error -> STOP
+        []
+        (not problem) &
+            [] bs_endpoint_id: domain(bs_endp_map) @
+                bistable_relay_status.bs_endpoint_id?
+                              br_contact_id? 
+                              br_coil_l? 
+                              br_coil_r?
+                              br_status_left?
+                              br_status_right ->                    
+EXCLUSIVE_ACTIVE_BS_CONTACTS_AUX(mapUpdate(bs_endp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)))
+
+ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids) = Union({ {| bistable_relay_status.bs_endpoint_id |}  | bs_endpoint_id <- bs_endpoint_ids})
+
+EXCLUSIVE_SYSTEM_BS_ACTIVE_CONTACTS(bs_endpoint_ids) =
+((SYSTEM \ diff(Events, ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)))
+    [|ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)|]
+  EXCLUSIVE_ACTIVE_BS_CONTACTS(bs_endpoint_ids)) \ ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)
+
+
+-----------------------------------------
+-- MONITOR OF BISTABLE CONTACTS STATUS --
+-----------------------------------------
+BISTABLE_CONTACTS_STATUS(status_map) = 
+let
+    endpoint_ids = domain(status_map)
+within
+    BISTABLE_CONTACTS_STATUS_AUX_READ(build_map_on_false(endpoint_ids), status_map, endpoint_ids, endpoint_ids)
+
+BISTABLE_CONTACTS_STATUS_AUX_READ(endp_map, status_map, all_endpoint_ids, missing_endpoint_ids) =
+    if missing_endpoint_ids == {}
+    then BISTABLE_CONTACTS_STATUS_AUX(endp_map, status_map)   
+    else [] bs_endpoint_id:all_endpoint_ids @
+            bistable_relay_status.bs_endpoint_id?
+                              br_contact_id? 
+                              br_coil_l? 
+                              br_coil_r?
+                              br_status_left?
+                              br_status_right -> 
+                              BISTABLE_CONTACTS_STATUS_AUX_READ(mapUpdate(endp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)), 
+                                                                status_map, 
+                                                                all_endpoint_ids, 
+                                                                diff(missing_endpoint_ids,{bs_endpoint_id}) )
+
+BISTABLE_CONTACTS_STATUS_AUX(endp_map, status_map) =
+    let 
+    bs_problem = map_equals(endp_map, status_map)
+    within
+        (bs_problem) & error -> STOP
+        []
+        (not bs_problem) &
+          [] bs_endpoint_id: domain(endp_map) @
+              bistable_relay_status.bs_endpoint_id?
+                                    br_contact_id? 
+                                    br_coil_l? 
+                                    br_coil_r?
+                                    br_status_left?
+                                    br_status_right ->     
+            BISTABLE_CONTACTS_STATUS_AUX(mapUpdate(endp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)),
+                                        status_map)
+
+SYSTEM_BS_CONTACTS_STATUS(bs_status_map) =
+    let 
+        bs_endpoint_ids = domain(bs_status_map)
+    within
+        ((SYSTEM \ diff(Events, ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)))
+           [| ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids) |]
+         BISTABLE_CONTACTS_STATUS(bs_status_map)) \ ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)
+
+----------------------------------------------
+-- MONITOR OF TWO CONCURRENTLY ACTIVE LAMPS --
+----------------------------------------------
+is_lamp_active(l_status) =
+    if (l_status == false)
+    then false
+    else true
+
+is_lamp_inactive(l_status) =
+    not(l_status)
+
+CONCURRENTLY_ACTIVE_LAMPS(lamp_ids) =
+    CONCURRENTLY_ACTIVE_LAMPS_AUX(build_map_on_false(lamp_ids))
+
+CONCURRENTLY_ACTIVE_LAMPS_AUX(lamp_map) =
+    let 
+        lamp_problem = all_true(lamp_map)
+    within
+        (lamp_problem) & error -> STOP
+         []
+        (not lamp_problem) &
+             [] lamp_id:domain(lamp_map) @  
+                output_status.lamp_id?
+                              l_status->
+                  CONCURRENTLY_ACTIVE_LAMPS_AUX(mapUpdate(lamp_map, lamp_id, is_lamp_inactive(l_status)))
+
+ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids) = Union({ {| output_status.lamp_id |} | lamp_id <- lamp_ids})
+
+CONCURRENTLY_SYSTEM_ACTIVE_LAMPS(lamp_ids) =
+    ((SYSTEM \ diff(Events, ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids)))
+       [| ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids) |]  
+      CONCURRENTLY_ACTIVE_LAMPS(lamp_ids)) \ ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids)
+
+--------------------------------------------
+-- MONITOR OF LAMP STATUS
+--------------------------------------------
+
+LAMP_STATUS(lamps_map) = 
+    let
+        lamps_ids = domain(lamps_map)
+    within
+        LAMPS_STATUS_AUX_READ(build_map_on_false(lamps_ids), lamps_map, lamps_ids, lamps_ids)
+
+LAMPS_STATUS_AUX_READ(lamps_map, lamps_status_map, all_lamp_ids, missing_lamp_ids) =
+    if missing_lamp_ids == {}
+    then LAMP_STATUS_AUX(lamps_map, lamps_status_map)
+    else [] lamp_id:all_lamp_ids @
+            output_status.lamp_id?
+                          l_status ->
+            LAMPS_STATUS_AUX_READ(mapUpdate(lamps_map, lamp_id, is_lamp_inactive(l_status)), 
+                                  lamps_status_map, 
+                                  all_lamp_ids, 
+                                  diff(missing_lamp_ids,{lamp_id}) ) 
+
+LAMP_STATUS_AUX(lamps_map, lamps_status_map) =
+    let problem = map_equals(lamps_map, lamps_status_map)
+    within
+        (problem) & error -> STOP
+        []
+        not(problem) &
+           [] lamp_id: domain(lamps_map) @
+              output_status.lamp_id?
+                            l_status ->
+              LAMP_STATUS_AUX(mapUpdate(lamps_map, lamp_id, is_lamp_inactive(l_status)),
+                               lamps_status_map)
+
+ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids) = Union({ {| output_status.lamp_id |} | lamp_id <- lamp_ids })
+
+SYSTEM_LAMPS_STATUS(lamps_status_map) =
+    let lamp_ids = domain(lamps_status_map)
+    within
+        ((SYSTEM \ diff(Events, ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids)))
+          [| ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids) |]
+         LAMP_STATUS(lamps_status_map)) \ ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids)
+
+-- Auxiliary functions
+include "functions.csp"
+
+-- Particular verifications
+include "assertions.csp"

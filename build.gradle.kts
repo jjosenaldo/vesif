@@ -31,13 +31,15 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "MainKt"
-//        jvmArgs += "-Djava.library.path=C:\\Program Files\\FDR\\bin;%PATH%"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
             packageName = "circuit-verifier-v2"
             packageVersion = "1.0.0"
             modules("jdk.unsupported")
+
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+
         }
     }
 }
