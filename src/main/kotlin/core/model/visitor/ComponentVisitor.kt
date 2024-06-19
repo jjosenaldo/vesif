@@ -17,4 +17,5 @@ interface ComponentVisitor {
     fun visitResistor(resistor: Resistor)
     fun visitBistableRelay(relay: BistableRelay)
     fun visitTimedBlock(block: TimedBlock)
+    fun visitBend(bend: Bend)
 }

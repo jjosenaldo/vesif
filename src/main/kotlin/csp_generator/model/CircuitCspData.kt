@@ -11,6 +11,7 @@ class CircuitCspData : ComponentVisitor {
     val ids = mutableSetOf<String>()
     val positiveIds = mutableSetOf<String>()
     val negativeIds = mutableSetOf<String>()
+    val bendIds = mutableSetOf<String>()
     val relayIds = mutableSetOf<String>()
     val contactClosedIds = mutableSetOf<String>()
     val contactOpenedIds = mutableSetOf<String>()
@@ -193,7 +194,7 @@ class CircuitCspData : ComponentVisitor {
 
         val relayContacts = components.filterIsInstance<Contact>()
         val bistableRelayContacts = relayContacts.filter { it.controller is BistableRelay }
-        val monostableRelayContacts = relayContacts.filter { it.controller is MonostableRelay }
+        relayContacts.filter { it.controller is MonostableRelay }
 
         // BS_ENDPOINT only filled with regular contacts from bistable relays
         if (relayContacts.all { it.controller is MonostableRelay || it.controller.contacts.none { it2 -> it2 is MonostableSimpleContact } }) {
@@ -205,7 +206,7 @@ class CircuitCspData : ComponentVisitor {
             endpointIds.add("C_ENDPOINT_default")
         }
 
-        if (bistableRelayContacts.isEmpty() && monostableRelayContacts.isNotEmpty()) {
+        if (bistableRelayContacts.isEmpty()) {
             getBsContactOf.add(CspPair("C_ENDPOINT_default", "C_default"))
         }
 
@@ -539,6 +540,13 @@ class CircuitCspData : ComponentVisitor {
         addConnection(block, block.dependentNeg)
         addConnection(block, block.independentUp)
         addConnection(block, block.independentDown)
+    }
+
+    override fun visitBend(bend: Bend) {
+        addComponentId(bend)
+        bendIds.add(bend.id)
+        addConnection(bend.leftNeighbor, bend)
+        addConnection(bend, bend.rightNeighbor)
     }
 
     /**

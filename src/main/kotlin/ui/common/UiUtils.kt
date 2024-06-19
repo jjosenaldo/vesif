@@ -6,8 +6,11 @@ import core.model.PositionDouble
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-fun middlePoint(position1: PositionDouble, position2: PositionDouble): PositionDouble {
-    return PositionDouble(x = (position1.x + position2.x) / 2, y = (position1.y + position2.y) / 2)
+fun middlePoint(positions: List<PositionDouble>): PositionDouble {
+    val sumX = positions.fold(0.0) { acc, position -> position.x + acc }
+    val sumY = positions.fold(0.0) { acc, position -> position.y + acc }
+
+    return PositionDouble(sumX / positions.size, sumY / positions.size)
 }
 
 fun distanceBetween(offset1: Offset, offset2: Offset): Float {

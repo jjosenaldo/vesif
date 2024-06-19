@@ -204,14 +204,11 @@ PATH_MASTER_AUX(open_components, positives, negatives, capacitors, charges, time
     [] ([] (start):positives @
          [] (target):negatives @
             let
-                path = get_path(start, target, open_components)
+                path = get_short_circuit_path(start, target, open_components, positives, negatives)
                 short_circuit_path_index =
-                    if
-                        path == <> or not is_path_short_circuit(path, positives, negatives)
-                    then
-                        -1
-                    else
-                        get_path_index(path)
+                    if path == <>
+                    then -1
+                    else get_path_index(path)
             within
                 short_circuit_path_index != -1 &
                     short_circuit.short_circuit_path_index ->
@@ -341,54 +338,44 @@ INPUTS(remaining_ids, open_components, positives, negatives, capacitors, charges
 -- Short-circuit
 ---------------------------------------------------------------------
 
-short_circuit_test(start, target, positives, negatives, open_components) =
-    let
-       -- catch the set of IDs connected to the positive source
-       path = get_reachable_solo(start, open_components, 0)
-
-       --to remove from the path the ID of contacts and energy sources
-       contacts = union(CONTACT_IDS, CONTACT_ENDPOINTS_IDS)
-       energy_source = union(positives, negatives)
-       path_aux = diff(path, contacts)
-
-       --only the IDs of components that consume energy will remain
-       path_test = diff(path_aux, energy_source)
-
-    within
-        if (path_test == {}) and member(target,path)
-        -- if target don't be a member of start path, don't make sense to analyse if short circuit exists
-        -- path_test analyses if exists at least one component that consume energy in the circuit
-        then true
-        else false
-
 -- Returns a closed path from start to target, or an empty list if none found
 get_path_index(path) = find_key_by_value(PATHS, path)
 
 is_path_short_circuit(path, positives, negatives) =
     let
         contacts = union(CONTACT_IDS, CONTACT_ENDPOINTS_IDS)
-        energy_source = union(positives, negatives)
-        path_minus_contacts_and_energy = diff(diff(set(path), contacts), energy_source)
+        energy_sources = union(positives, negatives)
+        energy_consuming_components = diff_all(set(path),
+            {contacts, energy_sources, JUNCTION_IDS, BEND_IDS}
+        )
     within
-        path_minus_contacts_and_energy == {}
+        energy_consuming_components == {}
 
-get_path(start, target, open_components) =
+-- Returns a path from start to target containing a short-circuit,
+-- or <> if none was found
+get_short_circuit_path(start, target, open_components, positives, negatives) =
     let ws = seq(get_neighbours(start))
         neighbour = elemAt(0, ws)
     within
-        get_path_aux(neighbour, <start>, open_components, target)
+        get_short_circuit_path_aux(neighbour, <start>, open_components, target, positives, negatives)
 
-get_path_aux(id, path, open_components, target) =
+get_short_circuit_path_aux(id, path, open_components, target, positives, negatives) =
     let path_ids = set(path)
         ns = diff(get_neighbours(id), path_ids)
         n_open_components = inter(ns, open_components)
     within
-        if id == target then path^<target>
+        if id == target
+        then
+            let
+                complete_path = path^<target>
+                is_short_circuit = is_path_short_circuit(complete_path, positives, negatives)
+            within
+                if is_short_circuit then complete_path else <>
         else
             if empty(ns) or member(id, open_components)
             then <>
             else
-                let all_paths = {get_path_aux(n, path^<id>, open_components, target) | n <- ns }
+                let all_paths = {get_short_circuit_path_aux(n, path^<id>, open_components, target, positives, negatives) | n <- ns }
                     non_empty_paths = diff(all_paths, {<>})
                 within
                     if empty(non_empty_paths) then <>

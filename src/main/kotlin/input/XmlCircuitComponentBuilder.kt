@@ -458,3 +458,16 @@ class XmlTimedBlockBuilder(private val isActivation: Boolean) :
         return timeInt
     }
 }
+
+class XmlBendBuilder : XmlCircuitComponentBuilder("Bend") {
+    override fun buildXmlComponent(fields: List<Pair<String, String>>): XmlCircuitComponent {
+        val bend = Bend(name = readName(fields))
+
+        return object : XmlCircuitComponent(bend, fields) {
+            override fun setComponentConnections() {
+                connections[0]?.let { bend.leftNeighbor = it.component }
+                connections[1]?.let { bend.rightNeighbor = it.component }
+            }
+        }
+    }
+}

@@ -19,6 +19,8 @@ class UiFailedShortCircuit(
         appendWithColor(shortCircuit.first().name, pathColor)
         append(" to ")
         appendWithColor(shortCircuit.last().name, pathColor)
+
+        if (inputs.isEmpty()) return@buildAnnotatedString
         append(" when pressing the button")
         if (inputs.size > 1) append("s")
         append(" ")

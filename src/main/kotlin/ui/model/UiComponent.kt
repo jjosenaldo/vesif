@@ -13,19 +13,14 @@ data class UiComponent(val positions: List<PositionDouble>, val component: Compo
     val name = component.name
 
     fun center(canvasSize: Size): Offset {
-        return when (positions.size) {
-            1 -> positions.first().toOffset(canvasSize)
-            2 -> middlePoint(positions[0], positions[1]).toOffset(canvasSize)
-            else -> TODO() // TODO(ft)
-        }
+        return middlePoint(positions).toOffset(canvasSize)
     }
 
     fun circle(canvasSize: Size): UiCircleInfo {
         val center = center(canvasSize)
         val radius = when (positions.size) {
-            1 -> 50f
             2 -> distanceBetween(positions[0].toOffset(canvasSize), positions[1].toOffset(canvasSize)) / 2
-            else -> TODO() // TODO(ft)
+            else -> 50f
         }
 
         return UiCircleInfo(center, radius)

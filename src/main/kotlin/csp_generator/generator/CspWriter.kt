@@ -24,6 +24,7 @@ object CspWriter {
                 writeDataDefinition("IDS", data.ids)
                 writeDefinition("POSITIVE_IDS", data.positiveIds)
                 writeDefinition("NEGATIVE_IDS", data.negativeIds)
+                writeDefinition("BEND_IDS", data.bendIds)
                 newLine()
                 writeDefinition("RELAY_IDS", data.relayIds)
                 writeDefinition("CONTACT_CLOSED_IDS", data.contactClosedIds)

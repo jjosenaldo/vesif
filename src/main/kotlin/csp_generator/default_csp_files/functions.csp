@@ -38,6 +38,12 @@ subset(s, t) = empty(diff(s,t))
 
 push(e, st) = {union({e}, s) | s <- st}
 
+diff_all(xs, YS) = diff(xs, union_all(YS))
+
+union_all(XS) = union_all_aux(seq(XS))
+union_all_aux(<xs>^XS) = union(xs, union_all_aux(XS))
+union_all_aux(<>) = {}
+
 ---------------------------------------------------------------------
 -- MAPPING FUNCTIONS
 ---------------------------------------------------------------------

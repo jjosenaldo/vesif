@@ -36,7 +36,8 @@ class ClearsyCircuitParser {
         "C_BISTABLE_RELAY" to XmlBistableRelayBuilder(),
         "C_BISTABLE_CHANGEOVER_CONTACT" to XmlBistableChangeoverContactBuilder(),
         "C_ACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = true),
-        "C_DEACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = false)
+        "C_DEACTIVATION_BLOCK" to XmlTimedBlockBuilder(isActivation = false),
+        "C_BEND" to XmlBendBuilder()
     )
 
     suspend fun parseClearsyCircuit(projectPath: String, circuitPath: String): ClearsyCircuit {
@@ -93,7 +94,6 @@ class ClearsyCircuitParser {
     private fun getObjectsFromDocument(document: Document): List<XmlCircuitComponent> {
         return document.documentElement.childrenByName("Object").filterIsInstance<Element>().mapNotNull {
             val category = it.attributeChild("Category") ?: return@mapNotNull null
-            if (category == "C_BEND") return@mapNotNull null
             val builder = xmlComponentBuilders[category] ?: return@mapNotNull null
             val attributes = it.nodeChildren().map { node -> Pair(node.nodeName ?: "", node.textContent ?: "") }
             builder.buildXmlComponent(attributes)
@@ -127,17 +127,23 @@ class ClearsyCircuitParser {
             val previousTerminal = if (i > 0) terminals[i - 1] else null
 
             nextTerminal?.let {
-                connectTerminal(terminal, it)
+                connectTerminal(terminal, it, true)
             }
 
             previousTerminal?.let {
-                connectTerminal(terminal, it)
+                connectTerminal(terminal, it, false)
             }
         }
     }
 
-    private fun connectTerminal(terminal1: XmlNodeTerminal, terminal2: XmlNodeTerminal) {
-        terminal1.component.connections[terminal1.index] = terminal2.component
+    private fun connectTerminal(target: XmlNodeTerminal, other: XmlNodeTerminal, isLTR: Boolean) {
+        val targetIndex = if (target.component.component is Bend) {
+            if (isLTR) 1 else 0
+        } else {
+            target.index
+        }
+
+        target.component.connections[targetIndex] = other.component
     }
 
     // TODO: Optimize for a single loop
