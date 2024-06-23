@@ -8,13 +8,20 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.Properties
 import javax.xml.parsers.DocumentBuilderFactory
 
 object FileManager {
     val newLine = System.lineSeparator() ?: "\n"
     val tab = " ".repeat(4)
     val fileSeparator = File.separatorChar
-    
+
+    fun getResourceProperties(path: String): Properties {
+        return Properties().apply {
+            load(FileInputStream(getResource("config.properties")))
+        }
+    }
+
     fun getResource(path: String): File {
         return File(System.getProperty("compose.application.resources.dir")).resolve(path)
     }
