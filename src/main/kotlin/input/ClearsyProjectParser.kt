@@ -1,7 +1,7 @@
 package input
 
-import core.files.FileManager
-import core.files.fileSep
+import core.utils.files.FileManager
+import core.utils.files.fileSep
 import org.w3c.dom.Document
 import java.nio.file.Files
 import java.nio.file.Path

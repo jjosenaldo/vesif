@@ -1,8 +1,8 @@
 package csp_generator.generator
 
-import core.files.*
 import core.model.Circuit
 import core.model.Component
+import core.utils.files.*
 import csp_generator.model.CircuitCspData
 import csp_generator.model.CspPaths
 import csp_generator.model.PathsCspGenerator

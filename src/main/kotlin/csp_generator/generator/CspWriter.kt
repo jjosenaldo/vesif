@@ -1,8 +1,8 @@
 package csp_generator.generator
 
-import core.files.FileManager
-import core.files.fileSep
-import core.files.pathsOutputPath
+import core.utils.files.FileManager
+import core.utils.files.fileSep
+import core.utils.files.pathsOutputPath
 import csp_generator.model.CircuitCspData
 import csp_generator.model.CspPair
 import csp_generator.model.CspPaths

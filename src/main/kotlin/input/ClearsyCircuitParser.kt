@@ -1,7 +1,7 @@
 package input
 
-import core.files.FileManager
-import core.files.fileSep
+import core.utils.files.FileManager
+import core.utils.files.fileSep
 import core.model.*
 import input.model.ClearsyCircuit
 import input.model.ClearsyComponent

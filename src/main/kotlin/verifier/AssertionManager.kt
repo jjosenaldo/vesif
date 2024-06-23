@@ -1,8 +1,8 @@
 package verifier
 
-import core.files.outputPath
-import core.files.FileManager
-import core.files.circuitOutputPath
+import core.utils.files.outputPath
+import core.utils.files.FileManager
+import core.utils.files.circuitOutputPath
 import core.model.Circuit
 import csp_generator.generator.CspGenerator
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +16,7 @@ import verifier.model.assertions.determinism.DeterminismAssertionGenerator
 import verifier.model.assertions.divergence.DivergenceAssertionGenerator
 import verifier.model.assertions.ringbell.RingBellAssertionGenerator
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionGenerator
+import verifier.util.FdrLoader
 
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
@@ -47,7 +48,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
             val assertionDefinitions = buildAssertions(circuit, assertionTypes)
 
             try {
-                Session().apply {
+                FdrLoader.loadFdr().apply {
                     loadFile(circuitOutputPath)
                     results.addAll(
                         assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
@@ -57,10 +58,11 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
                     )
                 }
             } catch (e: Exception) {
-                // TODO(td): rethrow
-                e.printStackTrace()
+                throw e
             } finally {
-                fdr.libraryExit()
+                if (FdrLoader.fdrLoaded) {
+                    fdr.libraryExit()
+                }
             }
 
             return@withContext results

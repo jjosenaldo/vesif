@@ -1,6 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import java.io.FileInputStream
-import java.util.*
 
 plugins {
     kotlin("jvm")
@@ -22,6 +20,7 @@ dependencies {
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
+    // TODO(td): move this into a separate variable
     implementation(files("C:\\Program Files\\FDR\\bin\\fdr.jar"))
     implementation("com.darkrockstudios:mpfilepicker:3.1.0")
     implementation(platform("io.insert-koin:koin-bom:3.5.6"))
@@ -33,16 +32,6 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "MainKt"
-        val buildProps = Properties().apply {
-            load(rootProject.file("build.properties").reader())
-        }
-        val fdrPath = buildProps.getProperty("fdr.path")
-        val osPath = System.getenv("PATH")
-        val newLibraryPath = "$fdrPath;$osPath".replace(" ", "\" \"")
-
-
-        // TODO(platform): support other OS
-        jvmArgs += "-Djava.library.path=\"$newLibraryPath\""
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)

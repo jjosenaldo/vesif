@@ -3,7 +3,7 @@ package ui.screens.project_selected.sub_screens.select_circuit
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import core.files.fileSep
+import core.utils.files.fileSep
 import input.ClearsyCircuitParser
 import input.model.ClearsyCircuit
 import verifier.AssertionManager
