@@ -11,25 +11,14 @@ class ProjectViewModel(private val projectParser: ClearsyProjectParser) {
         private set
     var circuitsPaths by mutableStateOf(listOf<String>())
         private set
-    var selectProjectState by mutableStateOf<UiState<List<String>>>(UiInitial())
+    var selectProjectState by mutableStateOf<UiState<Void?>>(UiInitial())
         private set
 
-    fun reset() {
-        projectPath = ""
-        circuitsPaths = listOf()
-        selectProjectState = UiInitial()
-    }
-
-    suspend fun loadClearsyProject(path: String?) {
-        if (path?.isEmpty() != false) {
-            reset()
-            return
-        }
-
+    suspend fun loadClearsyProject(path: String) {
         selectProjectState = UiLoading()
         try {
             val circuitsPaths = projectParser.getCircuitsPaths(path)
-            selectProjectState = UiSuccess(circuitsPaths)
+            selectProjectState = UiSuccess(null)
             this.circuitsPaths = circuitsPaths
             projectPath = path
         } catch (e: Exception) {

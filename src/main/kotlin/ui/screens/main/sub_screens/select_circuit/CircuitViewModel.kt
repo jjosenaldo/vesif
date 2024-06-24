@@ -9,6 +9,7 @@ import input.model.ClearsyCircuit
 import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import ui.common.*
 import ui.model.UiCircuitParams
 import ui.navigation.AppNavigator
 import ui.screens.select_project.ProjectViewModel
@@ -22,7 +23,7 @@ class CircuitViewModel(
     private var loadedCircuits by mutableStateOf<Map<String, ClearsyCircuit>>(mapOf())
     private val loadedCircuitImages = mutableMapOf<String, File>()
 
-    var loadCircuitState by mutableStateOf<LoadCircuitState>(LoadCircuitInitial())
+    var loadCircuitState by mutableStateOf<UiState<Void?>>(UiInitial())
         private set
     var selectedCircuitPath by mutableStateOf("")
         private set
@@ -31,8 +32,15 @@ class CircuitViewModel(
     var selectedCircuitParams by mutableStateOf(UiCircuitParams.DEFAULT)
         private set
 
+    fun reset() {
+        selectedCircuit = ClearsyCircuit.DEFAULT
+        selectedCircuitParams = UiCircuitParams.DEFAULT
+        selectedCircuitPath = ""
+        loadCircuitState = UiInitial()
+    }
+
     suspend fun selectCircuit(circuitPath: String) {
-        loadCircuitState = LoadCircuitLoading()
+        loadCircuitState = UiLoading()
 
         try {
             val newCircuit: ClearsyCircuit
@@ -55,10 +63,10 @@ class CircuitViewModel(
 
             selectedCircuitParams = UiCircuitParams(newImage)
             selectedCircuit = newCircuit
-            loadCircuitState = LoadCircuitSuccess()
+            loadCircuitState = UiSuccess(null)
             selectedCircuitPath = circuitPath
         } catch (e: Exception) {
-            loadCircuitState = LoadCircuitError()
+            loadCircuitState = UiError(error = e)
         }
     }
 

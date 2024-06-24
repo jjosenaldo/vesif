@@ -6,11 +6,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import org.koin.compose.koinInject
 import ui.navigation.AppNavigator
+import ui.screens.main.MainScreenId
 
 @Composable
-fun SecondaryMenuBar() {
+fun SecondaryMenuBar(navigator: AppNavigator = koinInject()) {
     Row {
-        BackButton()
+        when (navigator.currentMainScreen) {
+            MainScreenId.Assertions, MainScreenId.FailedAssertion -> BackButton()
+            else -> {}
+        }
     }
 }
 

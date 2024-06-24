@@ -14,6 +14,7 @@ import org.koin.compose.koinInject
 import ui.common.BidirectionalScrollBar
 import ui.navigation.AppNavigator
 import ui.common.Pane
+import ui.common.UiLoading
 import ui.screens.select_project.ProjectViewModel
 
 
@@ -31,7 +32,7 @@ fun SelectCircuitPane(
                     RadioButton(
                         selected = circuitVm.selectedCircuitPath == path,
                         onClick = {
-                            if (circuitVm.selectedCircuitPath != path && circuitVm.loadCircuitState !is LoadCircuitLoading) {
+                            if (circuitVm.selectedCircuitPath != path && circuitVm.loadCircuitState !is UiLoading) {
                                 scope.launch { circuitVm.selectCircuit(path) }
                             }
                         }
@@ -54,10 +55,10 @@ private fun SelectCircuitButton(
     navigator: AppNavigator = koinInject()
 ) {
     Button(
-        enabled = circuitVm.selectedCircuitPath.isNotEmpty() && circuitVm.loadCircuitState !is LoadCircuitLoading,
+        enabled = circuitVm.selectedCircuitPath.isNotEmpty() && circuitVm.loadCircuitState !is UiLoading,
         onClick = { circuitVm.confirmCircuitSelection(navigator) }
     ) {
-        if (circuitVm.loadCircuitState is LoadCircuitLoading)
+        if (circuitVm.loadCircuitState is UiLoading)
             CircularProgressIndicator()
         else
             Text(

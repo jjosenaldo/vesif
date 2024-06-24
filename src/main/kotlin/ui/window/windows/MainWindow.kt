@@ -8,13 +8,11 @@ import org.koin.compose.koinInject
 import ui.common.AppMenuBar
 import ui.screens.main.MainScreen
 import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
-import ui.window.AppWindowManager
 
 // TODO(ft): window title
 @Composable
 fun ApplicationScope.MainWindow(
-    circuitViewModel: CircuitViewModel = koinInject(),
-    windowManager: AppWindowManager = koinInject()
+    circuitViewModel: CircuitViewModel = koinInject()
 ) =
     Window(onCloseRequest = ::exitApplication, title = "App", onKeyEvent = {
         if (it.isCtrlPressed && it.type == KeyEventType.KeyDown && it.key in listOf(Key.Equals, Key.Minus)) {
@@ -25,7 +23,7 @@ fun ApplicationScope.MainWindow(
             false
         }
     }) {
-        AppMenuBar(windowManager)
+        AppMenuBar()
         MainScreen()
     }
 

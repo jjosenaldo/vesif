@@ -11,8 +11,8 @@ class AppWindowManager : KoinComponent {
     val windows: List<WindowId> get() = _windows
 
     fun openProject() {
-        close(WindowId.SelectProject)
         open(WindowId.Main)
+        close(WindowId.SelectProject)
     }
 
     fun openSettings() {
