@@ -5,11 +5,10 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
-import org.koin.compose.koinInject
 import ui.window.AppWindowManager
 
 @Composable
-fun FrameWindowScope.AppMenuBar(appWindowManager: AppWindowManager = koinInject()) {
+fun FrameWindowScope.AppMenuBar(appWindowManager: AppWindowManager) {
     MenuBar {
         Menu("File", mnemonic = 'F') {
             Item(

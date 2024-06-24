@@ -1,4 +1,4 @@
-package ui.screens.project_selected.sub_screens.assertions
+package ui.screens.main.sub_screens.assertions
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import verifier.AssertionManager
-import ui.screens.project_selected.sub_screens.select_circuit.CircuitViewModel
+import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
 import verifier.model.common.AssertionType
 
 class AssertionsViewModel(

@@ -7,6 +7,7 @@ import org.koin.compose.koinInject
 import ui.window.AppWindowManager
 import ui.window.WindowId
 import ui.window.windows.MainWindow
+import ui.window.windows.SelectProjectWindow
 import ui.window.windows.SettingsWindow
 
 @Composable
@@ -14,8 +15,9 @@ fun ApplicationScope.App(windowManager: AppWindowManager = koinInject()) {
     MaterialTheme {
         for (windowId in windowManager.windows) {
             when (windowId) {
-                WindowId.MainWindow -> MainWindow()
-                WindowId.Settings -> SettingsWindow(windowManager)
+                WindowId.Main -> MainWindow()
+                WindowId.Settings -> SettingsWindow()
+                WindowId.SelectProject -> SelectProjectWindow()
             }
         }
     }

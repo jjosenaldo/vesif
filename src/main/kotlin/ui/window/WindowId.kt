@@ -1,6 +1,7 @@
 package ui.window
 
 enum class WindowId {
-    MainWindow,
+    SelectProject,
+    Main,
     Settings
 }

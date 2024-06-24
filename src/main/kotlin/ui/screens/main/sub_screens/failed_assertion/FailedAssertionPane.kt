@@ -1,4 +1,4 @@
-package ui.screens.project_selected.sub_screens.failed_assertion
+package ui.screens.main.sub_screens.failed_assertion
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

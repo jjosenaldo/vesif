@@ -1,4 +1,4 @@
-package ui.screens.project_selected
+package ui.screens.main
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +9,7 @@ import ui.common.VerticalDivider
 import ui.model.UiCircuitParams
 
 @Composable
-fun SelectedProjectScreenContent(
+fun MainScreenContent(
     params: UiCircuitParams,
     pane: @Composable () -> Unit
 ) {

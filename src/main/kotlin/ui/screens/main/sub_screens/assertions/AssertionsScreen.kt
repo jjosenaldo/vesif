@@ -1,15 +1,15 @@
-package ui.screens.project_selected.sub_screens.assertions
+package ui.screens.main.sub_screens.assertions
 
 import androidx.compose.runtime.Composable
 import org.koin.compose.koinInject
-import ui.screens.project_selected.SelectedProjectScreenContent
-import ui.screens.project_selected.sub_screens.select_circuit.CircuitViewModel
+import ui.screens.main.MainScreenContent
+import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
 
 @Composable
 fun AssertionsScreen(
     circuitViewModel: CircuitViewModel = koinInject()
 ) {
-    SelectedProjectScreenContent(
+    MainScreenContent(
         circuitViewModel.selectedCircuitParams
     ) { AssertionsPane() }
 }

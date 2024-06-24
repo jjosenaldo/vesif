@@ -1,4 +1,4 @@
-package ui.screens.project_selected.sub_screens.select_circuit
+package ui.screens.main.sub_screens.select_circuit
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button

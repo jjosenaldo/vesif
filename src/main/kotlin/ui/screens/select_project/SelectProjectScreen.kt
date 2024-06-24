@@ -12,21 +12,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import ui.common.FolderPicker
-import ui.navigation.AppNavigator
+import ui.common.*
+import ui.window.AppWindowManager
 
 @Composable
 fun SelectProjectScreen(
-    navigator: AppNavigator = koinInject(),
-    viewModel: ProjectViewModel = koinInject()
+    viewModel: ProjectViewModel = koinInject(),
+    windowManager: AppWindowManager = koinInject()
 ) {
     var showPicker by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val state = viewModel.selectProjectState
 
     LaunchedEffect(state) {
-        if (state is SelectProjectSuccess) {
-            navigator.navToSelectCircuit()
+        if (state is UiSuccess) {
+            windowManager.openProject()
         }
     }
 
@@ -36,19 +36,19 @@ fun SelectProjectScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (state) {
-            is SelectProjectError -> TODO()
-            is SelectProjectInitial -> Button(onClick = {
+            is UiError -> TODO()
+            is UiInitial -> Button(onClick = {
                 showPicker = true
             }) {
                 Text("Select a Clearsy project folder")
             }
 
-            is SelectProjectLoading -> Button(onClick = {
+            is UiLoading -> Button(onClick = {
             }, enabled = false) {
                 CircularProgressIndicator()
             }
 
-            is SelectProjectSuccess -> Box {}
+            is UiSuccess -> Box {}
         }
         FolderPicker(
             show = showPicker,
