@@ -34,7 +34,6 @@ class AppNavigator(private val navController: NavHostController) : KoinComponent
             ProjectSelectedSubScreenId.FailedAssertion -> navToProjectSelectedSubScreen(ProjectSelectedSubScreenId.Assertions)
             ProjectSelectedSubScreenId.None -> {}
         }
-
     }
 
     fun navToSelectCircuit() {

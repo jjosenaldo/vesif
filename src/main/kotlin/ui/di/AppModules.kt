@@ -1,6 +1,7 @@
 package ui.di
 
 import androidx.navigation.NavHostController
+import core.utils.preferences.Preferences
 import csp_generator.generator.CspGenerator
 import input.ClearsyCircuitParser
 import input.ClearsyProjectParser
@@ -10,8 +11,10 @@ import ui.screens.project_selected.sub_screens.assertions.AssertionsViewModel
 import ui.screens.project_selected.sub_screens.failed_assertion.FailedAssertionViewModel
 import ui.screens.project_selected.sub_screens.select_circuit.CircuitViewModel
 import ui.screens.select_project.ProjectViewModel
+import ui.screens.settings.SettingsViewModel
 import ui.window.AppWindowManager
 import verifier.AssertionManager
+import verifier.util.FdrLoader
 
 
 fun navModule(navController: NavHostController) = module {
@@ -24,6 +27,9 @@ fun appModule() = module {
     single { ClearsyProjectParser() }
     single { AssertionManager(get()) }
     single { ClearsyCircuitParser() }
+    single { Preferences }
+    single { FdrLoader }
+    single { SettingsViewModel(get(), get()) }
     single { CircuitViewModel(get(), get()) }
     single { AssertionsViewModel(get()) }
     single { ProjectViewModel(get()) }

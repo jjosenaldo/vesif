@@ -9,7 +9,7 @@ object Preferences {
     private val userPreferences by lazy { JavaPreferences.userRoot() }
 
     // TODO(platform): default path
-    var fdrPath: String by preference(userPreferences, "fdr_path", "C:\\Program Files\\FDR\\bin")
+    var fdrPath: String by preference(userPreferences, "fdr_path", "C:\\Program Files\\FDR")
 }
 
 private inline fun <reified T : Any> preference(preferences: JavaPreferences, key: String, defaultValue: T) =

@@ -10,9 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.darkrockstudios.libraries.mpfilepicker.DirectoryPicker
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import ui.common.FolderPicker
 import ui.navigation.AppNavigator
 
 @Composable
@@ -50,7 +50,7 @@ fun SelectProjectScreen(
 
             is SelectProjectSuccess -> Box {}
         }
-        ClearsyProjectPicker(
+        FolderPicker(
             show = showPicker,
             onShowChanged = { showPicker = it },
             onFolderSelected = { scope.launch { viewModel.loadClearsyProject(it) } }
@@ -58,15 +58,3 @@ fun SelectProjectScreen(
     }
 }
 
-
-@Composable
-private fun ClearsyProjectPicker(
-    show: Boolean,
-    onShowChanged: (Boolean) -> Unit,
-    onFolderSelected: (String) -> Unit
-) {
-    DirectoryPicker(show) { path ->
-        onShowChanged(false)
-        onFolderSelected(path ?: "")
-    }
-}

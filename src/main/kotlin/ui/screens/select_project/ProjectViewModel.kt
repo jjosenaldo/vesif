@@ -19,8 +19,8 @@ class ProjectViewModel(private val projectParser: ClearsyProjectParser) {
         selectProjectState = SelectProjectInitial()
     }
 
-    suspend fun loadClearsyProject(path: String) {
-        if (path.isEmpty()) {
+    suspend fun loadClearsyProject(path: String?) {
+        if (path?.isEmpty() != false) {
             reset()
             return
         }
