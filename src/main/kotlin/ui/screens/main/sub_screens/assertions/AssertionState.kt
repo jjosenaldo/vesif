@@ -15,6 +15,7 @@ class AssertionInitial(type: AssertionType, val selected: Boolean = false) : Ass
     }
 }
 
+class AssertionError(type: AssertionType, val error: Throwable) : AssertionState(type)
 class AssertionNotSelected(type: AssertionType) : AssertionState(type)
 class AssertionPassed(type: AssertionType) : AssertionState(type)
 class AssertionFailed(type: AssertionType, val results: List<AssertionRunResult>) : AssertionState(type)

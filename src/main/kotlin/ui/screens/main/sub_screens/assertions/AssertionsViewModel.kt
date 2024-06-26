@@ -37,19 +37,24 @@ class AssertionsViewModel(
         }
 
         val typesToCheck = assertions.filterIsInstance<AssertionRunning>().map { it.type }
-        val allFailingAssertions =
-            assertionManager.runAssertionsReturnFailing(
-                circuitViewModel.selectedCircuit.circuit,
-                typesToCheck
-            )
-        assertions = assertions.map {
-            val failingAssertions = allFailingAssertions[it.type] ?: listOf()
 
-            when {
-                failingAssertions.isNotEmpty() -> AssertionFailed(it.type, failingAssertions)
-                typesToCheck.contains(it.type) -> AssertionPassed(it.type)
-                else -> it
+        try {
+            val allFailingAssertions =
+                assertionManager.runAssertionsReturnFailing(
+                    circuitViewModel.selectedCircuit.circuit,
+                    typesToCheck
+                )
+            assertions = assertions.map {
+                val failingAssertions = allFailingAssertions[it.type] ?: listOf()
+
+                when {
+                    failingAssertions.isNotEmpty() -> AssertionFailed(it.type, failingAssertions)
+                    typesToCheck.contains(it.type) -> AssertionPassed(it.type)
+                    else -> it
+                }
             }
+        } catch (e: Throwable) {
+            assertions = assertions.map { AssertionError(it.type, e) }
         }
     }
 

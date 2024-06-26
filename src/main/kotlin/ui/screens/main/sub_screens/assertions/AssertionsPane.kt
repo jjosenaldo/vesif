@@ -6,12 +6,12 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Check
 import androidx.compose.material.icons.sharp.Close
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import ui.common.ErrorDialog
 import ui.navigation.AppNavigator
 import ui.common.Pane
 
@@ -21,9 +21,17 @@ fun AssertionsPane(
 ) {
     if (viewModel.assertions.isEmpty()) return
 
+    var errorToShow by remember { mutableStateOf<AssertionError?>(null) }
+    viewModel.assertions.firstOrNull { it is AssertionError }?.let {
+        errorToShow = it as AssertionError
+    }
+
+    errorToShow?.let {
+        ErrorDialog(it.error)
+    }
 
     val scope = rememberCoroutineScope()
-
+    
     Pane {
         viewModel.assertions.map { AssertionView(it) }
 
@@ -85,7 +93,7 @@ fun AssertionView(
                 Text(text = assertionState.name)
             }
 
-            is AssertionNotSelected -> {
+            is AssertionNotSelected, is AssertionError -> {
                 Text(text = assertionState.name)
             }
         }
