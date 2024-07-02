@@ -25,4 +25,10 @@ class ProjectViewModel(private val projectParser: ClearsyProjectParser) {
             selectProjectState = UiError(error = e)
         }
     }
+
+    fun reset() {
+        projectPath = ""
+        circuitsPaths = listOf()
+        selectProjectState = UiInitial()
+    }
 }

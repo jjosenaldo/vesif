@@ -3,9 +3,7 @@ package ui.screens.select_project
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,26 +31,32 @@ fun SelectProjectScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (state) {
-            is UiError -> TODO()
-            is UiInitial -> Button(onClick = {
+        AppButton(
+            onClick = {
                 showPicker = true
-            }) {
-                Text("Select a Clearsy project folder")
-            }
-
-            is UiLoading -> Button(onClick = {
-            }, enabled = false) {
+            },
+            enabled = state !is UiLoading
+        ) {
+            if (state is UiLoading)
                 CircularProgressIndicator()
-            }
-
-            is UiSuccess -> {}
+            else
+                AppText("Select a Clearsy project folder")
         }
+
         ClearsyProjectPicker(
             show = showPicker,
             onShowChanged = { showPicker = it },
             scope = scope
         )
+
+        if (state is UiError)
+            ErrorDialog(
+                ErrorDialogConfig(
+                    "Invalid project",
+                    "The folder provided is not a Clearsy project. Try again with another folder.",
+                    onDialogClosed = viewModel::reset
+                )
+            )
     }
 }
 

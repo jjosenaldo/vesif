@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import ui.common.Pane
+import ui.common.primaryBackgroundColor
 import ui.model.assertions.UiFailedAssertion
 
 @Composable
@@ -35,7 +37,7 @@ fun FailedAssertionPane(viewModel: FailedAssertionViewModel = koinInject()) {
 @Composable
 private fun FailedAssertionView(assertion: UiFailedAssertion, viewModel: FailedAssertionViewModel = koinInject()) {
     val isSelected = assertion.id == viewModel.selectedFailedAssertion.id
-    val backgroundColor = if (isSelected) Color.LightGray else Color.White
+    val backgroundColor = if (isSelected) primaryBackgroundColor.darken(0.1f) else primaryBackgroundColor
 
     Surface(
         color = backgroundColor,
@@ -49,9 +51,18 @@ private fun FailedAssertionView(assertion: UiFailedAssertion, viewModel: FailedA
         ) {
             Text(
                 text = assertion.details,
-                style = TextStyle(background = Color.Transparent),
+                style = LocalTextStyle.current.merge(TextStyle(background = Color.Transparent)),
                 modifier = Modifier.padding(16.dp)
             )
         }
     }
+}
+
+private fun Color.darken(factor: Float): Color {
+    val darkenedColor = copy(
+        red = red * (1 - factor),
+        green = green * (1 - factor),
+        blue = blue * (1 - factor)
+    )
+    return darkenedColor
 }

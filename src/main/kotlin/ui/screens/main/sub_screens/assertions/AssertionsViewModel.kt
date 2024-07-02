@@ -21,6 +21,10 @@ class AssertionsViewModel(
         assertions = types.map { AssertionInitial(type = it) }
     }
 
+    fun reset() {
+        assertions = assertions.map { AssertionInitial(type = it.type) }
+    }
+
     fun setSelected(selected: Boolean, assertion: AssertionInitial) {
         val assertionIndex = assertions.indexOfFirst { it.type == assertion.type }
         val newAssertions = ArrayList(assertions)

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import ui.common.CircuitImage
 import ui.common.SecondaryMenuBar
 import ui.common.VerticalDivider
+import ui.common.tertiaryBackgroundColor
 import ui.model.UiCircuitParams
 
 @Composable
@@ -17,7 +18,7 @@ fun MainScreenContent(
         SecondaryMenuBar()
         Row {
             pane()
-            VerticalDivider()
+            VerticalDivider(color = tertiaryBackgroundColor)
             CircuitImage(params)
         }
     }

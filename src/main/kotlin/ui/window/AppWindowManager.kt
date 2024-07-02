@@ -10,14 +10,6 @@ class AppWindowManager : KoinComponent {
     private val _windows = mutableStateListOf(WindowId.SelectProject)
     val windows: List<WindowId> get() = _windows
 
-    fun openWindow(window: WindowId) {
-        when (window) {
-            WindowId.Main -> openProject()
-            WindowId.Settings -> openSettings()
-            else -> open(window)
-        }
-    }
-
     fun openProject() {
         open(WindowId.Main)
         close(WindowId.SelectProject)
@@ -29,7 +21,8 @@ class AppWindowManager : KoinComponent {
     }
 
     private fun open(window: WindowId) {
-        _windows.add(window)
+        if (_windows.contains(window).not())
+            _windows.add(window)
     }
 
     fun close(window: WindowId) {

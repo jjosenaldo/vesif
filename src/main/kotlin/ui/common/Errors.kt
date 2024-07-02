@@ -1,75 +1,73 @@
 package ui.common
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
-import androidx.compose.ui.window.DialogWindow
-import org.koin.compose.koinInject
-import ui.window.AppWindowManager
-import verifier.util.FdrNotFoundException
-import verifier.util.InvalidFdrException
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindowScope
+import androidx.compose.ui.window.rememberDialogState
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 
-private data class DialogConfig(
-    val title: String,
-    val content: String,
-    val actionTitle: String?,
-    val action: (() -> Unit)?
+data class ErrorDialogConfig(
+    val title: String = "Error",
+    val content: String = "An expected problem occurred.",
+    val actionTitle: String = "Ok",
+    val action: (() -> Unit) = {},
+    val onDialogClosed: (() -> Unit) = {}
 )
 
 @Composable
-fun ErrorDialog(error: Throwable, windowManager: AppWindowManager = koinInject()) {
+fun ErrorDialog(config: ErrorDialogConfig) {
+    fun DialogWindowScope.maxTextHeight() = (this.window.height - 125).dp
     var isShowingDialog by remember { mutableStateOf(true) }
 
     fun closeDialog() {
         isShowingDialog = false
+        config.onDialogClosed()
     }
 
-    val (title, text, actionTitle, action) = remember {
-        when (error) {
-            is InvalidFdrException -> DialogConfig(
-                "Invalid FDR",
-                "Your FDR is not valid. Please provide a path to a valid FDR version in Settings or add said folder to your PATH.",
-                "Go to settings",
-                windowManager::openSettings.then(::closeDialog)
-            )
-
-            is FdrNotFoundException -> DialogConfig(
-                "FDR not found",
-                "FDR not found. Please provide a path to a valid FDR version in Settings or add said folder to your PATH.",
-                "Go to settings",
-                windowManager::openSettings.then(::closeDialog)
-            )
-
-            else -> DialogConfig(
-                "Error",
-                "An error has occurred: ${error.message}",
-                null,
-                null
-            )
-        }
-    }
+    val (title, text, actionTitle, action) = config
+    val windowState = rememberDialogState(size = DpSize(400.dp, 200.dp))
 
     if (isShowingDialog)
-        DialogWindow(
+        AppDialogWindow(
             onCloseRequest = ::closeDialog,
             title = title,
+            state = windowState
         ) {
-            Column {
-                Text(text)
-                Row {
-                    if (actionTitle != null && action != null) {
-                        Button(onClick = action) {
-                            Text(actionTitle)
-                        }
-                        Button(onClick = ::closeDialog) {
-                            Text("Cancel")
-                        }
-                    } else {
-                        Button(onClick = ::closeDialog) {
-                            Text("Ok")
-                        }
+            var textMaxHeight by mutableStateOf(maxTextHeight())
+            window.addComponentListener(object : ComponentAdapter() {
+                override fun componentResized(e: ComponentEvent?) {
+                    super.componentResized(e)
+                    textMaxHeight = maxTextHeight()
+                }
+            })
+            Column(Modifier.padding(16.dp)) {
+                val stateVertical = rememberScrollState(0)
+                Box(modifier = Modifier.heightIn(0.dp, textMaxHeight)) {
+                    AppText(
+                        text,
+                        Modifier.verticalScroll(stateVertical)
+                    )
+                    VerticalScrollbar(
+                        modifier = Modifier.fillMaxHeight().align(Alignment.CenterEnd),
+                        adapter = rememberScrollbarAdapter(stateVertical)
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1.0f))
+                Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    AppButton(onClick = action.then(::closeDialog)) {
+                        AppText(actionTitle)
+                    }
+                    AppButton(onClick = ::closeDialog, kind = AppButtonKind.Secondary) {
+                        AppText("Cancel")
                     }
                 }
             }

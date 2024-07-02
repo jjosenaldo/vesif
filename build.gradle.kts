@@ -27,6 +27,8 @@ dependencies {
     implementation("io.insert-koin:koin-core:3.5.6")
     implementation("io.insert-koin:koin-compose:1.0.5")
     implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
+    implementation(compose.material3)
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
 }
 
 compose.desktop {

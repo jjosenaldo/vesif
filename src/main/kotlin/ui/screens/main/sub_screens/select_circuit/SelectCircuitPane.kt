@@ -1,20 +1,20 @@
 package ui.screens.main.sub_screens.select_circuit
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.RadioButton
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import ui.common.BidirectionalScrollBar
+import ui.common.*
 import ui.navigation.AppNavigator
-import ui.common.Pane
-import ui.common.UiLoading
 import ui.screens.select_project.ProjectViewModel
 
 
@@ -37,13 +37,13 @@ fun SelectCircuitPane(
                             }
                         }
                     )
-                    Text(
+                    AppText(
                         text = circuitVm.getCircuitName(path)
                     )
                 }
             }
         }
-
+        Divider(color = tertiaryBackgroundColor)
         SelectCircuitButton()
     }
 }
@@ -54,14 +54,15 @@ private fun SelectCircuitButton(
     circuitVm: CircuitViewModel = koinInject(),
     navigator: AppNavigator = koinInject()
 ) {
-    Button(
+    AppButton(
+        onClick = { circuitVm.confirmCircuitSelection(navigator) },
         enabled = circuitVm.selectedCircuitPath.isNotEmpty() && circuitVm.loadCircuitState !is UiLoading,
-        onClick = { circuitVm.confirmCircuitSelection(navigator) }
+        modifier = Modifier.padding(16.dp)
     ) {
         if (circuitVm.loadCircuitState is UiLoading)
             CircularProgressIndicator()
         else
-            Text(
+            AppText(
                 text = "Select circuit"
             )
     }
