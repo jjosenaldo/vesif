@@ -1,5 +1,7 @@
 package ui.screens.main.sub_screens.assertions
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
@@ -10,6 +12,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -125,14 +128,24 @@ fun AssertionView(
     viewModel: AssertionsViewModel = koinInject(),
     navigator: AppNavigator = koinInject()
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        if (assertionState is AssertionInitial)
+    val verticalAlignment = Alignment.CenterVertically
+
+    if (assertionState is AssertionInitial)
+        Row(verticalAlignment = verticalAlignment, modifier = Modifier.clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() }
+        ) {
+            viewModel.setSelected(!assertionState.selected, assertionState)
+        }) {
             Checkbox(
                 checked = assertionState.selected,
                 onCheckedChange = { viewModel.setSelected(it, assertionState) },
                 modifier = Modifier.padding(16.dp).width(16.dp).height(16.dp)
             )
-        else if (assertionState !is AssertionError) {
+            AppText(text = assertionState.name)
+        }
+    else Row(verticalAlignment = Alignment.CenterVertically) {
+        if (assertionState !is AssertionError) {
             val modifier =
                 Modifier.padding(top = 8.dp, bottom = 8.dp, end = 8.dp, start = 8.dp).width(24.dp).height(24.dp)
 
