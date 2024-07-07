@@ -1,22 +1,26 @@
 package verifier
 
-import core.utils.files.outputPath
+import core.model.Circuit
 import core.utils.files.FileManager
 import core.utils.files.circuitOutputPath
-import core.model.Circuit
+import core.utils.files.outputPath
+import core.utils.preferences.Preferences
 import csp_generator.generator.CspGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import verifier.model.common.AssertionDefinition
-import verifier.model.common.AssertionRunResult
-import verifier.model.common.AssertionType
+import kotlinx.coroutines.withTimeoutOrNull
 import uk.ac.ox.cs.fdr.*
 import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
 import verifier.model.assertions.determinism.DeterminismAssertionGenerator
 import verifier.model.assertions.divergence.DivergenceAssertionGenerator
 import verifier.model.assertions.ringbell.RingBellAssertionGenerator
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionGenerator
+import verifier.model.common.AssertionDefinition
+import verifier.model.common.AssertionRunResult
+import verifier.model.common.AssertionType
+import verifier.util.AssertionTimeoutException
 import verifier.util.FdrLoader
+import kotlin.time.Duration.Companion.minutes
 
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
@@ -41,30 +45,33 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         return runAssertions(circuit, assertionTypes).filter { !it.passed }.groupBy { it.assertionType }
     }
 
-    private suspend fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> =
-        withContext(Dispatchers.IO) {
-            val paths = cspGenerator.generateCircuitCsp(circuit)
-            val results = mutableListOf<AssertionRunResult>()
-            val assertionDefinitions = buildAssertions(circuit, assertionTypes)
+    private suspend fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> {
+        return withTimeoutOrNull(Preferences.timeoutTimeMinutes.minutes) {
+            withContext(Dispatchers.IO) {
+                val paths = cspGenerator.generateCircuitCsp(circuit)
+                val results = mutableListOf<AssertionRunResult>()
+                val assertionDefinitions = buildAssertions(circuit, assertionTypes)
 
-            try {
-                FdrLoader.loadFdr().apply {
-                    loadFile(circuitOutputPath)
-                    results.addAll(
-                        assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
-                            fdrAssertion.execute(null)
-                            assertion.buildRunResult(this, fdrAssertion, circuit.components, paths)
-                        }
-                    )
+                try {
+                    FdrLoader.loadFdr().apply {
+                        loadFile(circuitOutputPath)
+                        results.addAll(
+                            assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
+                                fdrAssertion.execute(null)
+                                assertion.buildRunResult(this, fdrAssertion, circuit.components, paths)
+                            }
+                        )
+                    }
+                } finally {
+                    if (FdrLoader.fdrLoaded) {
+                        fdr.libraryExit()
+                    }
                 }
-            } finally {
-                if (FdrLoader.fdrLoaded) {
-                    fdr.libraryExit()
-                }
+
+                return@withContext results
             }
-
-            return@withContext results
-        }
+        } ?: throw AssertionTimeoutException()
+    }
 
     private fun buildAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionDefinition> {
         val allAssertions = assertionTypes.mapNotNull { assertionGenerators[it]?.generateAssertions(circuit) }.flatten()

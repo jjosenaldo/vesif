@@ -2,14 +2,14 @@ package ui.screens.settings
 
 import androidx.compose.runtime.*
 import core.utils.preferences.Preferences
-import ui.common.UiInitial
+import ui.common.UiError
 import ui.common.UiLoading
 import ui.common.UiState
 import ui.common.UiSuccess
 import verifier.util.FdrLoader
 
 class SettingsViewModel(private val preferences: Preferences, private val fdrLoader: FdrLoader) {
-    var settingsStates = mutableStateListOf<UiState<SettingConfig>>()
+    var settingsStates = mutableStateMapOf<SettingId, UiState<SettingConfig>>()
         private set
 
     init {
@@ -18,33 +18,37 @@ class SettingsViewModel(private val preferences: Preferences, private val fdrLoa
 
     fun loadCurrentSettings() {
         settingsStates.clear()
-        settingsStates.add(UiInitial(FdrPathSetting(preferences.fdrPath, preferences, fdrLoader)))
+        settingsStates.putAll(
+            mapOf(
+                SettingId.FdrPath to UiSuccess(FdrPathSetting(preferences.fdrPath, preferences, fdrLoader)),
+                SettingId.TimeoutTime to UiSuccess(TimeoutSetting(preferences.timeoutTimeMinutes, preferences))
+            )
+        )
     }
 
     fun saveSettings() {
-        settingsStates.forEach { it.data?.save() }
+        settingsStates.values.forEach { it.data?.save() }
     }
 
     fun isSaveEnabled(): Boolean {
-        return settingsStates.all { (it is UiSuccess || it is UiInitial) && it.data?.errorMessage == null }
+        return settingsStates.values.all { it is UiSuccess }
     }
 
-    suspend fun setFdrLocation(newLocation: String?) {
-        if (newLocation == null) return
-
-        val (index, oldSetting) = getSettingWithIndex<FdrPathSetting>() ?: return
-        val newSetting = oldSetting.copy(data = newLocation)
-
-        settingsStates[index] = UiLoading(newSetting)
-        newSetting.validate()
-        settingsStates[index] = UiSuccess(newSetting)
+    fun setSetting(settingId: SettingId, newData: String) {
+        val oldSetting = settingsStates[settingId]?.data ?: return
+        val newSetting = oldSetting.copy(data = newData)
+        setSettingState(settingId, newSetting, newSetting.validate())
     }
 
-    private inline fun <reified T : SettingConfig> getSettingWithIndex(): Pair<Int, T>? {
-        val index = settingsStates.indexOfFirst { it.data is T }
-        if (index == -1) return null
-        val setting = settingsStates[index].data as? T ?: return null
+    suspend fun setSettingAsync(settingId: SettingId, newData: String) {
+        val oldSetting = settingsStates[settingId]?.data ?: return
+        val newSetting = oldSetting.copy(data = newData)
+        settingsStates[settingId] = UiLoading(newSetting)
+        setSettingState(settingId, newSetting, newSetting.validateAsync())
+    }
 
-        return Pair(index, setting)
+    private fun setSettingState(settingId: SettingId, newConfig: SettingConfig, validation: String?) {
+        settingsStates[settingId] =
+            if (validation == null) UiSuccess(newConfig) else UiError(message = validation, data = newConfig)
     }
 }

@@ -25,13 +25,13 @@ fun SettingsScreen(
 ) {
     Column(Modifier.padding(16.dp).fillMaxSize()) {
         BidirectionalScrollBar(modifier = Modifier.fillMaxHeight().weight(1f)) {
-            settingsViewModel.settingsStates.forEachIndexed { index, state ->
+            SettingId.entries.forEachIndexed { index, state ->
                 if (index > 0) Spacer(modifier = Modifier.height(10.dp))
-                SettingRow(state)
+                settingsViewModel.settingsStates[state]?.let {
+                    SettingRow(it)
+                }
             }
         }
-
-        Spacer(modifier = Modifier.weight(1.0f))
         Divider(color = tertiaryBackgroundColor, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
         Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             AppButton(
@@ -54,12 +54,32 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingRow(data: UiState<SettingConfig>) {
-    data.data.let {
-        when (it) {
-            is FdrPathSetting -> FdrPathSettingRow(it)
-            null -> {}
+private fun SettingRow(state: UiState<SettingConfig>) {
+    Column {
+        state.data?.let {
+            AppText(it.id.title)
+            when (it) {
+                is FdrPathSetting -> FdrPathSettingRow(it)
+                is TimeoutSetting -> TimeoutTimeSettingRow(it)
+            }
+            if (state is UiError)
+                AppText(state.message, kind = AppTextKind.Error)
+
         }
+    }
+
+}
+
+@Composable
+private fun TimeoutTimeSettingRow(
+    data: TimeoutSetting,
+    settingsViewModel: SettingsViewModel = koinInject()
+) {
+    AppEditText(data.data, Modifier.width(100.dp)) { text ->
+        val newText =
+            text.filter { it.isDigit() }.substring(0, text.length.coerceAtMost(TimeoutSetting.MAX_TIME_MINUTES_LENGTH))
+        settingsViewModel.setSetting(data.id, newText)
+        newText
     }
 }
 
@@ -70,27 +90,26 @@ private fun FdrPathSettingRow(
 ) {
     val scope = rememberCoroutineScope()
     var showPicker by remember { mutableStateOf(false) }
-    AppText("FDR location")
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { showPicker = true }, modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)) {
-                Icon(
-                    imageVector = Icons.Default.Folder,
-                    contentDescription = "Open FDR folder",
-                    tint = iconColor
-                )
-            }
-            AppText(data.data, modifier = Modifier.padding(start = 4.dp))
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { showPicker = true }, modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)) {
+            Icon(
+                imageVector = Icons.Default.Folder,
+                contentDescription = "Open FDR folder",
+                tint = iconColor
+            )
         }
-        data.errorMessage?.let {
-            AppText(it, kind = AppTextKind.Error)
-        }
+        AppText(data.data, modifier = Modifier.padding(start = 4.dp))
     }
 
     FolderPicker(
         show = showPicker,
         onShowChanged = { showPicker = it },
-        onFolderSelected = { scope.launch { settingsViewModel.setFdrLocation(it) } }
+        onFolderSelected = {
+            if (it != null) {
+                scope.launch { settingsViewModel.setSettingAsync(SettingId.FdrPath, it) }
+            }
+        }
     )
 }
 

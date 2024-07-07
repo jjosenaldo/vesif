@@ -16,8 +16,8 @@ fun SettingsWindow(
 ) = AppWindow(
     onCloseRequest = { windowManager.close(WindowId.Settings) },
     title = "Settings",
-    size = DpSize(400.dp, 300.dp),
-    minSize = Dimension(400, 300)
+    size = DpSize(500.dp, 400.dp),
+    minSize = Dimension(500, 400)
 ) {
     SettingsScreen()
 }

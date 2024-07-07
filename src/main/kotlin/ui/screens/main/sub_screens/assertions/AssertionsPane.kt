@@ -20,6 +20,7 @@ import org.koin.compose.koinInject
 import ui.common.*
 import ui.navigation.AppNavigator
 import ui.window.AppWindowManager
+import verifier.util.AssertionTimeoutException
 import verifier.util.FdrNotFoundException
 import verifier.util.InvalidFdrException
 
@@ -83,6 +84,14 @@ private fun ErrorView(
                 is FdrNotFoundException -> ErrorDialogConfig(
                     "FDR not found",
                     "FDR not found. Please provide a path to a valid FDR version in Settings or add it to your PATH.",
+                    "Settings",
+                    windowManager::openSettings,
+                    viewModel::reset
+                )
+
+                is AssertionTimeoutException -> ErrorDialogConfig(
+                    "Timeout",
+                    "The checking took too long to run. Either select fewer properties or choose a simpler circuit, or increase the timeout time in Settings.",
                     "Settings",
                     windowManager::openSettings,
                     viewModel::reset

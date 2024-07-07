@@ -10,6 +10,7 @@ object Preferences {
 
     // TODO(platform): default path
     var fdrPath: String by preference(userPreferences, "fdr_path", "C:\\Program Files\\FDR")
+    var timeoutTimeMinutes: Int by preference(userPreferences, "timeout_time", 1)
 }
 
 private inline fun <reified T : Any> preference(preferences: JavaPreferences, key: String, defaultValue: T) =
