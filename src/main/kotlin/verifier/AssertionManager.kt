@@ -35,7 +35,9 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
     )
 
     fun getAssertionTypes(): List<AssertionType> {
-        return AssertionType.entries
+        return AssertionType.entries.toMutableList().apply {
+            remove(AssertionType.Deadlock)
+        }
     }
 
     suspend fun runAssertionsReturnFailing(
