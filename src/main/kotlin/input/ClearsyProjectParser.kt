@@ -26,7 +26,7 @@ class ClearsyProjectParser {
         }
 
         return Files.list(directoryPath)
-            .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".$projectFileExtension") }
+            .filter { Files.isRegularFile(it) && it.fileName.toString().contains(".$projectFileExtension") }
             .map { it.pathString }
             .findFirst().get()
     }

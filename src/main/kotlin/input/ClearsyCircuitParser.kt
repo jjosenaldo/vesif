@@ -81,7 +81,7 @@ class ClearsyCircuitParser {
 
     private fun getObjectsPath(projectPath: String): String {
         return Files.list(Paths.get(projectPath))
-            .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".$objectsFileExtension") }
+            .filter { Files.isRegularFile(it) && it.fileName.toString().contains(".$objectsFileExtension") }
             .map { it.pathString }
             .findFirst().get()
     }
