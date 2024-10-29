@@ -39,7 +39,7 @@ object CspWriter {
                 writeDefinition("JUNCTION_IDS", data.junctionIds)
                 newLine()
                 writeDefinition("REAL_BUTTON_IDS", data.buttonIds)
-                writeDefinition("STUB_BUTTON_IDS", setOf<String>())
+                writeDefinition("STUB_BUTTON_IDS", data.stubButtonIds)
                 writeDefinition("BUTTON_IDS", "union(REAL_BUTTON_IDS, STUB_BUTTON_IDS)")
                 newLine()
                 writeDefinition("LEVER_IDS", data.leverIds)

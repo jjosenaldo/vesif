@@ -21,6 +21,7 @@ class CircuitCspData : ComponentVisitor {
     val endpointIds = mutableSetOf<String>()
     val junctionIds = mutableSetOf<String>()
     val buttonIds = mutableSetOf<String>()
+    val stubButtonIds = mutableSetOf<String>()
     val leverIds = mutableSetOf<String>()
     val leverContactIds = mutableSetOf<String>()
     val capacitorIds = mutableSetOf<String>()
@@ -410,7 +411,8 @@ class CircuitCspData : ComponentVisitor {
 
     override fun visitButton(button: Button) {
         addComponentId(button)
-        buttonIds.add(button.id)
+        // All buttons should be stub, as of the meeting on 22/10/2024
+        stubButtonIds.add(button.id)
         initialOpenComponentIds.add(button.id)
         addConnection(button.leftNeighbor, button)
         addConnection(button, button.rightNeighbor)
