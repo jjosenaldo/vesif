@@ -3,7 +3,6 @@ package ui.screens.main.sub_screens.failed_assertion
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import core.model.Component
 import core.model.Identifiable
 import input.model.ClearsyCircuit
 import input.model.ClearsyComponent
