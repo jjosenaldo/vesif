@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import core.model.Component
+import core.model.Identifiable
 import input.model.ClearsyCircuit
 import input.model.ClearsyComponent
 import org.koin.core.component.KoinComponent
@@ -74,19 +75,19 @@ class FailedAssertionViewModel : KoinComponent {
         circuit: ClearsyCircuit,
         results: List<RingBellAssertionRunResult>
     ): List<UiFailedAssertion> {
-        return results.groupBy { it.pressedButtons.joinToString(",") { button -> button.name } }.values.map { resultsByState ->
+        return results.groupBy { it.activeInputs.joinToString(",") { button -> button.name } }.values.map { resultsByState ->
             UiFailedRingBell(
                 contacts = resultsByState.map { it.contact }.toUiComponents(circuit),
-                inputs = resultsByState.first().pressedButtons.toUiComponents(circuit)
+                inputs = resultsByState.first().activeInputs.toUiComponents(circuit)
             )
         }
     }
 
-    private fun List<Component>.toUiComponents(circuit: ClearsyCircuit): List<UiComponent> {
+    private fun List<Identifiable>.toUiComponents(circuit: ClearsyCircuit): List<UiComponent> {
         return toClearsyComponents(circuit).map(UiComponent::fromClearsyComponent)
     }
 
-    private fun List<Component>.toClearsyComponents(circuit: ClearsyCircuit): List<ClearsyComponent> {
+    private fun List<Identifiable>.toClearsyComponents(circuit: ClearsyCircuit): List<ClearsyComponent> {
         return mapNotNull { circuit.findComponentById(it.id) }
     }
 

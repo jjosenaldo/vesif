@@ -103,6 +103,9 @@ rem_def(S) = diff(S, DEFAULT_IDS)
 
 -- Communication with relays/master
 datatype SIDE = LEFT | RIGHT
+L_SIDE(true) = LEFT
+L_SIDE(false) = RIGHT
+
 channel move : rem_def(LEVER_IDS).SIDE
 
 B_STATUS = {true, false}
@@ -116,7 +119,7 @@ channel deactivation_timer : DEACTIVATION_BLOCKS_IDS.{0..MAX_DEACTIVATION_TIME}
 channel activation_timer : ACTIVATION_BLOCKS_IDS.{0..MAX_ACTIVATION_TIME}
 channel tick
 channel input
-channel short_circuit: Int
+channel short_circuit: {MIN_PATH..MAX_PATH}
 
 ALPHA_PATH_MASTER = {| mono_relay_status,
                        bistable_relay_status,
@@ -735,18 +738,19 @@ SYSTEM = PATH_MASTER
 -----------------------------
 channel switch
 
-FIX_INPUTS(stub_buttons_map) =
+FIX_INPUTS(stub_inputs_map) =
     let PROC_LEVER_IDS = diff(LEVER_IDS, DEFAULT_IDS)
         PROC_BUTTON_IDS = diff(BUTTON_IDS, union(DEFAULT_IDS,STUB_BUTTON_IDS))
     within
         (; l_id: seq(PROC_LEVER_IDS) @ (|~| s:SIDE @ move.l_id.s -> SKIP));
+        (; l_id: seq(STUB_LEVER_IDS) @ move.l_id.(L_SIDE((mapLookup(stub_inputs_map,l_id)))) -> SKIP);
         (; b_id: seq(PROC_BUTTON_IDS) @ (|~| b:B_STATUS @ press.b_id.b -> SKIP));
-        (; b_id: seq(STUB_BUTTON_IDS) @ press.b_id.(mapLookup(stub_buttons_map,b_id)) -> SKIP)
+        (; b_id: seq(STUB_BUTTON_IDS) @ press.b_id.(mapLookup(stub_inputs_map,b_id)) -> SKIP)
 
 ALPHA_FIX_INPUTS = {| move, press |}
 
-SYSTEM_WITH_FIXED_INPUTS(stub_buttons_map) =
-    SYSTEM [| ALPHA_FIX_INPUTS |] FIX_INPUTS(stub_buttons_map)
+SYSTEM_WITH_FIXED_INPUTS(stub_inputs_map) =
+    SYSTEM [| ALPHA_FIX_INPUTS |] FIX_INPUTS(stub_inputs_map)
 
 MONITOR_UNSTABLE_CONTACT(endpoint_id) = MONITOR_UNSTABLE_CONTACT_AUX(endpoint_id,false)
 
@@ -758,8 +762,8 @@ MONITOR_UNSTABLE_CONTACT_AUX(endpoint_id_3,status_2) =
 
 ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id) = {| mono_relay_status.endpoint_id.(GET_CONTACT_OF_ENDPOINT(endpoint_id)).(RELAY_OF(endpoint_id)) |}
 
-MONITORED_SYSTEM_UNSTABLE_CONTACT(endpoint_id,stub_buttons_map) =
-     (SYSTEM_WITH_FIXED_INPUTS(stub_buttons_map) \ (diff(Events, ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id))))
+MONITORED_SYSTEM_UNSTABLE_CONTACT(endpoint_id, stub_inputs_map) =
+     (SYSTEM_WITH_FIXED_INPUTS(stub_inputs_map) \ (diff(Events, ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id))))
        [| ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id) |]
       MONITOR_UNSTABLE_CONTACT(endpoint_id)  \ ALPHA_MONITOR_UNSTABLE_CONTACT(endpoint_id)
 
@@ -799,8 +803,8 @@ ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) =
                    (GET_COIL_FROM_BS_ENDPOINT_R(bs_endpoint_id)) |}
 
 
-MONITORED_SYSTEM_UNSTABLE_BS_CONTACT(bs_endpoint_id, stub_buttons_map) =
-    ( (SYSTEM_WITH_FIXED_INPUTS(stub_buttons_map) \ (diff(Events, ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id))))
+MONITORED_SYSTEM_UNSTABLE_BS_CONTACT(bs_endpoint_id, stub_inputs_map) =
+    ( (SYSTEM_WITH_FIXED_INPUTS(stub_inputs_map) \ (diff(Events, ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id))))
        [| ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) |]
       MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) ) \ ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id)
 

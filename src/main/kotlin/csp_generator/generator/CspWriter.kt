@@ -12,7 +12,7 @@ import java.io.BufferedWriter
 import java.io.File
 
 object CspWriter {
-    suspend fun writePaths(data: CircuitCspData, output: String) = withContext(Dispatchers.IO) {
+    suspend fun writeCircuitCsp(data: CircuitCspData, output: String) = withContext(Dispatchers.IO) {
         val file = File(output)
         FileManager.createFileIfNotExists(output)
 
@@ -42,7 +42,9 @@ object CspWriter {
                 writeDefinition("STUB_BUTTON_IDS", data.stubButtonIds)
                 writeDefinition("BUTTON_IDS", "union(REAL_BUTTON_IDS, STUB_BUTTON_IDS)")
                 newLine()
-                writeDefinition("LEVER_IDS", data.leverIds)
+                writeDefinition("REAL_LEVER_IDS", data.leverIds)
+                writeDefinition("STUB_LEVER_IDS", data.stubLeverIds)
+                writeDefinition("LEVER_IDS", "union(REAL_LEVER_IDS, STUB_LEVER_IDS)")
                 writeDefinition("LEVER_CONTACT_IDS", data.leverContactIds)
                 newLine()
                 writeDefinition("CAPACITOR_IDS", data.capacitorIds)
@@ -143,6 +145,7 @@ object CspWriter {
     }
 
     suspend fun writePaths(name: String, data: CspPaths, output: String) = withContext(Dispatchers.IO) {
+        val (minPathIndex, maxPathIndex) = data.keys.let { Pair(it.min(), it.max()) }
         val file = File(output)
         FileManager.createFileIfNotExists(output)
 
@@ -155,6 +158,8 @@ object CspWriter {
                         }
                     } |)"
                 )
+                writeDefinition("MIN_PATH", minPathIndex)
+                writeDefinition("MAX_PATH", maxPathIndex)
             }
         }
     }

@@ -7,5 +7,5 @@ class RingBellAssertionRunResult(assertion: RingBellAssertion, passed: Boolean) 
     AssertionRunResult(AssertionType.RingBell, passed) {
 
     val contact = assertion.contact
-    val pressedButtons = assertion.buttonsState.filterValues { it }.keys.sortedBy { it.name }
+    val activeInputs = assertion.inputsState.filterValues { it }.keys.sortedBy { it.name }
 }

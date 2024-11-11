@@ -2,8 +2,7 @@ package core.model
 
 import core.model.visitor.ComponentVisitor
 
-abstract class Component(val name: String) {
-    val id = "${name}_id"
+abstract class Component(override val name: String) : Identifiable {
     abstract fun acceptVisitor(visitor: ComponentVisitor)
 
     companion object {

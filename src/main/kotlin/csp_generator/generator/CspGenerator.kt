@@ -21,8 +21,7 @@ class CspGenerator {
         val circuitData = CircuitCspData().apply { fillData(circuit.components) }
         generateCircuitCsp(circuitData)
         val paths = generatePathsCsp(circuit.components, circuitData)
-        val (minPathIndex, maxPathIndex) = paths.keys.let { Pair(it.min(), it.max()) }
-        generateGeneralCsp(minPathIndex, maxPathIndex)
+        generateGeneralCsp()
         generateFunctionsPath()
         return paths
     }
@@ -30,7 +29,7 @@ class CspGenerator {
     private suspend fun generateCircuitCsp(
         circuitCspData: CircuitCspData
     ) {
-        CspWriter.writePaths(circuitCspData, circuitOutputPath)
+        CspWriter.writeCircuitCsp(circuitCspData, circuitOutputPath)
     }
 
     private suspend fun generatePathsCsp(
@@ -42,20 +41,10 @@ class CspGenerator {
         return paths
     }
 
-    private suspend fun generateGeneralCsp(
-        minPathIndex: Int,
-        maxPathIndex: Int
-    ) = withContext(Dispatchers.IO) {
+    private suspend fun generateGeneralCsp() = withContext(Dispatchers.IO) {
         FileManager.getResource(defaultGeneralPath).let {
             val defaultGeneralContent = it.readText()
-            // TODO(td): move "short_circuit" elsewhere
-            val defaultShortCircuitChannelDefinition = "channel short_circuit: Int"
-            val newShortCircuitChannelDefinition = "channel short_circuit: {${minPathIndex}..${maxPathIndex}}"
-            val newContent =
-                defaultGeneralContent.replace(defaultShortCircuitChannelDefinition, newShortCircuitChannelDefinition)
-
-            FileManager.upsertFile(generalOutputPath, text = newContent)
-
+            FileManager.upsertFile(generalOutputPath, text = defaultGeneralContent)
         }
     }
 

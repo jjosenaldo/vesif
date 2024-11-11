@@ -9,7 +9,7 @@ class Button(
     var leftNeighbor: Component = DEFAULT,
     var rightNeighbor: Component = DEFAULT,
     name: String
-) : Component(name) {
+) : BinaryInput, Component(name) {
     override fun acceptVisitor(visitor: ComponentVisitor) {
         visitor.visitButton(this)
     }

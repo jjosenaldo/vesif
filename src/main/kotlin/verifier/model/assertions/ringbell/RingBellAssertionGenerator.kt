@@ -7,38 +7,39 @@ import verifier.model.common.AssertionGenerator
 
 class RingBellAssertionGenerator : AssertionGenerator {
     override fun generateAssertions(circuit: Circuit): List<RingBellAssertion> {
-        if (circuit.buttons.isEmpty()) {
+        val inputs = circuit.components.filterIsInstance<BinaryInput>()
+        if (inputs.isEmpty()) {
             return circuit.relayContacts.map {
-                buildAssertionForContactAndButtonConfiguration(
+                buildAssertionForContactAndInputConfiguration(
                     it,
                     getContactEndpoint(it),
                     listOf(),
-                    listOf()
+                    inputs
                 )
             }
         }
 
-        val combinations = generateBooleanCombinations(circuit.buttons.size)
+        val combinations = generateBooleanCombinations(inputs.size)
 
         return circuit.relayContacts.map { contact ->
             combinations.map { combination ->
-                buildAssertionForContactAndButtonConfiguration(
+                buildAssertionForContactAndInputConfiguration(
                     contact,
                     getContactEndpoint(contact),
                     combination,
-                    circuit.buttons
+                    inputs
                 )
             }
         }.flatten()
     }
 
-    private fun buildAssertionForContactAndButtonConfiguration(
+    private fun buildAssertionForContactAndInputConfiguration(
         contact: Contact,
         endpoint: Component,
         configuration: List<Boolean>,
-        buttons: List<Button>
+        inputs: List<BinaryInput>
     ): RingBellAssertion {
-        return RingBellAssertion(contact, endpoint, buttons.zip(configuration).toMap())
+        return RingBellAssertion(contact, endpoint, inputs.zip(configuration).toMap())
     }
 
     // Generates the 2^n possible combinations
