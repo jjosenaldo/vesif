@@ -114,9 +114,10 @@ class CircuitCspData : ComponentVisitor {
     }
 
     private fun addMonostableRelayDefaultIds(components: List<Component>) {
+        val id = "C_default"
+        ids.add(id)
+
         if (components.all { it !is MonostableRelay }) {
-            val id = "C_default"
-            ids.add(id)
             contactClosedIds.add(id)
             twoWayContactIds.add(id)
             getContactOfEndpoints.add(CspPair("id", id))
