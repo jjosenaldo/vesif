@@ -3,8 +3,6 @@ package core.model
 import core.model.visitor.ComponentVisitor
 
 class MonostableSimpleContact(
-    // isNormallyOpen if the controller is monostable,
-    // isLeftOpen if it is bistable
     val isNormallyOpen: Boolean,
     var leftNeighbor: Component = DEFAULT,
     var rightNeighbor: Component = DEFAULT,
