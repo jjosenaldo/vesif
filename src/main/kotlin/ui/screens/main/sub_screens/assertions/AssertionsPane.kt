@@ -12,6 +12,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -131,18 +132,22 @@ fun AssertionView(
     val verticalAlignment = Alignment.CenterVertically
 
     if (assertionState is AssertionInitial)
-        Row(verticalAlignment = verticalAlignment, modifier = Modifier.clickable(
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        ) {
-            viewModel.setSelected(!assertionState.selected, assertionState)
-        }) {
-            Checkbox(
-                checked = assertionState.selected,
-                onCheckedChange = { viewModel.setSelected(it, assertionState) },
-                modifier = Modifier.padding(16.dp).width(16.dp).height(16.dp)
-            )
-            AppText(text = assertionState.name)
+        Column {
+            Row(verticalAlignment = verticalAlignment,
+                modifier = Modifier.clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { viewModel.setSelected(!assertionState.selected, assertionState) }
+            ) {
+                Checkbox(
+                    checked = assertionState.selected,
+                    onCheckedChange = { viewModel.setSelected(it, assertionState) },
+                    modifier = Modifier.padding(16.dp).width(16.dp).height(16.dp)
+                )
+                AppText(text = assertionState.name)
+            }
+
+            AssertionDataView(assertionState.data, assertionState.selected)
         }
     else Row(verticalAlignment = Alignment.CenterVertically) {
         if (assertionState !is AssertionError) {
@@ -184,3 +189,25 @@ fun AssertionView(
     }
 }
 
+@Composable
+private fun AssertionDataView(
+    assertionData: AssertionData,
+    selected: Boolean,
+    viewModel: AssertionsViewModel = koinInject(),
+) {
+    when (assertionData) {
+        is EmptyAssertionData -> {}
+        is MultiselectAssertionData<*> -> {
+            if (!selected) return
+
+            key(viewModel.multiselectDataId) {
+                MultiselectAssertionDataView(
+                    assertionData,
+                    onNewData = {
+                        viewModel.updateMultiselect(it)
+                    }
+                )
+            }
+        }
+    }
+}
