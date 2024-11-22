@@ -1,5 +1,6 @@
 package ui.screens.main.sub_screens.assertions
 
+import verifier.model.assertions.AssertionData
 import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType
 

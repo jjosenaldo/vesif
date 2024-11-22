@@ -24,6 +24,9 @@ import org.koin.compose.koinInject
 import ui.common.*
 import ui.navigation.AppNavigator
 import ui.window.AppWindowManager
+import verifier.model.assertions.AssertionData
+import verifier.model.assertions.EmptyAssertionData
+import verifier.model.assertions.MultiselectAssertionData
 import verifier.util.AssertionTimeoutException
 import verifier.util.FdrNotFoundException
 import verifier.util.InvalidFdrException

@@ -1,4 +1,4 @@
-package ui.screens.main.sub_screens.assertions
+package verifier.model.assertions
 
 sealed class AssertionData {
     open fun onSelected(selected: Boolean) {}
@@ -7,7 +7,7 @@ sealed class AssertionData {
 
 data object EmptyAssertionData : AssertionData()
 
-class MultiselectAssertionData<T>(keys: List<String>, private val defaultValue: T) :
+abstract class MultiselectAssertionData<T>(keys: List<String>, private val defaultValue: T) :
     AssertionData() {
     val pendingKeys: List<String>
         get() = _pendingKeys.toList()
@@ -40,6 +40,8 @@ class MultiselectAssertionData<T>(keys: List<String>, private val defaultValue: 
     }
 
     fun canAddRow() = _pendingKeys.isNotEmpty()
+
+    abstract fun getValueText(value: T): String
 
     override fun onSelected(selected: Boolean) {
         if (!selected) clear()

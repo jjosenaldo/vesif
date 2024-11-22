@@ -8,6 +8,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
 import verifier.AssertionManager
+import verifier.model.assertions.EmptyAssertionData
+import verifier.model.assertions.MultiselectAssertionData
+import verifier.model.assertions.contact_status.ContactStatusAssertionData
 import verifier.model.common.AssertionType
 
 class AssertionsViewModel(
@@ -25,10 +28,8 @@ class AssertionsViewModel(
         assertions = types.map {
             AssertionInitial(
                 type = it, data = when (it) {
-                    AssertionType.ContactStatus -> MultiselectAssertionData(
-                        keys = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableSimpleContact>()
-                            .map { contact -> contact.name },
-                        defaultValue = false
+                    AssertionType.ContactStatus -> ContactStatusAssertionData(
+                        contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableSimpleContact>()
                     )
 
                     else -> EmptyAssertionData

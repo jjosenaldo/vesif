@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import ui.common.AppButton
 import ui.common.AppIconButton
 import ui.common.AppText
+import verifier.model.assertions.MultiselectAssertionData
 
 @Composable
 fun <T> MultiselectAssertionDataView(
@@ -31,13 +32,13 @@ fun <T> MultiselectAssertionDataView(
                     AppIconButton(
                         imageVector = Icons.Default.Remove,
                         tint = Color.Red,
-                        contentDescription = "Remove contact"
+                        contentDescription = "Remove"
                     ) { onNewData(data.apply { removeRow(key) }) }
                     AppText(key, modifier = Modifier.clickable(onClick = {
                         if (data.canAddRow())
                             expanded = true
                     }))
-                    DataView(data = value) {
+                    DataView(value = value, data = data) {
                         onNewData(data.apply { editValue(key, it) })
                     }
                 }
@@ -69,16 +70,17 @@ fun <T> MultiselectAssertionDataView(
 
 @Composable
 private fun <T> DataView(
-    data: T,
+    data: MultiselectAssertionData<T>,
+    value: T,
     onDataChanged: (T) -> Unit
 ) {
-    if (data is Boolean) {
-        val boolVal: Boolean = data
+    if (value is Boolean) {
+        val boolVal: Boolean = value
         AppButton(onClick = {
             @Suppress("UNCHECKED_CAST")
             onDataChanged(!boolVal as T)
         }) {
-            AppText(if (boolVal) "Closed" else "Open")
+            AppText(data.getValueText(value))
         }
     }
 }
