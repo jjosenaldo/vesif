@@ -15,4 +15,6 @@ class DivergenceAssertionRunResult(private val fdrAssertion: Assertion, private 
         val loopBehavior = fdrAssertion.getFirstLoopBehavior() ?: return ""
         return "Trace prior to divergence: ${loopBehavior.prettyTracePriorToLoop(session)}"
     }
+
+    override fun hasDetails() = false
 }

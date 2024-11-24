@@ -48,7 +48,8 @@ class AssertionPassed(type: AssertionType, data: AssertionData) : AssertionState
 }
 
 class AssertionFailed(
-    type: AssertionType, val results: List<AssertionRunResult>,
+    type: AssertionType,
+    val results: List<AssertionRunResult>,
     data: AssertionData
 ) : AssertionState(type, data) {
     override fun withData(data: AssertionData?): AssertionState {

@@ -48,4 +48,6 @@ class ShortCircuitAssertionRunResult(
         val behavior = fdrAssertion.getFirstTraceBehavior() ?: return@lazy listOf()
         behavior.trace(session) + behavior.errorEvent(session)
     }
+
+    override fun hasDetails() = true
 }

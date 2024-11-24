@@ -7,6 +7,7 @@ class ContactStatusAssertionData(contacts: List<MonostableSimpleContact>) : Mult
     defaultValue = true,
     keys = contacts.map { it.name }
 ) {
+    val contactsByName = contacts.associateBy { it.name }
     override fun getValueText(value: Boolean): String {
         return if (value) "Closed" else "Open"
     }

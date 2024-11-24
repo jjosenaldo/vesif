@@ -20,4 +20,6 @@ class DeadLockAssertionRunResult(
 
         return "Trace leading to deadlock: $trace"
     }
+
+    override fun hasDetails() = false
 }

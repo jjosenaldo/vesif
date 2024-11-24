@@ -41,4 +41,6 @@ class DeterminismAssertionRunResult(val fdrAssertion: Assertion, val session: Se
 
         return "After the trace $trace, the refusals can be either $firstRefusals or $secondRefusals"
     }
+
+    override fun hasDetails() = false
 }

@@ -29,7 +29,7 @@ class FailedAssertionViewModel : KoinComponent {
         val circuit = circuitViewModel.selectedCircuit
 
         this.failedAssertions = buildFailedAssertions(circuit, failedAssertions)
-        selectedFailedAssertion = this.failedAssertions.first()
+        this.failedAssertions.firstOrNull()?.let { selectedFailedAssertion = it }
     }
 
     fun select(failedAssertion: UiFailedAssertion) {

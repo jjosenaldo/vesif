@@ -179,7 +179,7 @@ fun AssertionView(
 
         AppText(text = assertionState.name)
 
-        if (assertionState is AssertionFailed)
+        if (assertionState is AssertionFailed && assertionState.results.isNotEmpty())
             AppIconButton(
                 imageVector = Icons.Default.Info,
                 contentDescription = "Details",

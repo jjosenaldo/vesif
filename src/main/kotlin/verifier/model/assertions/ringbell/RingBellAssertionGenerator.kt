@@ -3,10 +3,11 @@ package verifier.model.assertions.ringbell
 import core.model.*
 import csp_generator.util.endpoint
 import csp_generator.util.endpoint1
+import verifier.model.assertions.AssertionData
 import verifier.model.common.AssertionGenerator
 
 class RingBellAssertionGenerator : AssertionGenerator {
-    override fun generateAssertions(circuit: Circuit): List<RingBellAssertion> {
+    override fun generateAssertions(circuit: Circuit, data: AssertionData): List<RingBellAssertion> {
         val inputs = circuit.components.filterIsInstance<BinaryInput>()
         if (inputs.isEmpty()) {
             return circuit.relayContacts.map {

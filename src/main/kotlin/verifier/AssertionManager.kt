@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import uk.ac.ox.cs.fdr.*
+import verifier.model.assertions.AssertionData
+import verifier.model.assertions.contact_status.ContactStatusAssertionGenerator
 import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
 import verifier.model.assertions.determinism.DeterminismAssertionGenerator
 import verifier.model.assertions.divergence.DivergenceAssertionGenerator
@@ -31,7 +33,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         AssertionType.ShortCircuit to ShortCircuitAssertionGenerator(),
         AssertionType.Deadlock to DeadlockAssertionGenerator(),
         AssertionType.Divergence to DivergenceAssertionGenerator(),
-        AssertionType.Determinism to DeterminismAssertionGenerator()
+        AssertionType.Determinism to DeterminismAssertionGenerator(),
+        AssertionType.ContactStatus to ContactStatusAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {
@@ -42,17 +45,20 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
 
     suspend fun runAssertionsReturnFailing(
         circuit: Circuit,
-        assertionTypes: List<AssertionType>
+        assertionData: Map<AssertionType, AssertionData>
     ): Map<AssertionType, List<AssertionRunResult>> {
-        return runAssertions(circuit, assertionTypes).filter { !it.passed }.groupBy { it.assertionType }
+        return runAssertions(circuit, assertionData).filter { !it.passed }.groupBy { it.assertionType }
     }
 
-    private suspend fun runAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionRunResult> {
+    private suspend fun runAssertions(
+        circuit: Circuit,
+        assertionData: Map<AssertionType, AssertionData>
+    ): List<AssertionRunResult> {
         return withTimeoutOrNull(Preferences.timeoutTimeMinutes.minutes) {
             withContext(Dispatchers.IO) {
                 val paths = cspGenerator.generateCircuitCsp(circuit)
                 val results = mutableListOf<AssertionRunResult>()
-                val assertionDefinitions = buildAssertions(circuit, assertionTypes)
+                val assertionDefinitions = buildAssertions(circuit, assertionData)
 
                 try {
                     FdrLoader.loadFdr().apply {
@@ -75,8 +81,17 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         } ?: throw AssertionTimeoutException()
     }
 
-    private fun buildAssertions(circuit: Circuit, assertionTypes: List<AssertionType>): List<AssertionDefinition> {
-        val allAssertions = assertionTypes.mapNotNull { assertionGenerators[it]?.generateAssertions(circuit) }.flatten()
+    private fun buildAssertions(
+        circuit: Circuit,
+        assertionData: Map<AssertionType, AssertionData>
+    ): List<AssertionDefinition> {
+        val allAssertions =
+            assertionData.entries.mapNotNull { (type, data) ->
+                assertionGenerators[type]?.generateAssertions(
+                    circuit,
+                    data
+                )
+            }.flatten()
 
         FileManager.upsertFile(assertionsFile, allAssertions.map { it.definition })
 
