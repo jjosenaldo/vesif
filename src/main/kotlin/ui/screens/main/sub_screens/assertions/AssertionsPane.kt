@@ -1,6 +1,6 @@
 package ui.screens.main.sub_screens.assertions
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
@@ -40,15 +40,25 @@ fun AssertionsPane(
     ErrorView()
 
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState(0)
 
     Pane {
-        Assertions(
-            when {
-                viewModel.assertions.any { it is AssertionInitial } -> viewModel.assertions
-                else -> viewModel.assertions.filter { it !is AssertionNotSelected }
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
+                Assertions(
+                    when {
+                        viewModel.assertions.any { it is AssertionInitial } -> viewModel.assertions
+                        else -> viewModel.assertions.filter { it !is AssertionNotSelected }
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
-        )
-        Spacer(modifier = Modifier.weight(1.0f))
+            VerticalScrollbar(
+                modifier = Modifier.fillMaxHeight().align(Alignment.CenterEnd),
+                adapter = rememberScrollbarAdapter(scrollState)
+            )
+        }
+
         viewModel.assertions.let { assertions ->
             if (assertions.all { it is AssertionInitial }) {
                 Divider(color = tertiaryBackgroundColor)
