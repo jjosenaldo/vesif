@@ -12,7 +12,12 @@ enum class AppTextKind {
 }
 
 @Composable
-fun AppText(text: String, modifier: Modifier = Modifier, kind: AppTextKind = AppTextKind.Regular) {
+fun AppText(
+    text: String,
+    modifier: Modifier = Modifier,
+    kind: AppTextKind = AppTextKind.Regular,
+    maxLines: Int = Int.MAX_VALUE,
+) {
     val actualStyle = when (kind) {
         AppTextKind.Regular -> LocalTextStyle.current
         AppTextKind.Error -> LocalTextStyle.current.merge(
@@ -24,6 +29,7 @@ fun AppText(text: String, modifier: Modifier = Modifier, kind: AppTextKind = App
         modifier = modifier,
         style = actualStyle.copy(
             color = actualStyle.color.copy(alpha = LocalContentColor.current.alpha)
-        )
+        ),
+        maxLines = maxLines,
     )
 }

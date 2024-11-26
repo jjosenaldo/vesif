@@ -208,7 +208,8 @@ private fun AssertionDataView(
                     assertionData,
                     onNewData = {
                         viewModel.updateMultiselect(it)
-                    }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
         }
