@@ -6,10 +6,10 @@ import core.utils.files.circuitOutputPath
 import core.utils.files.outputPath
 import core.utils.preferences.Preferences
 import csp_generator.generator.CspGenerator
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-import uk.ac.ox.cs.fdr.*
+import kotlinx.coroutines.*
+import uk.ac.ox.cs.fdr.CancelledError
+import uk.ac.ox.cs.fdr.Canceller
+import uk.ac.ox.cs.fdr.fdr
 import verifier.model.assertions.AssertionData
 import verifier.model.assertions.contact_status.ContactStatusAssertionGenerator
 import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
@@ -27,6 +27,7 @@ import kotlin.time.Duration.Companion.minutes
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
     private val assertionsFile = "$outputPath${FileManager.fileSeparator}assertions.csp"
+    private lateinit var canceller: Canceller
 
     private val assertionGenerators = mapOf(
         AssertionType.RingBell to RingBellAssertionGenerator(),
@@ -50,35 +51,49 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         return runAssertions(circuit, assertionData).filter { !it.passed }.groupBy { it.assertionType }
     }
 
+    fun cancelRunningAssertions() {
+        if (!canceller.cancelled()) {
+            canceller.cancel()
+        }
+    }
+
     private suspend fun runAssertions(
         circuit: Circuit,
         assertionData: Map<AssertionType, AssertionData>
     ): List<AssertionRunResult> {
-        return withTimeoutOrNull(Preferences.timeoutTimeMinutes.minutes) {
-            withContext(Dispatchers.IO) {
-                val paths = cspGenerator.generateCircuitCsp(circuit)
-                val results = mutableListOf<AssertionRunResult>()
-                val assertionDefinitions = buildAssertions(circuit, assertionData)
+        return withContext(Dispatchers.IO) {
+            val paths = cspGenerator.generateCircuitCsp(circuit)
+            val results = mutableListOf<AssertionRunResult>()
+            val assertionDefinitions = buildAssertions(circuit, assertionData)
+            canceller = Canceller()
 
-                try {
-                    FdrLoader.loadFdr().apply {
-                        loadFile(circuitOutputPath)
-                        results.addAll(
-                            assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
-                                fdrAssertion.execute(null)
-                                assertion.buildRunResult(this, fdrAssertion, circuit.components, paths)
-                            }
-                        )
-                    }
-                } finally {
-                    if (FdrLoader.fdrLoaded) {
-                        fdr.libraryExit()
-                    }
-                }
-
-                return@withContext results
+            launch {
+                delay(Preferences.timeoutTimeMinutes.minutes)
+                cancel()
             }
-        } ?: throw AssertionTimeoutException()
+
+            try {
+                FdrLoader.loadFdr().apply {
+                    loadFile(circuitOutputPath)
+                    results.addAll(
+                        assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
+                            fdrAssertion.execute(canceller)
+                            assertion.buildRunResult(this, fdrAssertion, circuit.components, paths)
+                        }
+                    )
+                }
+            } catch (e: CancelledError) {
+                fdr.libraryExit()
+                throw AssertionTimeoutException()
+            } finally {
+                if (FdrLoader.fdrLoaded) {
+                    fdr.libraryExit()
+                }
+            }
+
+            return@withContext results
+        }
+
     }
 
     private fun buildAssertions(

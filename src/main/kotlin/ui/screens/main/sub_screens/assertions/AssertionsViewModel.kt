@@ -101,4 +101,10 @@ class AssertionsViewModel(
         }
     }
 
+    fun onGoBack() {
+        if (assertions.any { it is AssertionRunning }) {
+            assertionManager.cancelRunningAssertions()
+        }
+    }
+
 }

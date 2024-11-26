@@ -23,7 +23,11 @@ class AppNavigator : KoinComponent {
     fun navBack() {
         navToScreen(
             when (currentMainScreen) {
-                MainScreenId.Assertions -> MainScreenId.SelectCircuit
+                MainScreenId.Assertions -> {
+                    assertionsViewModel.onGoBack()
+                    MainScreenId.SelectCircuit
+                }
+
                 MainScreenId.FailedAssertion -> MainScreenId.Assertions
                 else -> currentMainScreen
             }
