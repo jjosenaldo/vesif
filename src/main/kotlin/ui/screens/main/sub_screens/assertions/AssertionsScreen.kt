@@ -7,9 +7,10 @@ import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
 
 @Composable
 fun AssertionsScreen(
-    circuitViewModel: CircuitViewModel = koinInject()
+    circuitViewModel: CircuitViewModel = koinInject(),
+    assertionsViewModel: AssertionsViewModel = koinInject()
 ) {
     MainScreenContent(
-        circuitViewModel.selectedCircuitParams
+        assertionsViewModel.uiCircuitModifier(circuitViewModel.selectedCircuitParams)
     ) { AssertionsPane() }
 }

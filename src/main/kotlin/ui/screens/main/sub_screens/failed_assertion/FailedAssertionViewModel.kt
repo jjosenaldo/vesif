@@ -3,15 +3,13 @@ package ui.screens.main.sub_screens.failed_assertion
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import core.model.Identifiable
 import input.model.ClearsyCircuit
-import input.model.ClearsyComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ui.model.UiComponent
 import ui.model.assertions.UiFailedAssertion
 import ui.model.assertions.UiFailedRingBell
 import ui.model.assertions.UiFailedShortCircuit
+import ui.model.toUiComponents
 import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
 import verifier.model.assertions.ringbell.RingBellAssertionRunResult
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionRunResult
@@ -81,13 +79,4 @@ class FailedAssertionViewModel : KoinComponent {
             )
         }
     }
-
-    private fun List<Identifiable>.toUiComponents(circuit: ClearsyCircuit): List<UiComponent> {
-        return toClearsyComponents(circuit).map(UiComponent::fromClearsyComponent)
-    }
-
-    private fun List<Identifiable>.toClearsyComponents(circuit: ClearsyCircuit): List<ClearsyComponent> {
-        return mapNotNull { circuit.findComponentById(it.id) }
-    }
-
 }

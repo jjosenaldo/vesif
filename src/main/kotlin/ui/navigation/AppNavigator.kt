@@ -40,7 +40,7 @@ class AppNavigator : KoinComponent {
     }
 
     fun navToAssertions(types: List<AssertionType>) {
-        assertionsViewModel.setAssertionsFromTypes(types)
+        assertionsViewModel.setup(types)
         navToScreen(MainScreenId.Assertions)
     }
 

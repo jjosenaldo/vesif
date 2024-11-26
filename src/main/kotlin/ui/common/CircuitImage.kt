@@ -58,7 +58,11 @@ fun CircuitImageContent(params: UiCircuitParams) {
                 .width(size.width.dp)
                 .height(size.height.dp)
         ) {
-            drawImage(image, dstSize = IntSize(size.width.toInt(), size.height.toInt()))
+            drawImage(
+                image,
+                alpha = params.opacity,
+                dstSize = IntSize(size.width.toInt(), size.height.toInt())
+            )
 
             params.circles(size).forEach {
                 drawCircle(

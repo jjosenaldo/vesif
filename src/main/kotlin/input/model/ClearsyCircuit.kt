@@ -1,7 +1,7 @@
 package input.model
 
 import core.model.Circuit
-import core.model.Component
+import core.model.Identifiable
 
 data class ClearsyCircuit(val circuitImagePath: String, val components: List<ClearsyComponent>) {
     val circuit = Circuit(components.map(ClearsyComponent::component))
@@ -13,4 +13,12 @@ data class ClearsyCircuit(val circuitImagePath: String, val components: List<Cle
     companion object {
         val DEFAULT = ClearsyCircuit("", listOf())
     }
+}
+
+fun Identifiable.toClearsyComponent(circuit: ClearsyCircuit): ClearsyComponent? {
+    return circuit.findComponentById(id)
+}
+
+fun List<Identifiable>.toClearsyComponents(circuit: ClearsyCircuit): List<ClearsyComponent> {
+    return mapNotNull { it.toClearsyComponent(circuit) }
 }
