@@ -368,6 +368,8 @@ class CircuitCspData : ComponentVisitor {
     }
 
     private fun addTimedBlockConnections(timedBlock: TimedBlock, neighbor: Component) {
+        if (neighbor.isDefault()) return
+
         when (neighbor.id) {
             timedBlock.dependentPos.id -> {
                 addConnection(timedBlock.dependentEndpointPos, neighbor)

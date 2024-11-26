@@ -10,4 +10,6 @@ abstract class Component(override val name: String) : Identifiable {
             override fun acceptVisitor(visitor: ComponentVisitor) {}
         }
     }
+
+    fun isDefault() = name == DEFAULT.name
 }
