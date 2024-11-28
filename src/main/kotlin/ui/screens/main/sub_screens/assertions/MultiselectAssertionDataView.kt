@@ -108,41 +108,43 @@ private fun <T> Dropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = (
-                if (enabled)
-                    Modifier
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .clickable(onClick = { expanded = true })
-                else Modifier
-                )
-            .padding(horizontal = 2.dp)
-    ) {
-        AppText(
-            optionText(selected),
-            maxLines = 2,
-            modifier = modifier,
-            color = optionColor?.invoke(selected)
-        )
-        Icon(
-            Icons.Default.KeyboardArrowDown, "Select",
-            tint = Color.Gray
-        )
-    }
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-    ) {
-        options.forEach { option ->
-            DropdownMenuItem(onClick = {
-                expanded = false
-                onClick(option)
-            }) {
-                AppText(
-                    optionText(option),
-                    color = optionColor?.invoke(option)
-                )
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = (
+                    if (enabled)
+                        Modifier
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .clickable(onClick = { expanded = true })
+                    else Modifier
+                    )
+                .padding(horizontal = 2.dp)
+        ) {
+            AppText(
+                optionText(selected),
+                maxLines = 2,
+                modifier = modifier,
+                color = optionColor?.invoke(selected)
+            )
+            Icon(
+                Icons.Default.KeyboardArrowDown, "Select",
+                tint = Color.Gray
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(onClick = {
+                    expanded = false
+                    onClick(option)
+                }) {
+                    AppText(
+                        optionText(option),
+                        color = optionColor?.invoke(option)
+                    )
+                }
             }
         }
     }
