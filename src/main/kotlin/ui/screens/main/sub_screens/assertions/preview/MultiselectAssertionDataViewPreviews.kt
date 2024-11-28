@@ -4,7 +4,7 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.*
 import core.model.MonostableSimpleContact
 import ui.screens.main.sub_screens.assertions.MultiselectAssertionDataView
-import verifier.model.assertions.contact_status.ContactStatusAssertionData
+import ui.screens.main.sub_screens.assertions.model.ContactStatusAssertionData
 
 @Preview
 @Composable

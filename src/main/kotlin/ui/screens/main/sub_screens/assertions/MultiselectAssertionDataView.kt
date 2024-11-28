@@ -4,21 +4,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Switch
+import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DoNotDisturbOn
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import ui.common.AppIconButton
 import ui.common.AppText
-import verifier.model.assertions.MultiselectAssertionData
+import ui.screens.main.sub_screens.assertions.model.MultiselectAssertionData
 
 @Composable
 fun <T> MultiselectAssertionDataView(
@@ -26,8 +26,6 @@ fun <T> MultiselectAssertionDataView(
     modifier: Modifier = Modifier,
     onNewData: (MultiselectAssertionData<T>) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     if (data.selectedData.isNotEmpty())
         Column(
             modifier = modifier,
@@ -41,40 +39,29 @@ fun <T> MultiselectAssertionDataView(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    AppIconButton(
-                        imageVector = Icons.Default.DoNotDisturbOn,
-                        tint = Color.Red,
-                        contentDescription = "Remove",
-                        size = 18.dp,
-                    ) { onNewData(data.apply { removeRow(key) }) }
-                    AppText(
-                        key,
-                        modifier = (
-                                if (data.canAddRow()) Modifier
-                                    .pointerHoverIcon(PointerIcon.Hand)
-                                    .clickable(onClick = { expanded = true })
-                                else Modifier
-                                )
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
-                        maxLines = 2,
-                    )
-                    DataView(value = value) {
-                        onNewData(data.apply { editValue(key, it) })
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        AppIconButton(
+                            imageVector = Icons.Default.DoNotDisturbOn,
+                            tint = Color.Red,
+                            contentDescription = "Remove",
+                            size = 18.dp,
+                        ) { onNewData(data.apply { removeRow(key) }) }
+                        Spacer(Modifier.width(4.dp))
+                        Dropdown(
+                            selected = key,
+                            options = data.pendingKeys,
+                            enabled = data.canAddRow(),
+                            optionText = { it },
+                            onClick = { onNewData(data.apply { editKey(oldKey = key, newKey = it) }) },
+                            modifier = Modifier.weight(1f, false)
+                        )
                     }
-                }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                ) {
-                    data.pendingKeys.forEach { listKey ->
-                        DropdownMenuItem(onClick = {
-                            expanded = false
-                            onNewData(data.apply { editKey(oldKey = key, newKey = listKey) })
-                        }) {
-                            AppText(listKey)
-                        }
+                    DataView(selected = value, data = data) {
+                        onNewData(data.apply { editValue(key, it) })
                     }
                 }
             }
@@ -95,19 +82,68 @@ fun <T> MultiselectAssertionDataView(
 
 @Composable
 private fun <T> DataView(
-    value: T,
+    selected: T,
+    data: MultiselectAssertionData<T>,
     onDataChanged: (T) -> Unit
 ) {
-    if (value is Boolean) {
-        val boolVal: Boolean = value
+    Dropdown(
+        selected = selected,
+        options = data.values,
+        enabled = true,
+        optionText = { data.getValueInfo(it).text },
+        optionColor = { data.getValueInfo(it).color },
+        onClick = onDataChanged,
+    )
+}
 
-        Switch(
-            checked = boolVal,
-            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand).scale(0.75f).height(18.dp),
-            onCheckedChange = {
-                @Suppress("UNCHECKED_CAST")
-                onDataChanged(it as T)
-            }
+@Composable
+private fun <T> Dropdown(
+    selected: T,
+    options: List<T>,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    optionText: (T) -> String,
+    optionColor: ((T) -> Color)? = null,
+    onClick: (T) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = (
+                if (enabled)
+                    Modifier
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clickable(onClick = { expanded = true })
+                else Modifier
+                )
+            .padding(horizontal = 2.dp)
+    ) {
+        AppText(
+            optionText(selected),
+            maxLines = 2,
+            modifier = modifier,
+            color = optionColor?.invoke(selected)
         )
+        Icon(
+            Icons.Default.KeyboardArrowDown, "Select",
+            tint = Color.Gray
+        )
+    }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+    ) {
+        options.forEach { option ->
+            DropdownMenuItem(onClick = {
+                expanded = false
+                onClick(option)
+            }) {
+                AppText(
+                    optionText(option),
+                    color = optionColor?.invoke(option)
+                )
+            }
+        }
     }
 }

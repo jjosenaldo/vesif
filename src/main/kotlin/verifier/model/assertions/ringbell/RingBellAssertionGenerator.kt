@@ -3,7 +3,7 @@ package verifier.model.assertions.ringbell
 import core.model.*
 import csp_generator.util.endpoint
 import csp_generator.util.endpoint1
-import verifier.model.assertions.AssertionData
+import ui.screens.main.sub_screens.assertions.model.AssertionData
 import verifier.model.common.AssertionGenerator
 
 class RingBellAssertionGenerator : AssertionGenerator {

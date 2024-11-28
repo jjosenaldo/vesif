@@ -10,11 +10,12 @@ import kotlinx.coroutines.*
 import uk.ac.ox.cs.fdr.CancelledError
 import uk.ac.ox.cs.fdr.Canceller
 import uk.ac.ox.cs.fdr.fdr
-import verifier.model.assertions.AssertionData
+import ui.screens.main.sub_screens.assertions.model.AssertionData
 import verifier.model.assertions.contact_status.ContactStatusAssertionGenerator
 import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
 import verifier.model.assertions.determinism.DeterminismAssertionGenerator
 import verifier.model.assertions.divergence.DivergenceAssertionGenerator
+import verifier.model.assertions.lamp_status.LampStatusAssertionGenerator
 import verifier.model.assertions.ringbell.RingBellAssertionGenerator
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionGenerator
 import verifier.model.common.AssertionDefinition
@@ -35,7 +36,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         AssertionType.Deadlock to DeadlockAssertionGenerator(),
         AssertionType.Divergence to DivergenceAssertionGenerator(),
         AssertionType.Determinism to DeterminismAssertionGenerator(),
-        AssertionType.ContactStatus to ContactStatusAssertionGenerator()
+        AssertionType.ContactStatus to ContactStatusAssertionGenerator(),
+        AssertionType.LampStatus to LampStatusAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {
@@ -67,7 +69,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
             val assertionDefinitions = buildAssertions(circuit, assertionData)
             canceller = Canceller()
 
-            launch {
+            val cancellingJob = launch {
                 delay(Preferences.timeoutTimeMinutes.minutes)
                 cancel()
             }
@@ -86,6 +88,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
                 fdr.libraryExit()
                 throw AssertionTimeoutException()
             } finally {
+                cancellingJob.cancel()
+                
                 if (FdrLoader.fdrLoaded) {
                     fdr.libraryExit()
                 }

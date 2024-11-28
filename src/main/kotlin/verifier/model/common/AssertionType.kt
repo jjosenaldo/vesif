@@ -6,5 +6,6 @@ enum class AssertionType(val assertionName: String) {
     Deadlock("Deadlock"),
     Divergence("Divergence"),
     Determinism("Determinism"),
-    ContactStatus("Contact status")
+    ContactStatus("Contact status"),
+    LampStatus("Lamp status"),
 }

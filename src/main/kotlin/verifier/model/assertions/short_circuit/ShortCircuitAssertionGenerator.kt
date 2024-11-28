@@ -1,7 +1,7 @@
 package verifier.model.assertions.short_circuit
 
 import core.model.Circuit
-import verifier.model.assertions.AssertionData
+import ui.screens.main.sub_screens.assertions.model.AssertionData
 import verifier.model.common.AssertionGenerator
 import verifier.model.common.AssertionDefinition
 

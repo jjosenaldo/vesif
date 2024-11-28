@@ -1,23 +1,22 @@
-package verifier.model.assertions.contact_status
+package verifier.model.assertions.lamp_status
 
 import core.model.Component
 import csp_generator.model.CspPaths
-import csp_generator.util.endpoint
-import ui.screens.main.sub_screens.assertions.model.ContactStatusAssertionData
+import ui.screens.main.sub_screens.assertions.model.LampStatusAssertionData
 import uk.ac.ox.cs.fdr.Assertion
 import uk.ac.ox.cs.fdr.Session
 import verifier.model.common.AssertionDefinition
 import verifier.model.common.AssertionRunResult
 import verifier.model.common.AssertionType
 
-class ContactStatusAssertion(data: ContactStatusAssertionData) : AssertionDefinition() {
+class LampStatusAssertion(data: LampStatusAssertionData) : AssertionDefinition() {
     override val definition =
-        "assert not STOP [T= SYSTEM_CONTACTS_STATUS((| ${
+        "assert not STOP [T= SYSTEM_LAMPS_STATUS((| ${
             data.selectedData.joinToString(", ") { pair ->
-                "${data.getComponentByName(pair.first)!!.endpoint.id} => ${pair.second}"
+                "${data.getComponentByName(pair.first)!!.id} => ${pair.second}"
             }
-        } |))"
-    override val type = AssertionType.ContactStatus
+        } |),{})"
+    override val type = AssertionType.LampStatus
 
     override fun buildRunResult(
         session: Session,
@@ -25,6 +24,6 @@ class ContactStatusAssertion(data: ContactStatusAssertionData) : AssertionDefini
         components: List<Component>,
         paths: CspPaths
     ): AssertionRunResult {
-        return ContactStatusAssertionRunResult(fdrAssertion)
+        return LampStatusAssertionRunResult(fdrAssertion)
     }
 }

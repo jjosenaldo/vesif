@@ -1,33 +1,29 @@
 package ui.screens.main.sub_screens.assertions
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
+import core.model.Lamp
 import core.model.MonostableSimpleContact
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.model.UiCircuitParams
 import ui.model.toUiComponent
+import ui.screens.main.sub_screens.assertions.model.*
 import ui.screens.main.sub_screens.select_circuit.CircuitViewModel
 import verifier.AssertionManager
-import verifier.model.assertions.EmptyAssertionData
-import verifier.model.assertions.MultiselectAssertionData
-import verifier.model.assertions.contact_status.ContactStatusAssertionData
 import verifier.model.common.AssertionType
 
 class AssertionsViewModel(
     private val assertionManager: AssertionManager
 ) : KoinComponent {
     private val circuitViewModel: CircuitViewModel by inject()
-    var multiselectDataId by mutableStateOf(0)
-        private set
+    val multiselectDataId = mutableStateMapOf<AssertionType, Int>()
     var assertions by mutableStateOf(listOf<AssertionState>())
         private set
     var uiCircuitModifier by mutableStateOf<(UiCircuitParams) -> UiCircuitParams>({ it })
         private set
-    private val activeColor = Color.Blue
-    private val inactiveColor = Color.Gray
 
     fun setup(types: List<AssertionType>) {
         assertions = types.map {
@@ -37,10 +33,15 @@ class AssertionsViewModel(
                         contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableSimpleContact>()
                     )
 
+                    AssertionType.LampStatus -> LampStatusAssertionData(
+                        lamps = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<Lamp>()
+                    )
+
                     else -> EmptyAssertionData
                 }
             )
         }
+        multiselectDataId.clear()
         setUiCircuitModifier()
     }
 
@@ -57,14 +58,14 @@ class AssertionsViewModel(
         setUiCircuitModifier()
     }
 
-    fun updateMultiselect(newData: MultiselectAssertionData<*>) {
-        val assertionIndex = assertions.indexOfFirst { it.data is MultiselectAssertionData<*> }
+    fun updateMultiselect(assertionType: AssertionType, newData: MultiselectAssertionData<*>) {
+        val assertionIndex = assertions.indexOfFirst { it.type == assertionType }
         val newAssertions = ArrayList(assertions)
         val newAssertion = assertions[assertionIndex].withData(newData)
         newAssertions[assertionIndex] = newAssertion
         assertions = newAssertions
         setUiCircuitModifier()
-        multiselectDataId += 1
+        multiselectDataId[newAssertion.type] = multiselectDataId.getOrDefault(newAssertion.type, 0) + 1
 
         if (!newAssertion.data.isValid() && newAssertion is AssertionInitial)
             setSelected(false, newAssertion)
@@ -116,32 +117,50 @@ class AssertionsViewModel(
     }
 
     private fun setUiCircuitModifier() {
-        val contactStatusData =
-            assertions.firstOrNull { it.data is ContactStatusAssertionData }?.data as ContactStatusAssertionData?
+        var contactStatusData: ContactStatusAssertionData? = null
+        var lampStatusData: LampStatusAssertionData? = null
 
-        uiCircuitModifier = if (contactStatusData == null) {
+        for (assertion in assertions) {
+            when (assertion.data) {
+                is ContactStatusAssertionData -> contactStatusData = assertion.data
+                is LampStatusAssertionData -> lampStatusData = assertion.data
+                else -> {}
+            }
+        }
+
+        val allStatusData = listOfNotNull(contactStatusData, lampStatusData)
+        uiCircuitModifier = if (allStatusData.isEmpty()) {
             { it }
         } else {
-            {
-                val uiComponentsWithColors = contactStatusData.selectedData.mapNotNull { pair ->
-                    val contactName = pair.first
-                    val active = pair.second
-                    val component = contactStatusData.contactsByName[contactName]
-                        ?.toUiComponent(circuitViewModel.selectedCircuit)
-                    if (component == null) null
-                    else Pair(component, if (active) activeColor else inactiveColor)
-                }
+            { oldCircuitUi ->
+                val params = allStatusData.mapNotNull { statusData ->
+                    val uiComponentsWithColors = statusData.selectedData.mapNotNull { pair ->
+                        val contactName = pair.first
+                        val status = pair.second
+                        val component = statusData.getComponentByName(contactName)
+                            ?.toUiComponent(circuitViewModel.selectedCircuit)
+                        if (component == null) null
+                        else Pair(component, statusData.getValueInfo(status).color)
+                    }
 
-                if (uiComponentsWithColors.isEmpty()) it
-                else
-                    it.copy(
-                        circles = { size ->
-                            uiComponentsWithColors.map { pair ->
-                                pair.first.circle(size).copy(color = pair.second)
+                    if (uiComponentsWithColors.isEmpty()) null
+                    else
+                        UiCircuitParams(
+                            null,
+                            circles = { size ->
+                                uiComponentsWithColors.map { pair ->
+                                    pair.first.circle(size).copy(color = pair.second)
+                                }
                             }
-                        },
-                        opacity = .25f,
-                    )
+                        )
+
+                }
+                if (params.isEmpty()) oldCircuitUi
+                else oldCircuitUi.copy(
+                    opacity = .25f,
+                    circles = { size ->
+                        params.fold(listOf()) { circles, param -> circles + param.circles(size) }
+                    })
             }
         }
     }

@@ -23,10 +23,12 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import ui.common.*
 import ui.navigation.AppNavigator
+import ui.screens.main.sub_screens.assertions.model.*
 import ui.window.AppWindowManager
-import verifier.model.assertions.AssertionData
-import verifier.model.assertions.EmptyAssertionData
-import verifier.model.assertions.MultiselectAssertionData
+import ui.screens.main.sub_screens.assertions.model.AssertionData
+import ui.screens.main.sub_screens.assertions.model.EmptyAssertionData
+import ui.screens.main.sub_screens.assertions.model.MultiselectAssertionData
+import verifier.model.common.AssertionType
 import verifier.util.AssertionTimeoutException
 import verifier.util.FdrNotFoundException
 import verifier.util.InvalidFdrException
@@ -64,7 +66,7 @@ fun AssertionsPane(
                 Divider(color = tertiaryBackgroundColor)
                 AppButton(
                     enabled = assertions.any { (it as AssertionInitial).selected },
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(12.dp),
                     onClick = {
                         if (viewModel.assertions.none { it is AssertionRunning }) {
                             scope.launch {
@@ -160,7 +162,7 @@ fun AssertionView(
                 AppText(text = assertionState.name)
             }
 
-            AssertionDataView(assertionState.data, assertionState.selected)
+            AssertionDataView(assertionState.type, assertionState.data, assertionState.selected)
         }
     else Row(verticalAlignment = Alignment.CenterVertically) {
         if (assertionState !is AssertionError) {
@@ -204,6 +206,7 @@ fun AssertionView(
 
 @Composable
 private fun AssertionDataView(
+    assertionType: AssertionType,
     assertionData: AssertionData,
     selected: Boolean,
     viewModel: AssertionsViewModel = koinInject(),
@@ -213,11 +216,11 @@ private fun AssertionDataView(
         is MultiselectAssertionData<*> -> {
             if (!selected) return
 
-            key(viewModel.multiselectDataId) {
+            key(viewModel.multiselectDataId[assertionType]) {
                 MultiselectAssertionDataView(
                     assertionData,
                     onNewData = {
-                        viewModel.updateMultiselect(it)
+                        viewModel.updateMultiselect(assertionType, it)
                     },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
