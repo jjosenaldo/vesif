@@ -11,6 +11,7 @@ import uk.ac.ox.cs.fdr.CancelledError
 import uk.ac.ox.cs.fdr.Canceller
 import uk.ac.ox.cs.fdr.fdr
 import ui.screens.main.sub_screens.assertions.model.AssertionData
+import uk.ac.ox.cs.fdr.Session
 import verifier.model.assertions.contact_status.ContactStatusAssertionGenerator
 import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
 import verifier.model.assertions.determinism.DeterminismAssertionGenerator
@@ -64,6 +65,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         assertionData: Map<AssertionType, AssertionData>
     ): List<AssertionRunResult> {
         return withContext(Dispatchers.IO) {
+            FdrLoader.loadFdr()
             val paths = cspGenerator.generateCircuitCsp(circuit)
             val results = mutableListOf<AssertionRunResult>()
             val assertionDefinitions = buildAssertions(circuit, assertionData)
@@ -75,7 +77,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
             }
 
             try {
-                FdrLoader.loadFdr().apply {
+                Session().apply {
                     loadFile(circuitOutputPath)
                     results.addAll(
                         assertions().zip(assertionDefinitions).map { (fdrAssertion, assertion) ->
@@ -89,7 +91,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
                 throw AssertionTimeoutException()
             } finally {
                 cancellingJob.cancel()
-                
+
                 if (FdrLoader.fdrLoaded) {
                     fdr.libraryExit()
                 }

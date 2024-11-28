@@ -11,12 +11,10 @@ object FdrLoader {
     var fdrLoaded = false
         private set
 
-    suspend fun loadFdr(): Session {
-        if (fdrLoaded) return getSession()
+    suspend fun loadFdr() {
+        if (fdrLoaded) return
 
-        return loadLibrary(Preferences.fdrPath).also {
-            fdrLoaded = true
-        }
+        loadLibrary(Preferences.fdrPath)
     }
 
     /**
@@ -29,13 +27,12 @@ object FdrLoader {
 
     private fun getSession() = Session()
 
-    private suspend fun loadLibrary(fdrPath: String): Session = withContext(Dispatchers.IO) {
+    private suspend fun loadLibrary(fdrPath: String) = withContext(Dispatchers.IO) {
         val libPath = "$fdrPath${fileSep}bin"
 
         try {
             System.load("$libPath${fileSep}libfdr_java.dll")
-
-            return@withContext getSession()
+            getSession()
         } catch (e: Throwable) {
             if (e !is UnsatisfiedLinkError || e.message?.contains("dependent") != true) {
                 throw FdrNotFoundException()
@@ -43,7 +40,7 @@ object FdrLoader {
                 try {
                     return@withContext loadLibraryAndDependencies(libPath)
                 } catch (e: Throwable) {
-                    throw InvalidFdrException()
+                    throw InvalidFdrException(cause = e)
                 }
             }
         }
@@ -51,7 +48,7 @@ object FdrLoader {
     }
 
     // TODO(platform): file extensions
-    private fun loadLibraryAndDependencies(libPath: String): Session {
+    private fun loadLibraryAndDependencies(libPath: String) {
         /*        */System.load("$libPath${fileSep}libwinpthread-1.dll")
         /*    */System.load("$libPath${fileSep}libgcc_s_seh-1.dll")
         /*    */System.load("$libPath${fileSep}libstdc++-6.dll")
@@ -70,7 +67,5 @@ object FdrLoader {
         /*        */System.load("$libPath${fileSep}libcspm_process_compiler.dll")
         /*    */System.load("$libPath${fileSep}libfdr.dll")
         System.load("$libPath${fileSep}libfdr_java.dll")
-
-        return getSession()
     }
 }
