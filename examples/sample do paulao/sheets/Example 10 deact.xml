@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDESheet xmlns="https://www.clearsy.com/Formats/CDESheet" version="0.5">
+  <Name>Example 10 deact</Name>
+  <Scale>0.730833</Scale>
+  <Zoom>1</Zoom>
+  <BackgroundGraphics>graphics/Example 10 deact.png</BackgroundGraphics>
+  <Leg>
+    <Terminal id="1">
+      <Object>Ex10d_P1</Object>
+      <Index>0</Index>
+      <OffsetX>0.1051881414</OffsetX>
+      <OffsetY>0.2022044850</OffsetY>
+    </Terminal>
+    <Terminal id="2">
+      <Object>Ex10d_L1</Object>
+      <Index>0</Index>
+      <OffsetX>0.2061003421</OffsetX>
+      <OffsetY>0.2067654884</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="3">
+      <Object>Ex10d_L1</Object>
+      <Index>1</Index>
+      <OffsetX>0.2232041049</OffsetX>
+      <OffsetY>0.2082858229</OffsetY>
+    </Terminal>
+    <Terminal id="4">
+      <Object>Ex10d_C1</Object>
+      <Index>0</Index>
+      <OffsetX>0.4660775371</OffsetX>
+      <OffsetY>0.2082858229</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="5">
+      <Object>Ex10d_C1</Object>
+      <Index>1</Index>
+      <OffsetX>0.5096921323</OffsetX>
+      <OffsetY>0.2052451539</OffsetY>
+    </Terminal>
+    <Terminal id="6">
+      <Object>Ex10d_N1</Object>
+      <Index>0</Index>
+      <OffsetX>0.7799315849</OffsetX>
+      <OffsetY>0.2067654884</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="7">
+      <Object>Ex10d_BL1</Object>
+      <Index>4</Index>
+      <OffsetX>0.3087229190</OffsetX>
+      <OffsetY>0.4637020144</OffsetY>
+    </Terminal>
+    <Terminal id="8">
+      <Object>Ex10d_B1</Object>
+      <Index>1</Index>
+      <OffsetX>0.2385974914</OffsetX>
+      <OffsetY>0.4637020144</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="9">
+      <Object>Ex10d_B1</Object>
+      <Index>0</Index>
+      <OffsetX>0.1761687571</OffsetX>
+      <OffsetY>0.4621816800</OffsetY>
+    </Terminal>
+    <Terminal id="10">
+      <Object>Ex10d_BND01</Object>
+      <Index>0</Index>
+      <OffsetX>0.1436716078</OffsetX>
+      <OffsetY>0.4621816800</OffsetY>
+    </Terminal>
+    <Terminal id="11">
+      <Object>Ex10d_BND02</Object>
+      <Index>0</Index>
+      <OffsetX>0.1411060433</OffsetX>
+      <OffsetY>0.5138730521</OffsetY>
+    </Terminal>
+    <Terminal id="12">
+      <Object>Ex10d_BL1</Object>
+      <Index>5</Index>
+      <OffsetX>0.3087229190</OffsetX>
+      <OffsetY>0.5138730521</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="13">
+      <Object>Ex10d_BL1</Object>
+      <Index>0</Index>
+      <OffsetX>0.3070125428</OffsetX>
+      <OffsetY>0.5625237552</OffsetY>
+    </Terminal>
+    <Terminal id="14">
+      <Object>Ex10d_P2</Object>
+      <Index>0</Index>
+      <OffsetX>0.1051881414</OffsetX>
+      <OffsetY>0.5655644242</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="15">
+      <Object>Ex10d_N2</Object>
+      <Index>0</Index>
+      <OffsetX>0.1051881414</OffsetX>
+      <OffsetY>0.5990117826</OffsetY>
+    </Terminal>
+    <Terminal id="16">
+      <Object>Ex10d_BL1</Object>
+      <Index>1</Index>
+      <OffsetX>0.3078677309</OffsetX>
+      <OffsetY>0.6096541239</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="17">
+      <Object>Ex10d_BL1</Object>
+      <Index>2</Index>
+      <OffsetX>0.3925313569</OffsetX>
+      <OffsetY>0.4621816800</OffsetY>
+    </Terminal>
+    <Terminal id="18">
+      <Object>Ex10d_R1</Object>
+      <Index>0</Index>
+      <OffsetX>0.4746294185</OffsetX>
+      <OffsetY>0.4606613455</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="19">
+      <Object>Ex10d_R1</Object>
+      <Index>1</Index>
+      <OffsetX>0.4729190422</OffsetX>
+      <OffsetY>0.5108323831</OffsetY>
+    </Terminal>
+    <Terminal id="20">
+      <Object>Ex10d_BL1</Object>
+      <Index>3</Index>
+      <OffsetX>0.3942417332</OffsetX>
+      <OffsetY>0.5093120487</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="21">
+      <Object>Ex10d_P3</Object>
+      <Index>0</Index>
+      <OffsetX>0.1000570125</OffsetX>
+      <OffsetY>0.8194602813</OffsetY>
+    </Terminal>
+    <Terminal id="22">
+      <Object>Ex10d_C2</Object>
+      <Index>0</Index>
+      <OffsetX>0.4652223489</OffsetX>
+      <OffsetY>0.8255416192</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="23">
+      <Object>Ex10d_C2</Object>
+      <Index>1</Index>
+      <OffsetX>0.5079817560</OffsetX>
+      <OffsetY>0.8255416192</OffsetY>
+    </Terminal>
+    <Terminal id="24">
+      <Object>Ex10d_L2</Object>
+      <Index>0</Index>
+      <OffsetX>0.6602052452</OffsetX>
+      <OffsetY>0.8164196123</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="25">
+      <Object>Ex10d_L2</Object>
+      <Index>1</Index>
+      <OffsetX>0.6807297605</OffsetX>
+      <OffsetY>0.8240212847</OffsetY>
+    </Terminal>
+    <Terminal id="26">
+      <Object>Ex10d_N3</Object>
+      <Index>0</Index>
+      <OffsetX>0.7884834664</OffsetX>
+      <OffsetY>0.8194602813</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+</CDESheet>

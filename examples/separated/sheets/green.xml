@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDESheet xmlns="https://www.clearsy.com/Formats/CDESheet" version="0.5">
+  <Name>green</Name>
+  <Scale>0.833333</Scale>
+  <Zoom>1</Zoom>
+  <BackgroundGraphics>graphics/green.png</BackgroundGraphics>
+  <Leg>
+    <Terminal id="1">
+      <Object>g_P1</Object>
+      <Index>0</Index>
+      <OffsetX>0.2635739382</OffsetX>
+      <OffsetY>0.1320160123</OffsetY>
+    </Terminal>
+    <Terminal id="2">
+      <Object>g_B1</Object>
+      <Index>0</Index>
+      <OffsetX>0.2812730956</OffsetX>
+      <OffsetY>0.1320160123</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="3">
+      <Object>g_B1</Object>
+      <Index>1</Index>
+      <OffsetX>0.2946670525</OffsetX>
+      <OffsetY>0.1277574312</OffsetY>
+    </Terminal>
+    <Terminal id="4">
+      <Object>g_CR</Object>
+      <Index>0</Index>
+      <OffsetX>0.3090177207</OffsetX>
+      <OffsetY>0.1305964853</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="5">
+      <Object>g_CR</Object>
+      <Index>1</Index>
+      <OffsetX>0.3224116776</OffsetX>
+      <OffsetY>0.1291769582</OffsetY>
+    </Terminal>
+    <Terminal id="6">
+      <Object>g_N1</Object>
+      <Index>0</Index>
+      <OffsetX>0.3621151928</OffsetX>
+      <OffsetY>0.1334355393</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="7">
+      <Object>g_P2</Object>
+      <Index>0</Index>
+      <OffsetX>0.0502273385</OffsetX>
+      <OffsetY>0.2384805383</OffsetY>
+    </Terminal>
+    <Terminal id="8">
+      <Object>g_B2</Object>
+      <Index>0</Index>
+      <OffsetX>0.0679264959</OffsetX>
+      <OffsetY>0.2399000653</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="9">
+      <Object>g_B2</Object>
+      <Index>1</Index>
+      <OffsetX>0.0808420972</OffsetX>
+      <OffsetY>0.2384805383</OffsetY>
+    </Terminal>
+    <Terminal id="10">
+      <Object>g_RPCS</Object>
+      <Index>0</Index>
+      <OffsetX>0.0961494766</OffsetX>
+      <OffsetY>0.2399000653</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="11">
+      <Object>g_RPCS</Object>
+      <Index>1</Index>
+      <OffsetX>0.1090650779</OffsetX>
+      <OffsetY>0.2427391193</OffsetY>
+    </Terminal>
+    <Terminal id="12">
+      <Object>g_N2</Object>
+      <Index>0</Index>
+      <OffsetX>0.1487685931</OffsetX>
+      <OffsetY>0.2427391193</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="13">
+      <Object>g_P3</Object>
+      <Index>0</Index>
+      <OffsetX>0.1918205975</OffsetX>
+      <OffsetY>0.2370610113</OffsetY>
+    </Terminal>
+    <Terminal id="14">
+      <Object>g_B3</Object>
+      <Index>0</Index>
+      <OffsetX>0.2080846881</OffsetX>
+      <OffsetY>0.2384805383</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="15">
+      <Object>g_B3</Object>
+      <Index>1</Index>
+      <OffsetX>0.2195652226</OffsetX>
+      <OffsetY>0.2399000653</OffsetY>
+    </Terminal>
+    <Terminal id="16">
+      <Object>g_RPA</Object>
+      <Index>0</Index>
+      <OffsetX>0.2358293132</OffsetX>
+      <OffsetY>0.2413195923</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="17">
+      <Object>g_RPA</Object>
+      <Index>1</Index>
+      <OffsetX>0.2477882033</OffsetX>
+      <OffsetY>0.2399000653</OffsetY>
+    </Terminal>
+    <Terminal id="18">
+      <Object>g_N3</Object>
+      <Index>0</Index>
+      <OffsetX>0.2889267853</OffsetX>
+      <OffsetY>0.2399000653</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="19">
+      <Object>g_P4</Object>
+      <Index>0</Index>
+      <OffsetX>0.3348489233</OffsetX>
+      <OffsetY>0.2682906056</OffsetY>
+    </Terminal>
+    <Terminal id="20">
+      <Object>g_B4</Object>
+      <Index>0</Index>
+      <OffsetX>0.3511130139</OffsetX>
+      <OffsetY>0.2640320245</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="21">
+      <Object>g_B4</Object>
+      <Index>1</Index>
+      <OffsetX>0.3621151928</OffsetX>
+      <OffsetY>0.2682906056</OffsetY>
+    </Terminal>
+    <Terminal id="22">
+      <Object>g_C_A</Object>
+      <Index>0</Index>
+      <OffsetX>0.3788576390</OffsetX>
+      <OffsetY>0.2697101326</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="23">
+      <Object>g_C_A</Object>
+      <Index>1</Index>
+      <OffsetX>0.3922515959</OffsetX>
+      <OffsetY>0.2725491866</OffsetY>
+    </Terminal>
+    <Terminal id="24">
+      <Object>g_N4</Object>
+      <Index>0</Index>
+      <OffsetX>0.4314767555</OffsetX>
+      <OffsetY>0.2697101326</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="25">
+      <Object>g_P9</Object>
+      <Index>0</Index>
+      <OffsetX>0.0110086871</OffsetX>
+      <OffsetY>0.3286060187</OffsetY>
+    </Terminal>
+    <Terminal id="26">
+      <Object>g_J9</Object>
+      <Index>0</Index>
+      <OffsetX>0.0531007262</OffsetX>
+      <OffsetY>0.3266843461</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="27">
+      <Object>g_J9</Object>
+      <Index>2</Index>
+      <OffsetX>0.0569861452</OffsetX>
+      <OffsetY>0.3401360544</OffsetY>
+    </Terminal>
+    <Terminal id="28">
+      <Object>g_BND01</Object>
+      <Index>0</Index>
+      <OffsetX>0.0569861452</OffsetX>
+      <OffsetY>0.8205542104</OffsetY>
+    </Terminal>
+    <Terminal id="29">
+      <Object>g_C3_RPCS</Object>
+      <Index>0</Index>
+      <OffsetX>0.0926024860</OffsetX>
+      <OffsetY>0.8282409009</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="30">
+      <Object>g_C3_RPCS</Object>
+      <Index>1</Index>
+      <OffsetX>0.1074965922</OffsetX>
+      <OffsetY>0.8263192283</OffsetY>
+    </Terminal>
+    <Terminal id="31">
+      <Object>g_S</Object>
+      <Index>0</Index>
+      <OffsetX>0.9216440503</OffsetX>
+      <OffsetY>0.8301625735</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="32">
+      <Object>g_S</Object>
+      <Index>1</Index>
+      <OffsetX>0.9358905866</OffsetX>
+      <OffsetY>0.8282409009</OffsetY>
+    </Terminal>
+    <Terminal id="33">
+      <Object>g_BND_02</Object>
+      <Index>0</Index>
+      <OffsetX>0.9371857263</OffsetX>
+      <OffsetY>0.8628310081</OffsetY>
+    </Terminal>
+    <Terminal id="34">
+      <Object>g_N7</Object>
+      <Index>0</Index>
+      <OffsetX>0.6056299721</OffsetX>
+      <OffsetY>0.8628310081</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="35">
+      <Object>g_J9</Object>
+      <Index>1</Index>
+      <OffsetX>0.0602239944</OffsetX>
+      <OffsetY>0.3266843461</OffsetY>
+    </Terminal>
+    <Terminal id="36">
+      <Object>g_C2_RPCS</Object>
+      <Index>0</Index>
+      <OffsetX>0.0958403352</OffsetX>
+      <OffsetY>0.3286060187</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="37">
+      <Object>g_C2_RPCS</Object>
+      <Index>1</Index>
+      <OffsetX>0.1087917318</OffsetX>
+      <OffsetY>0.3324493639</OffsetY>
+    </Terminal>
+    <Terminal id="38">
+      <Object>g_C3_RPA</Object>
+      <Index>0</Index>
+      <OffsetX>0.2344202793</OffsetX>
+      <OffsetY>0.3266843461</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="39">
+      <Object>g_C3_RPA</Object>
+      <Index>1</Index>
+      <OffsetX>0.2499619553</OffsetX>
+      <OffsetY>0.3266843461</OffsetY>
+    </Terminal>
+    <Terminal id="40">
+      <Object>g_C1_CR</Object>
+      <Index>0</Index>
+      <OffsetX>0.3075956703</OffsetX>
+      <OffsetY>0.3343710366</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="41">
+      <Object>g_C1_CR</Object>
+      <Index>1</Index>
+      <OffsetX>0.3231373463</OffsetX>
+      <OffsetY>0.3324493639</OffsetY>
+    </Terminal>
+    <Terminal id="42">
+      <Object>g_C_C_A</Object>
+      <Index>0</Index>
+      <OffsetX>0.3807710614</OffsetX>
+      <OffsetY>0.3324493639</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="43">
+      <Object>g_C_C_A</Object>
+      <Index>1</Index>
+      <OffsetX>0.3912843576</OffsetX>
+      <OffsetY>0.3324493639</OffsetY>
+    </Terminal>
+    <Terminal id="44">
+      <Object>g_VL</Object>
+      <Index>0</Index>
+      <OffsetX>0.9216440503</OffsetX>
+      <OffsetY>0.3286060187</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="45">
+      <Object>g_VL</Object>
+      <Index>1</Index>
+      <OffsetX>0.9345954469</OffsetX>
+      <OffsetY>0.3324493639</OffsetY>
+    </Terminal>
+    <Terminal id="46">
+      <Object>g_BND_03</Object>
+      <Index>0</Index>
+      <OffsetX>0.9397760056</OffsetX>
+      <OffsetY>0.3631961259</OffsetY>
+    </Terminal>
+    <Terminal id="47">
+      <Object>g_BND_04</Object>
+      <Index>0</Index>
+      <OffsetX>0.7060032961</OffsetX>
+      <OffsetY>0.3631961259</OffsetY>
+    </Terminal>
+    <Terminal id="48">
+      <Object>g_J10</Object>
+      <Index>1</Index>
+      <OffsetX>0.7053557263</OffsetX>
+      <OffsetY>0.4919481917</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="49">
+      <Object>g_J10</Object>
+      <Index>2</Index>
+      <OffsetX>0.7085935755</OffsetX>
+      <OffsetY>0.5053999001</OffsetY>
+    </Terminal>
+    <Terminal id="50">
+      <Object>g_A</Object>
+      <Index>0</Index>
+      <OffsetX>0.9209964805</OffsetX>
+      <OffsetY>0.5073215727</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="51">
+      <Object>g_A</Object>
+      <Index>1</Index>
+      <OffsetX>0.9365381564</OffsetX>
+      <OffsetY>0.5053999001</OffsetY>
+    </Terminal>
+    <Terminal id="52">
+      <Object>g_BND_05</Object>
+      <Index>0</Index>
+      <OffsetX>0.9397760056</OffsetX>
+      <OffsetY>0.5342249894</OffsetY>
+    </Terminal>
+    <Terminal id="53">
+      <Object>g_BND_06</Object>
+      <Index>0</Index>
+      <OffsetX>0.2486668156</OffsetX>
+      <OffsetY>0.5380683347</OffsetY>
+    </Terminal>
+    <Terminal id="54">
+      <Object>g_C3_RPA</Object>
+      <Index>2</Index>
+      <OffsetX>0.2480192458</OffsetX>
+      <OffsetY>0.3574311080</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="55">
+      <Object>g_C1_CR</Object>
+      <Index>2</Index>
+      <OffsetX>0.3220883059</OffsetX>
+      <OffsetY>0.3532310250</OffsetY>
+    </Terminal>
+    <Terminal id="56">
+      <Object>g_BND_07</Object>
+      <Index>0</Index>
+      <OffsetX>0.3350918710</OffsetX>
+      <OffsetY>0.3651043367</OffsetY>
+    </Terminal>
+    <Terminal id="57">
+      <Object>g_BND_08</Object>
+      <Index>0</Index>
+      <OffsetX>0.3350918710</OffsetX>
+      <OffsetY>0.7331770014</OffsetY>
+    </Terminal>
+    <Terminal id="58">
+      <Object>g_R</Object>
+      <Index>0</Index>
+      <OffsetX>0.9222528510</OffsetX>
+      <OffsetY>0.7391136573</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="59">
+      <Object>g_R</Object>
+      <Index>1</Index>
+      <OffsetX>0.9349592015</OffsetX>
+      <OffsetY>0.7379774552</OffsetY>
+    </Terminal>
+    <Terminal id="60">
+      <Object>g_BND_09</Object>
+      <Index>0</Index>
+      <OffsetX>0.9453438668</OffsetX>
+      <OffsetY>0.7071608142</OffsetY>
+    </Terminal>
+    <Terminal id="61">
+      <Object>g_R</Object>
+      <Index>1</Index>
+      <OffsetX>0.9349592015</OffsetX>
+      <OffsetY>0.7055388857</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="62">
+      <Object>g_R</Object>
+      <Index>0</Index>
+      <OffsetX>0.9221967792</OffsetX>
+      <OffsetY>0.7037234752</OffsetY>
+    </Terminal>
+    <Terminal id="63">
+      <Object>g_BKF2</Object>
+      <Index>4</Index>
+      <OffsetX>0.6033384927</OffsetX>
+      <OffsetY>0.7023888963</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="64">
+      <Object>g_BKF2</Object>
+      <Index>2</Index>
+      <OffsetX>0.6028887631</OffsetX>
+      <OffsetY>0.6036300547</OffsetY>
+    </Terminal>
+    <Terminal id="65">
+      <Object>g_EX2</Object>
+      <Index>0</Index>
+      <OffsetX>0.6600044223</OffsetX>
+      <OffsetY>0.6022954758</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="66">
+      <Object>g_EX2</Object>
+      <Index>1</Index>
+      <OffsetX>0.6739460399</OffsetX>
+      <OffsetY>0.6022954758</OffsetY>
+    </Terminal>
+    <Terminal id="67">
+      <Object>g_BND_10</Object>
+      <Index>0</Index>
+      <OffsetX>0.6797925247</OffsetX>
+      <OffsetY>0.6369945282</OffsetY>
+    </Terminal>
+    <Terminal id="68">
+      <Object>g_BKF2</Object>
+      <Index>3</Index>
+      <OffsetX>0.6028887631</OffsetX>
+      <OffsetY>0.6383291072</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="69">
+      <Object>g_BKF1</Object>
+      <Index>2</Index>
+      <OffsetX>0.6019893039</OffsetX>
+      <OffsetY>0.4007740558</OffsetY>
+    </Terminal>
+    <Terminal id="70">
+      <Object>g_EX1</Object>
+      <Index>0</Index>
+      <OffsetX>0.6190790287</OffsetX>
+      <OffsetY>0.4034432137</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="71">
+      <Object>g_EX1</Object>
+      <Index>1</Index>
+      <OffsetX>0.6312217279</OffsetX>
+      <OffsetY>0.4061123715</OffsetY>
+    </Terminal>
+    <Terminal id="72">
+      <Object>g_BND_11</Object>
+      <Index>0</Index>
+      <OffsetX>0.6393168607</OffsetX>
+      <OffsetY>0.4314693714</OffsetY>
+    </Terminal>
+    <Terminal id="73">
+      <Object>g_BKF1</Object>
+      <Index>3</Index>
+      <OffsetX>0.6028887631</OffsetX>
+      <OffsetY>0.4394768451</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="74">
+      <Object>g_J10</Object>
+      <Index>0</Index>
+      <OffsetX>0.7018292751</OffsetX>
+      <OffsetY>0.5062057921</OffsetY>
+    </Terminal>
+    <Terminal id="75">
+      <Object>g_BKF1</Object>
+      <Index>4</Index>
+      <OffsetX>0.6033384927</OffsetX>
+      <OffsetY>0.5035366342</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="76">
+      <Object>g_N9</Object>
+      <Index>0</Index>
+      <OffsetX>0.5580199905</OffsetX>
+      <OffsetY>0.6372881356</OffsetY>
+    </Terminal>
+    <Terminal id="77">
+      <Object>g_BKF2</Object>
+      <Index>1</Index>
+      <OffsetX>0.5728700619</OffsetX>
+      <OffsetY>0.6406779661</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+  <Leg>
+    <Terminal id="78">
+      <Object>g_N8</Object>
+      <Index>0</Index>
+      <OffsetX>0.5563065207</OffsetX>
+      <OffsetY>0.4389830508</OffsetY>
+    </Terminal>
+    <Terminal id="79">
+      <Object>g_BKF1</Object>
+      <Index>1</Index>
+      <OffsetX>0.5734412185</OffsetX>
+      <OffsetY>0.4423728814</OffsetY>
+    </Terminal>
+    <Verified>false</Verified>
+  </Leg>
+</CDESheet>

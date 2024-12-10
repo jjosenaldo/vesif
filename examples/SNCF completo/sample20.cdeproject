@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDEProject xmlns="https://www.clearsy.com/Formats/CDEProject" version="0.1">
+  <Name>CDE Test 20</Name>
+  <ConfigurationFile>config20.cdeconfig</ConfigurationFile>
+  <DataModelFile>data20.cdedatamodel</DataModelFile>
+  <SheetFile>sheets/complete2.xml</SheetFile>
+</CDEProject>

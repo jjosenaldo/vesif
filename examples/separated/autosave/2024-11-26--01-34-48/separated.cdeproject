@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDEProject xmlns="https://www.clearsy.com/Formats/CDEProject" version="0.1">
+  <Name>CDE Test 20</Name>
+  <ConfigurationFile>separated.cdeconfig</ConfigurationFile>
+  <DataModelFile>separated.cdedatamodel</DataModelFile>
+  <SheetFile>sheets/yellow.xml</SheetFile>
+  <SheetFile>sheets/green.xml</SheetFile>
+  <SheetFile>sheets/blue.xml</SheetFile>
+  <SheetFile>sheets/red.xml</SheetFile>
+</CDEProject>
