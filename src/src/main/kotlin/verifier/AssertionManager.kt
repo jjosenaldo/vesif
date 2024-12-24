@@ -16,7 +16,7 @@ import verifier.model.assertions.contact_status.ContactStatusAssertionGenerator
 import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
 import verifier.model.assertions.determinism.DeterminismAssertionGenerator
 import verifier.model.assertions.divergence.DivergenceAssertionGenerator
-import verifier.model.assertions.lamp_status.LampStatusAssertionGenerator
+import verifier.model.assertions.component_status.ComponentStatusAssertionGenerator
 import verifier.model.assertions.ringbell.RingBellAssertionGenerator
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionGenerator
 import verifier.model.common.AssertionDefinition
@@ -38,7 +38,7 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         AssertionType.Divergence to DivergenceAssertionGenerator(),
         AssertionType.Determinism to DeterminismAssertionGenerator(),
         AssertionType.ContactStatus to ContactStatusAssertionGenerator(),
-        AssertionType.LampStatus to LampStatusAssertionGenerator()
+        AssertionType.ComponentStatus to ComponentStatusAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {

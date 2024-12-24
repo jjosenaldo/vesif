@@ -1,8 +1,8 @@
 package ui.screens.main.sub_screens.assertions.model
 
-import core.model.Component
+import core.model.Identifiable
 
-abstract class ComponentAssertionData<T : Component, V>(
+abstract class ComponentAssertionData<T : Identifiable, V>(
     components: List<T>,
     values: List<V>,
     defaultValue: V,

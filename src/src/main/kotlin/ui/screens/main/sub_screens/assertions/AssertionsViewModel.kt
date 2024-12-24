@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import core.model.Lamp
+import core.model.BinaryOutput
 import core.model.MonostableSimpleContact
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -33,8 +33,8 @@ class AssertionsViewModel(
                         contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableSimpleContact>()
                     )
 
-                    AssertionType.LampStatus -> LampStatusAssertionData(
-                        lamps = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<Lamp>()
+                    AssertionType.ComponentStatus -> ComponentStatusAssertionData(
+                        components = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<BinaryOutput>()
                     )
 
                     else -> EmptyAssertionData
@@ -118,12 +118,12 @@ class AssertionsViewModel(
 
     private fun setUiCircuitModifier() {
         var contactStatusData: ContactStatusAssertionData? = null
-        var lampStatusData: LampStatusAssertionData? = null
+        var lampStatusData: ComponentStatusAssertionData? = null
 
         for (assertion in assertions) {
             when (assertion.data) {
                 is ContactStatusAssertionData -> contactStatusData = assertion.data
-                is LampStatusAssertionData -> lampStatusData = assertion.data
+                is ComponentStatusAssertionData -> lampStatusData = assertion.data
                 else -> {}
             }
         }

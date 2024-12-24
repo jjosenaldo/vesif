@@ -780,20 +780,12 @@ MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id,l_st,r_st) =
                            br_coil_r:{GET_COIL_FROM_BS_ENDPOINT_R(bs_endpoint_id)}?
                            new_l_st?
                            new_r_st->
-
-        --if (new_l_st == l_st) and (new_r_st == r_st)
-        --then MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
-        --else
             if (new_l_st != l_st) and (new_r_st == r_st)
             then switch -> MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, new_l_st, new_r_st)
             else
                 if (new_r_st != r_st) and (new_l_st == l_st)
                 then switch -> MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, new_l_st, new_r_st)
                 else  MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
-                   -- if (new_l_st != l_st) and (new_r_st != r_st)
-                   -- then MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
-                    --else MONITOR_UNSTABLE_BS_CONTACT_AUX(bs_endpoint_id, l_st, r_st)
-
 
 ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) =
                 {| bistable_relay_status.
@@ -808,228 +800,156 @@ MONITORED_SYSTEM_UNSTABLE_BS_CONTACT(bs_endpoint_id, stub_inputs_map) =
        [| ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) |]
       MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id) ) \ ALPHA_MONITOR_UNSTABLE_BS_CONTACT(bs_endpoint_id)
 
---------------------------------------------
--- MONITOR OF CONCOMITANT CONNECTED CONTACTS
---------------------------------------------
-channel error
 
-EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) =
-    EXCLUSIVE_ACTIVE_CONTACTS_AUX(build_map_on_false(endpoint_ids))
-EXCLUSIVE_ACTIVE_CONTACTS_AUX(endp_map) =
-    let problem = all_true(endp_map)
+------------------------------
+-- MONITOR OF OUTPUT STATUS --
+------------------------------
+
+channel success
+
+COMPONENTS_STATUS(status_map) =
+    let components_ids = domain(status_map)
     within
-        (problem) & error -> STOP
-        []
-        (not problem) &
-            [] endpoint_id:domain(endp_map) @
-                 mono_relay_status.endpoint_id?
-                                   c_id?
-                                   r_id?
-                                   r_status ->
-            EXCLUSIVE_ACTIVE_CONTACTS_AUX(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)))
+        COMPONENTS_STATUS_AUX_READ(
+            build_map_on_false(components_ids),
+            status_map,
+            components_ids,
+            components_ids)
 
-ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) = Union({ {| mono_relay_status.endpoint_id |}  | endpoint_id <- endpoint_ids})
+COMPONENTS_STATUS_AUX_READ(comp_map, status_map, all_components_ids, missing_components_ids) =
+    let goal = map_equals(comp_map, status_map)
+    within
+         (missing_components_ids == {} and goal) & success -> STOP
+         []
+         ([] lamp_id:rem_def(LAMP_IDS) @
+            output_status.lamp_id?
+                          l_status ->
+            COMPONENTS_STATUS_AUX_READ(mapUpdate(comp_map, lamp_id, l_status),
+                                  status_map,
+                                  all_components_ids,
+                                  diff(missing_components_ids,{lamp_id})) )
 
-EXCLUSIVE_SYSTEM_ACTIVE_CONTACTS(endpoint_ids) =
-    ((SYSTEM \ diff(Events,ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)))
-      [| ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) |]
-     EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)) \ ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)
+SYSTEM_COMPONENTS_STATUS(status_map) =
+    let comp_ids = domain(status_map)
+    within
+        (( SYSTEM \ diff(Events,ALPHA_EXCLUSIVE_COMPONENTS(comp_ids)))
+        [| ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) |]
+       COMPONENTS_STATUS(status_map)) \ ALPHA_EXCLUSIVE_COMPONENTS(comp_ids)
+
+
+ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) =
+    Union({
+        Union({ {| output_status.lamp_id |}  | lamp_id <- inter(comp_ids,LAMP_IDS)})
+    })
+
 
 --------------------------------------------
 -- MONITOR OF CONTACTS STATUS
 --------------------------------------------
--- CONTACTS_STATUS(set of endpoint id, map from endpoint ids to boolean)
-CONTACTS_STATUS(status_map) =
-    let endpoint_ids = domain(status_map)
+channel error
+
+CONTACTS_STATUS(contacts_map) =
+    let endpoint_ids = domain(contacts_map)
     within
-        CONTACTS_STATUS_AUX_READ(build_map_on_false(endpoint_ids), status_map, endpoint_ids, endpoint_ids)
+        CONTACTS_STATUS_AUX_READ(build_map_on_false(endpoint_ids),
+                                 contacts_map,
+                                 endpoint_ids)
 
-CONTACTS_STATUS_AUX_READ(endp_map, status_map, all_endpoint_ids, missing_endpoint_ids) =
-    if missing_endpoint_ids == {}
-    then CONTACTS_STATUS_AUX(endp_map, status_map)
-    else [] endpoint_id:all_endpoint_ids @
-                mono_relay_status.endpoint_id?
-                        c_id?
-                        r_id?
-                        r_status ->
-                        CONTACTS_STATUS_AUX_READ(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)),
-                                                 status_map,
-                                                 all_endpoint_ids,
-                                                 diff(missing_endpoint_ids,{endpoint_id}))
-
-CONTACTS_STATUS_AUX(endp_map, status_map) =
-    let problem = map_equals(endp_map, status_map)
+CONTACTS_STATUS_AUX_READ(endp_map, contacts_map, missing_endpoint_ids) =
+    let problem = map_equals(endp_map, contacts_map)
     within
-        (problem) & error -> STOP
-        []
-        (not problem) &
-            [] endpoint_id:domain(endp_map) @
-                 mono_relay_status.endpoint_id?
-                                   c_id?
-                                   r_id?
-                                   r_status ->
-            CONTACTS_STATUS_AUX(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)),
-                                status_map)
+    (missing_endpoint_ids == {} and problem) & error -> STOP
+    []
+    ([] endpoint_id:rem_def(CONTACT_ENDPOINTS_IDS) @
+               mono_relay_status.endpoint_id?
+                                c_id?
+                                r_id?
+                                r_status ->
+              CONTACTS_STATUS_AUX_READ(mapUpdate(endp_map, endpoint_id, is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)),
+                                contacts_map,
+                                diff(missing_endpoint_ids,{endpoint_id})) )
 
-SYSTEM_CONTACTS_STATUS(status_map) =
-    let endpoint_ids = domain(status_map)
+ALPHA_MONITOR_OF_CONTACTS(endpoint_ids) =
+    Union({ {| mono_relay_status.endpoint_id.(GET_CONTACT_OF_ENDPOINT(endpoint_id)).(RELAY_OF(endpoint_id)) |}  | endpoint_id <- endpoint_ids})
+
+SYSTEM_CONTACTS_STATUS(contacts_map) =
+    let endpoint_ids = domain(contacts_map)
     within
-        ((SYSTEM \ diff(Events,ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)))
-        [| ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids) |]
-       CONTACTS_STATUS(status_map)) \ ALPHA_EXCLUSIVE_ACTIVE_CONTACTS(endpoint_ids)
+        ( (SYSTEM \ diff(Events,ALPHA_MONITOR_OF_CONTACTS(endpoint_ids)))
+        [| ALPHA_MONITOR_OF_CONTACTS(endpoint_ids) |]
+       CONTACTS_STATUS(contacts_map) ) \ ALPHA_MONITOR_OF_CONTACTS(endpoint_ids)
 
---------------------------------------------------------
--- MONITOR OF CONCOMITANT CONNECTED BISTABLE CONTACTS --
---------------------------------------------------------
-
-EXCLUSIVE_ACTIVE_BS_CONTACTS(bs_endpoint_ids) =
-    EXCLUSIVE_ACTIVE_BS_CONTACTS_AUX(build_map_on_false(bs_endpoint_ids))
-
-EXCLUSIVE_ACTIVE_BS_CONTACTS_AUX(bs_endp_map) =
-    let problem = all_true(bs_endp_map)
-    within
-        (problem) & error -> STOP
-        []
-        (not problem) &
-            [] bs_endpoint_id: domain(bs_endp_map) @
-                bistable_relay_status.bs_endpoint_id?
-                              br_contact_id?
-                              br_coil_l?
-                              br_coil_r?
-                              br_status_left?
-                              br_status_right ->
-EXCLUSIVE_ACTIVE_BS_CONTACTS_AUX(mapUpdate(bs_endp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)))
-
-ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids) = Union({ {| bistable_relay_status.bs_endpoint_id |}  | bs_endpoint_id <- bs_endpoint_ids})
-
-EXCLUSIVE_SYSTEM_BS_ACTIVE_CONTACTS(bs_endpoint_ids) =
-((SYSTEM \ diff(Events, ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)))
-    [|ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)|]
-  EXCLUSIVE_ACTIVE_BS_CONTACTS(bs_endpoint_ids)) \ ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)
-
-
------------------------------------------
--- MONITOR OF BISTABLE CONTACTS STATUS --
------------------------------------------
-BISTABLE_CONTACTS_STATUS(status_map) =
-let
-    endpoint_ids = domain(status_map)
-within
-    BISTABLE_CONTACTS_STATUS_AUX_READ(build_map_on_false(endpoint_ids), status_map, endpoint_ids, endpoint_ids)
-
-BISTABLE_CONTACTS_STATUS_AUX_READ(endp_map, status_map, all_endpoint_ids, missing_endpoint_ids) =
-    if missing_endpoint_ids == {}
-    then BISTABLE_CONTACTS_STATUS_AUX(endp_map, status_map)
-    else [] bs_endpoint_id:all_endpoint_ids @
-            bistable_relay_status.bs_endpoint_id?
-                              br_contact_id?
-                              br_coil_l?
-                              br_coil_r?
-                              br_status_left?
-                              br_status_right ->
-                              BISTABLE_CONTACTS_STATUS_AUX_READ(mapUpdate(endp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)),
-                                                                status_map,
-                                                                all_endpoint_ids,
-                                                                diff(missing_endpoint_ids,{bs_endpoint_id}) )
-
-BISTABLE_CONTACTS_STATUS_AUX(endp_map, status_map) =
-    let
-    bs_problem = map_equals(endp_map, status_map)
-    within
-        (bs_problem) & error -> STOP
-        []
-        (not bs_problem) &
-          [] bs_endpoint_id: domain(endp_map) @
-              bistable_relay_status.bs_endpoint_id?
-                                    br_contact_id?
-                                    br_coil_l?
-                                    br_coil_r?
-                                    br_status_left?
-                                    br_status_right ->
-            BISTABLE_CONTACTS_STATUS_AUX(mapUpdate(endp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)),
-                                        status_map)
-
-SYSTEM_BS_CONTACTS_STATUS(bs_status_map) =
-    let
-        bs_endpoint_ids = domain(bs_status_map)
-    within
-        ((SYSTEM \ diff(Events, ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)))
-           [| ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids) |]
-         BISTABLE_CONTACTS_STATUS(bs_status_map)) \ ALPHA_EXCLUSIVE_BS_ACTIVE_CONTACTS(bs_endpoint_ids)
-
-----------------------------------------------
--- MONITOR OF TWO CONCURRENTLY ACTIVE LAMPS --
-----------------------------------------------
-
-CONCURRENTLY_ACTIVE_LAMPS(lamp_ids, open_components) =
-    CONCURRENTLY_ACTIVE_LAMPS_AUX(build_map_on_false(lamp_ids), open_components)
-
-CONCURRENTLY_ACTIVE_LAMPS_AUX(lamp_map, open_components) =
-    let
-        lamp_problem = all_true(lamp_map)
-    within
-        (lamp_problem) & error -> STOP
-         []
-        not(lamp_problem) &
-             [] lamp_id:domain(lamp_map) @
-                output_status.lamp_id?
-                              l_status->
-                  CONCURRENTLY_ACTIVE_LAMPS_AUX(mapUpdate(lamp_map, lamp_id, is_lamp_active(lamp_id, open_components)), open_components)
-
-ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids) = Union({ {| output_status.lamp_id |} | lamp_id <- lamp_ids})
-
-CONCURRENTLY_SYSTEM_ACTIVE_LAMPS(lamp_ids, open_components) =
-    ((SYSTEM \ diff(Events, ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids)))
-       [| ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids) |]
-      CONCURRENTLY_ACTIVE_LAMPS(lamp_ids, open_components)) \ ALPHA_CONCURRENTLY_ACTIVE_LAMPS(lamp_ids)
-
---------------------------------------------
--- MONITOR OF LAMP STATUS
---------------------------------------------
-
-is_lamp_active(id, open_components) =
-  (is_output_active(id, open_components, POSITIVE_IDS))
-
-LAMP_STATUS(lamps_status_map, open_components) =
-    let
-        lamps_ids = domain(lamps_status_map)
-    within
-        LAMPS_STATUS_AUX_READ(build_map_on_false(lamps_ids), lamps_status_map, lamps_ids, lamps_ids, open_components)
-
-LAMPS_STATUS_AUX_READ(lamps_map, lamps_status_map, all_lamp_ids, missing_lamp_ids, open_components) =
-    if missing_lamp_ids == {}
-    then LAMP_STATUS_AUX(lamps_map, lamps_status_map)
-    else [] lamp_id:all_lamp_ids @
-            output_status.lamp_id?
-                          l_status ->
-            LAMPS_STATUS_AUX_READ(mapUpdate(lamps_map, lamp_id, is_lamp_active(lamp_id, open_components)),
-                                  lamps_status_map,
-                                  all_lamp_ids,
-                                  diff(missing_lamp_ids,{lamp_id}),
-                                  open_components )
-
-LAMP_STATUS_AUX(lamps_map, lamps_status_map) =
-    let problem = map_equals(lamps_map, lamps_status_map)
-    within
-        (problem) & error -> STOP
-        []
-        not(problem) &
-           [] lamp_id: domain(lamps_status_map) @
-              output_status.lamp_id?
-                            l_status ->
-                            LAMP_STATUS_AUX(lamps_map, lamps_status_map)
-
-ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids) = Union({ {| output_status.lamp_id |} | lamp_id <- lamp_ids })
-
-SYSTEM_LAMPS_STATUS(lamps_assert_map, open_components) =
-    let lamp_ids = domain(lamps_assert_map)
-    within
-        ((SYSTEM\ diff(Events, ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids)))
-          [| ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids) |]
-         LAMP_STATUS(lamps_assert_map, open_components)) \ ALPHA_EXCLUSIVE_ACTIVE_LAMPS(lamp_ids)
 
 -- Auxiliary functions
 include "functions.csp"
 
 -- Particular verifications
 include "assertions.csp"
+
+
+--------------------------------------------
+-- MONITOR OF COMPONENT STATUS
+--------------------------------------------
+
+--channel success
+
+--COMPONENTS_STATUS(status_map) =
+--    let components_ids = domain(status_map)
+--    within
+--        COMPONENTS_STATUS_AUX_READ(
+--            build_map_on_false(components_ids),
+--            status_map,
+--            components_ids,
+--            components_ids)
+
+--COMPONENTS_STATUS_AUX_READ(comp_map, status_map, all_components_ids, missing_components_ids) =
+--    let problem = map_equals(comp_map, status_map)
+--    within
+--        (missing_components_ids == {} and problem) & success -> STOP
+--        []
+--        ([] endpoint_id:rem_def(CONTACT_ENDPOINTS_IDS) @
+--                mono_relay_status.endpoint_id?
+--                        c_id?
+--                        r_id?
+--                        r_status ->
+--                        COMPONENTS_STATUS_AUX_READ(
+--                            mapUpdate(comp_map, endpoint_id,
+--                                        is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)),
+--                            status_map,
+--                            all_components_ids,
+--                            diff(missing_components_ids,{endpoint_id})))
+--         []
+--         ([] bs_endpoint_id:rem_def(BS_CONTACT_ENDPOINTS_IDS) @
+--            bistable_relay_status.bs_endpoint_id?
+--                              br_contact_id?
+--                              br_coil_l?
+--                             br_coil_r?
+--                              br_status_left?
+--                              br_status_right ->
+--                              COMPONENTS_STATUS_AUX_READ(
+--                                mapUpdate(comp_map, bs_endpoint_id, is_bs_contact_disconnected(bs_endpoint_id, br_status_left, br_status_right)),
+--                                status_map,
+--                                all_components_ids,
+--                                diff(missing_components_ids,{bs_endpoint_id})))
+--         []
+--         ([] lamp_id:rem_def(LAMP_IDS) @
+--            output_status.lamp_id?
+--                          l_status ->
+--            COMPONENTS_STATUS_AUX_READ(mapUpdate(comp_map, lamp_id, l_status),
+--                                  status_map,
+--                                  all_components_ids,
+--                                  diff(all_components_ids,{lamp_id})))
+
+--SYSTEM_COMPONENTS_STATUS(status_map) =
+--    let comp_ids = domain(status_map)
+--    within
+--        ((SYSTEM \ diff(Events,ALPHA_EXCLUSIVE_COMPONENTS(comp_ids)))
+--        [| ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) |]
+--       COMPONENTS_STATUS(status_map)) \ ALPHA_EXCLUSIVE_COMPONENTS(comp_ids)
+
+--ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) =
+--    Union({
+--        Union({ {| mono_relay_status.endpoint_id |}  | endpoint_id <- inter(comp_ids,CONTACT_ENDPOINTS_IDS)}),
+--        Union({ {| bistable_relay_status.bs_endpoint_id |}  | bs_endpoint_id <- inter(comp_ids,BS_CONTACT_ENDPOINTS_IDS)}),
+--        Union({ {| output_status.lamp_id |}  | lamp_id <- inter(comp_ids,LAMP_IDS)})
+--    })
