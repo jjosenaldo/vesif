@@ -33,7 +33,7 @@ class AssertionsViewModel(
                         contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableSimpleContact>()
                     )
 
-                    AssertionType.ComponentStatus -> ComponentStatusAssertionData(
+                    AssertionType.OutputStatus -> OutputStatusAssertionData(
                         components = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<BinaryOutput>()
                     )
 
@@ -118,12 +118,12 @@ class AssertionsViewModel(
 
     private fun setUiCircuitModifier() {
         var contactStatusData: ContactStatusAssertionData? = null
-        var lampStatusData: ComponentStatusAssertionData? = null
+        var lampStatusData: OutputStatusAssertionData? = null
 
         for (assertion in assertions) {
             when (assertion.data) {
                 is ContactStatusAssertionData -> contactStatusData = assertion.data
-                is ComponentStatusAssertionData -> lampStatusData = assertion.data
+                is OutputStatusAssertionData -> lampStatusData = assertion.data
                 else -> {}
             }
         }
