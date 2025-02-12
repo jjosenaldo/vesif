@@ -21,10 +21,10 @@ import ui.common.AppText
 import ui.screens.main.sub_screens.assertions.model.MultiselectAssertionData
 
 @Composable
-fun <T> MultiselectAssertionDataView(
-    data: MultiselectAssertionData<T>,
+fun <K: Comparable<K>,V> MultiselectAssertionDataView(
+    data: MultiselectAssertionData<K,V>,
     modifier: Modifier = Modifier,
-    onNewData: (MultiselectAssertionData<T>) -> Unit,
+    onNewData: (MultiselectAssertionData<K,V>) -> Unit,
 ) {
     if (data.selectedData.isNotEmpty())
         Column(
@@ -54,13 +54,13 @@ fun <T> MultiselectAssertionDataView(
                             selected = key,
                             options = data.pendingKeys,
                             enabled = data.canAddRow(),
-                            optionText = { it },
+                            optionText = { data.getKeyDescription(it) },
                             onClick = { onNewData(data.apply { editKey(oldKey = key, newKey = it) }) },
                             modifier = Modifier.weight(1f, false)
                         )
                     }
 
-                    DataView(selected = value, data = data) {
+                    DataView(key = key, selected = value, data = data) {
                         onNewData(data.apply { editValue(key, it) })
                     }
                 }
@@ -81,17 +81,18 @@ fun <T> MultiselectAssertionDataView(
 }
 
 @Composable
-private fun <T> DataView(
-    selected: T,
-    data: MultiselectAssertionData<T>,
-    onDataChanged: (T) -> Unit
+private fun <K: Comparable<K>, V> DataView(
+    key: K,
+    selected: V,
+    data: MultiselectAssertionData<K, V>,
+    onDataChanged: (V) -> Unit
 ) {
     Dropdown(
         selected = selected,
         options = data.values,
         enabled = true,
-        optionText = { data.getValueInfo(it).text },
-        optionColor = { data.getValueInfo(it).color },
+        optionText = { data.getValueInfo(key, it).text },
+        optionColor = { data.getValueInfo(key, it).color },
         onClick = onDataChanged,
     )
 }

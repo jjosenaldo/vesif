@@ -8,7 +8,7 @@ class OutputStatusAssertionData(components: List<BinaryOutput>) : ComponentAsser
     components = components,
     values = listOf(true, false)
 ) {
-    override fun getValueInfo(value: Boolean): AssertionDataValueInfo {
+    override fun getValueInfo(key: BinaryOutput, value: Boolean): AssertionDataValueInfo {
         return if (value) AssertionDataValueInfo("On", Color.Blue)
         else AssertionDataValueInfo("Off", Color.Gray)
     }

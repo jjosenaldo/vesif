@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import core.model.BinaryOutput
-import core.model.MonostableSimpleContact
+import core.model.Contact
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.model.UiCircuitParams
@@ -30,7 +30,7 @@ class AssertionsViewModel(
             AssertionInitial(
                 type = it, data = when (it) {
                     AssertionType.ContactStatus -> ContactStatusAssertionData(
-                        contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableSimpleContact>()
+                        contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<Contact>()
                     )
 
                     AssertionType.OutputStatus -> OutputStatusAssertionData(
@@ -58,7 +58,7 @@ class AssertionsViewModel(
         setUiCircuitModifier()
     }
 
-    fun updateMultiselect(assertionType: AssertionType, newData: MultiselectAssertionData<*>) {
+    fun updateMultiselect(assertionType: AssertionType, newData: MultiselectAssertionData<*, *>) {
         val assertionIndex = assertions.indexOfFirst { it.type == assertionType }
         val newAssertions = ArrayList(assertions)
         val newAssertion = assertions[assertionIndex].withData(newData)
@@ -135,12 +135,15 @@ class AssertionsViewModel(
             { oldCircuitUi ->
                 val params = allStatusData.mapNotNull { statusData ->
                     val uiComponentsWithColors = statusData.selectedData.mapNotNull { pair ->
-                        val contactName = pair.first
+                        val component = pair.first
                         val status = pair.second
-                        val component = statusData.getComponentByName(contactName)
-                            ?.toUiComponent(circuitViewModel.selectedCircuit)
-                        if (component == null) null
-                        else Pair(component, statusData.getValueInfo(status).color)
+                        val uiComponent = component.toUiComponent(circuitViewModel.selectedCircuit)
+                        if (uiComponent == null) null
+                        else Pair(uiComponent,
+                            when(statusData) {
+                                is ContactStatusAssertionData -> statusData.getValueInfo(component as Contact, status)
+                                is OutputStatusAssertionData -> statusData.getValueInfo(component as BinaryOutput, status)
+                            }.color)
                     }
 
                     if (uiComponentsWithColors.isEmpty()) null

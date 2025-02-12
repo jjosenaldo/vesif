@@ -13,7 +13,7 @@ class OutputStatusAssertion(data: OutputStatusAssertionData) : AssertionDefiniti
     override val definition =
         "assert not STOP [T= SYSTEM_COMPONENTS_STATUS((| ${
             data.selectedData.joinToString(", ") { pair ->
-                "${data.getComponentByName(pair.first)!!.id} => ${pair.second}"
+                "${pair.first.id} => ${pair.second}"
             }
         } |))"
     override val type = AssertionType.OutputStatus

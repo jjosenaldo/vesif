@@ -213,7 +213,7 @@ private fun AssertionDataView(
 ) {
     when (assertionData) {
         is EmptyAssertionData -> {}
-        is MultiselectAssertionData<*> -> {
+        is MultiselectAssertionData<*, *> -> {
             if (!selected) return
 
             key(viewModel.multiselectDataId[assertionType]) {
