@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0fa43e22-d317-4dab-90f7-f73f6a8bbf6e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/desktop.run.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/default_csp_files/functions.csp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/default_csp_files/general.csp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-Black.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-Bold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-ExtraBold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-ExtraLight.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-Light.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-Medium.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-Regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-SemiBold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/inter/Inter-Thin.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/segoe/SegoeUIThis-Bold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/segoe/SegoeUIThis-BoldItalic.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/segoe/SegoeUIThis-Italic.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/common/fonts/segoe/SegoeUIThis.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Bend.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/BinaryInput.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/BinaryOutput.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/BistableRelay.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/BistableSimpleContact.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Button.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Capacitor.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Circuit.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Component.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Contact.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/ContactController.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Identifiable.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Junction.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Lamp.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Lever.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/LeverContact.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/MonostableRelay.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/MonostableSimpleContact.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Pole.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/PositionDouble.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/PowerSource.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/RelayChangeoverContact.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/Resistor.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/TimedBlock.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/examples/Example01.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/examples/ExampleWithShortCircuit.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/model/visitor/ComponentVisitor.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/utils/files/FileConstants.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/utils/files/FileManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/utils/preferences/Preferences.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/generator/CspGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/generator/CspWriter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/model/CircuitCspData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/model/CspPair.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/model/CspPaths.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/model/PathsCspGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/csp_generator/util/CspComponentExtensions.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/ClearsyCircuitParser.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/ClearsyProjectParser.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/XmlCircuitComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/XmlCircuitComponentBuilder.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/XmlExtensions.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/model/ClearsyCircuit.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/model/ClearsyComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/model/XmlComponentFieldException.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/input/model/XmlNodeTerminal.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/App.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/BidirectionalScrollBar.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/Button.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/CircuitImage.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/ClearsyProjectPicker.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/CompositionLocals.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/DialogWindow.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/EditText.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/Errors.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/FolderPicker.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/HyperLinkText.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/IconButton.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/MenuBar.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/Pane.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/SecondaryMenuBar.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/Text.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/UiState.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/UiUtils.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/VerticalDivider.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/common/Window.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/di/AppModules.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/UiCircleInfo.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/UiCircuitParams.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/UiComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/UiPathInfo.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/UiZoomLevel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/assertions/UiFailedAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/assertions/UiFailedRingBell.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/model/assertions/UiFailedShortCircuit.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/navigation/AppNavigator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/MainScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/MainScreenContent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/MainScreenId.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/AssertionsPane.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/AssertionsScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/AssertionsViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/MultiselectAssertionDataView.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/model/AssertionData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/model/AssertionDataValueInfo.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/model/AssertionState.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/model/ComponentAssertionData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/model/ContactStatusAssertionData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/model/OutputStatusAssertionData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/assertions/preview/MultiselectAssertionDataViewPreviews.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/failed_assertion/FailedAssertionPane.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/failed_assertion/FailedAssertionScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/failed_assertion/FailedAssertionViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/select_circuit/CircuitViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/select_circuit/SelectCircuitPane.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/main/sub_screens/select_circuit/SelectCircuitScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/select_project/ProjectViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/select_project/SelectProjectScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/select_project/SelectProjectState.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/settings/SettingConfig.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/settings/SettingId.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/settings/SettingsScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/screens/settings/SettingsViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/window/AppWindowManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/window/WindowId.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/window/windows/MainWindow.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/window/windows/SelectProjectWindow.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/window/windows/SettingsWindow.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/AssertionManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/contact_status/ContactStatusAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/contact_status/ContactStatusAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/contact_status/ContactStatusAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/deadlock/DeadLockAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/deadlock/DeadlockAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/deadlock/DeadlockAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/determinism/DeterminismAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/determinism/DeterminismAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/determinism/DeterminismDefinition.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/divergence/DivergenceAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/divergence/DivergenceAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/divergence/DivergenceAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/output_status/OutputStatusAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/output_status/OutputStatusAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/output_status/OutputStatusAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/ringbell/RingBellAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/ringbell/RingBellAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/ringbell/RingBellAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/short_circuit/ShortCircuitAssertion.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/short_circuit/ShortCircuitAssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/assertions/short_circuit/ShortCircuitAssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/common/AssertionDefinition.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/common/AssertionGenerator.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/common/AssertionRunResult.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/model/common/AssertionType.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/util/FdrExceptions.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/util/FdrExtensions.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/verifier/util/FdrLoader.kt" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="2swYIDhrP1zbSzhCXuIAh0uvpYW" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="flattenModules" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/circuit-verifier"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0fa43e22-d317-4dab-90f7-f73f6a8bbf6e" name="Changes" comment="" />
+      <created>1739368027929</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1739368027929</updated>
+    </task>
+    <servers />
+  </component>
+</project>
