@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import core.model.BinaryOutput
 import core.model.Contact
+import core.model.MonostableRelay
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.model.UiCircuitParams
@@ -35,6 +36,10 @@ class AssertionsViewModel(
 
                     AssertionType.OutputStatus -> OutputStatusAssertionData(
                         components = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<BinaryOutput>()
+                    )
+
+                    AssertionType.RelayStatus -> RelayStatusAssertionData(
+                        relays = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<MonostableRelay>()
                     )
 
                     else -> EmptyAssertionData
@@ -143,6 +148,7 @@ class AssertionsViewModel(
                             when(statusData) {
                                 is ContactStatusAssertionData -> statusData.getValueInfo(component as Contact, status)
                                 is OutputStatusAssertionData -> statusData.getValueInfo(component as BinaryOutput, status)
+                                is RelayStatusAssertionData -> statusData.getValueInfo(component as MonostableRelay, status)
                             }.color)
                     }
 

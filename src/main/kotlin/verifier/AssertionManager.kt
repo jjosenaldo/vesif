@@ -17,6 +17,7 @@ import verifier.model.assertions.deadlock.DeadlockAssertionGenerator
 import verifier.model.assertions.determinism.DeterminismAssertionGenerator
 import verifier.model.assertions.divergence.DivergenceAssertionGenerator
 import verifier.model.assertions.output_status.OutputStatusAssertionGenerator
+import verifier.model.assertions.relay_status.RelayStatusAssertionGenerator
 import verifier.model.assertions.ringbell.RingBellAssertionGenerator
 import verifier.model.assertions.short_circuit.ShortCircuitAssertionGenerator
 import verifier.model.common.AssertionDefinition
@@ -25,7 +26,6 @@ import verifier.model.common.AssertionType
 import verifier.util.AssertionTimeoutException
 import verifier.util.FdrLoader
 import kotlin.time.Duration.Companion.minutes
-
 
 class AssertionManager(private val cspGenerator: CspGenerator) {
     private val assertionsFile = "$outputPath${FileManager.fileSeparator}assertions.csp"
@@ -38,7 +38,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
         AssertionType.Divergence to DivergenceAssertionGenerator(),
         AssertionType.Determinism to DeterminismAssertionGenerator(),
         AssertionType.ContactStatus to ContactStatusAssertionGenerator(),
-        AssertionType.OutputStatus to OutputStatusAssertionGenerator()
+        AssertionType.OutputStatus to OutputStatusAssertionGenerator(),
+        AssertionType.RelayStatus to RelayStatusAssertionGenerator()
     )
 
     fun getAssertionTypes(): List<AssertionType> {
