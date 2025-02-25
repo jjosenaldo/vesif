@@ -118,7 +118,7 @@ private fun ErrorView(
 
                 else -> ErrorDialogConfig(
                     "Error",
-                    "An error has occurred: ${it.error.message}",
+                    "An error has occurred: ${it.error.message ?: it.error.toString()}",
                     onDialogClosed = viewModel::reset
                 )
             }
