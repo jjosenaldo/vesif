@@ -879,6 +879,44 @@ SYSTEM_CONTACTS_STATUS(contacts_map) =
        CONTACTS_STATUS(contacts_map) ) \ ALPHA_MONITOR_OF_CONTACTS(endpoint_ids)
 
 
+--------------------------------------------
+-- MONITOR OF RELAY STATUS
+--------------------------------------------
+
+RELAY_STATUS(relays_map) = 
+    let relays_ids = domain(relays_map)
+    within
+        RELAY_STATUS_AUX_READ(build_map_on_false(relays_ids), 
+                                 relays_map,  
+                                 relays_ids)
+
+RELAY_STATUS_AUX_READ(relay_map, relays_map, missing_relays_ids) =
+        let reachable = map_equals(relay_map, relays_map)
+        within
+        (missing_relays_ids == {} and reachable) & success -> STOP
+        []
+        (mono_relay_status?ep_id
+                          ?c_id
+                          ?relay_id
+                          ?r_status ->
+              CONTACTS_STATUS_AUX_READ(mapUpdate(relay_map, relay_id, r_status),
+                                relays_map,
+                                diff(missing_relays_ids,{relay_id})) )
+
+ALPHA_MONITOR_OF_RELAY =
+    let
+        endp_alpha = rem_def(union(ENDPOINT, union(ENDPOINT_TYPE_UP,ENDPOINT_TYPE_DOWN)))
+        --endp_alpha = ENDPOINT
+    within
+    ( Union({ {| mono_relay_status.endp_id.(GET_CONTACT_OF_ENDPOINT(endp_id)).(RELAY_OF(endp_id)) |} | endp_id <- endp_alpha }) )
+
+SYSTEM_RELAYS_STATUS(relays_map) =
+    let relay_ids = domain(relays_map)
+    within
+        ( (SYSTEM \ diff(Events, ALPHA_MONITOR_OF_RELAY))
+        [| ALPHA_MONITOR_OF_RELAY |]
+       RELAY_STATUS(relays_map) ) \ ALPHA_MONITOR_OF_RELAY
+
 -- Auxiliary functions
 include "functions.csp"
 
@@ -896,9 +934,9 @@ include "assertions.csp"
 --    let components_ids = domain(status_map)
 --    within
 --        COMPONENTS_STATUS_AUX_READ(
---            build_map_on_false(components_ids), 
---            status_map, 
---            components_ids, 
+--            build_map_on_false(components_ids),
+--            status_map,
+--            components_ids,
 --            components_ids)
 
 --COMPONENTS_STATUS_AUX_READ(comp_map, status_map, all_components_ids, missing_components_ids) =
@@ -912,7 +950,7 @@ include "assertions.csp"
 --                        r_id?
 --                        r_status ->
 --                        COMPONENTS_STATUS_AUX_READ(
---                            mapUpdate(comp_map, endpoint_id, 
+--                            mapUpdate(comp_map, endpoint_id,
 --                                        is_contact_disconnected(GET_CONTACT_OF_ENDPOINT(endpoint_id), r_status)),
 --                            status_map,
 --                            all_components_ids,
@@ -938,7 +976,7 @@ include "assertions.csp"
 --                                  status_map,
 --                                  all_components_ids,
 --                                  diff(all_components_ids,{lamp_id})))
-                                                 
+
 --SYSTEM_COMPONENTS_STATUS(status_map) =
 --    let comp_ids = domain(status_map)
 --    within
@@ -946,7 +984,7 @@ include "assertions.csp"
 --        [| ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) |]
 --       COMPONENTS_STATUS(status_map)) \ ALPHA_EXCLUSIVE_COMPONENTS(comp_ids)
 
---ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) = 
+--ALPHA_EXCLUSIVE_COMPONENTS(comp_ids) =
 --    Union({
 --        Union({ {| mono_relay_status.endpoint_id |}  | endpoint_id <- inter(comp_ids,CONTACT_ENDPOINTS_IDS)}),
 --        Union({ {| bistable_relay_status.bs_endpoint_id |}  | bs_endpoint_id <- inter(comp_ids,BS_CONTACT_ENDPOINTS_IDS)}),
