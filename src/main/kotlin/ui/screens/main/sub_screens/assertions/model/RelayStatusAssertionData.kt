@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import core.model.*
 
 class RelayStatusAssertionData(relays: List<MonostableRelay>) :
-    ComponentAssertionData<MonostableRelay, Boolean>(
+    BinaryComponentAssertionData<MonostableRelay>(
         defaultValue = true,
         components = relays,
         values = listOf(true, false)

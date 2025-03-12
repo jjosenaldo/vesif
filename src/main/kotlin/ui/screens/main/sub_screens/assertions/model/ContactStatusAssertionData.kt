@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import core.model.*
 
 class ContactStatusAssertionData(contacts: List<Contact>) :
-    ComponentAssertionData<Contact, Boolean>(
+    BinaryComponentAssertionData<Contact>(
         defaultValue = true,
         components = contacts,
         values = listOf(true, false)

@@ -122,18 +122,14 @@ class AssertionsViewModel(
     }
 
     private fun setUiCircuitModifier() {
-        var contactStatusData: ContactStatusAssertionData? = null
-        var lampStatusData: OutputStatusAssertionData? = null
-
-        for (assertion in assertions) {
-            when (assertion.data) {
-                is ContactStatusAssertionData -> contactStatusData = assertion.data
-                is OutputStatusAssertionData -> lampStatusData = assertion.data
-                else -> {}
+        val allStatusData = assertions.mapNotNull { assertion ->
+            if (assertion.data is BinaryComponentAssertionData<*>) {
+                assertion.data
+            } else {
+                null
             }
         }
 
-        val allStatusData = listOfNotNull(contactStatusData, lampStatusData)
         uiCircuitModifier = if (allStatusData.isEmpty()) {
             { it }
         } else {
