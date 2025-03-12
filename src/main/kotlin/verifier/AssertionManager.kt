@@ -56,6 +56,8 @@ class AssertionManager(private val cspGenerator: CspGenerator) {
     }
 
     fun cancelRunningAssertions() {
+        if (!::canceller.isInitialized) return
+
         if (!canceller.cancelled()) {
             canceller.cancel()
         }
