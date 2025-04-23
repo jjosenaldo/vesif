@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import input.model.XmlComponentAttributeException
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import ui.common.*
@@ -24,6 +25,7 @@ fun SelectCircuitPane(
     circuitVm: CircuitViewModel = koinInject()
 ) {
     val scope = rememberCoroutineScope()
+    ErrorView()
 
     Pane {
         BidirectionalScrollBar(modifier = Modifier.fillMaxHeight().weight(1f)) {
@@ -66,4 +68,27 @@ private fun SelectCircuitButton(
                 text = "Select circuit"
             )
     }
+}
+
+@Composable
+private fun ErrorView(
+    viewModel: CircuitViewModel = koinInject()
+) {
+    val state = viewModel.loadCircuitState
+    if (state !is UiError) return
+
+    ErrorDialog(
+        when(state.error ?: Exception()) {
+            is XmlComponentAttributeException -> ErrorDialogConfig(
+                "Invalid component attribute value",
+                (state.error as XmlComponentAttributeException).message ?: "",
+                onDialogClosed = viewModel::reset
+            )
+            else -> ErrorDialogConfig(
+                "Invalid Clearsy circuit",
+                "There is a problem with your circuit. Check whether there are any errors on the diagram editor.",
+                onDialogClosed = viewModel::reset
+            )
+        }
+    )
 }
