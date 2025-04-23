@@ -43,9 +43,10 @@ class ClearsyCircuitParser {
     suspend fun parseClearsyCircuit(projectPath: String, circuitPath: String): ClearsyCircuit {
         val circuitXml = FileManager.readXml(circuitPath)
         val components = getCircuitComponents(projectPath = projectPath, circuitXml)
+        val circuitName = getCircuitName(circuitXml)
         val imagePath = getCircuitImagePath(circuitXml, projectPath = projectPath)
 
-        return ClearsyCircuit(components = components, circuitImagePath = imagePath)
+        return ClearsyCircuit(components = components, name = circuitName, circuitImagePath = imagePath)
     }
 
     private suspend fun getCircuitComponents(
@@ -70,6 +71,11 @@ class ClearsyCircuitParser {
                 }
             }
 
+    }
+
+    private fun getCircuitName(circuitXml: Document): String {
+        // TODO: meaningful exception
+        return circuitXml.documentElement.attributeChild("Name") ?: throw Exception()
     }
 
     private fun getCircuitImagePath(circuitXml: Document, projectPath: String): String {

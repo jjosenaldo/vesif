@@ -3,16 +3,15 @@ package ui.screens.main.sub_screens.select_circuit
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import core.utils.files.fileSep
 import input.ClearsyCircuitParser
 import input.model.ClearsyCircuit
-import verifier.AssertionManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.common.*
 import ui.model.UiCircuitParams
 import ui.navigation.AppNavigator
 import ui.screens.select_project.ProjectViewModel
+import verifier.AssertionManager
 import java.io.File
 
 class CircuitViewModel(
@@ -75,10 +74,7 @@ class CircuitViewModel(
     }
 
     fun getCircuitName(circuitPath: String): String {
-        return circuitPath
-            .split(fileSep)
-            .last()
-            .replace(".xml", "")
+        return loadedCircuits[circuitPath]?.name ?: "ERROR"
     }
 
     fun zoom(isIn: Boolean) {
