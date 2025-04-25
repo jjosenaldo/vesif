@@ -13,7 +13,7 @@ import java.io.File
 class CircuitViewModel(
     private val assertionManager: AssertionManager
 ) : KoinComponent {
-    var circuits = listOf<ClearsyCircuit>()
+    var circuits by mutableStateOf(listOf<ClearsyCircuit>())
         private set
     var selectedCircuit by mutableStateOf(ClearsyCircuit.DEFAULT)
         private set
@@ -24,6 +24,8 @@ class CircuitViewModel(
     fun setup(circuits: List<ClearsyCircuit>) {
         this.circuits = circuits
         loadedCircuitImages = mutableMapOf()
+        selectedCircuit = ClearsyCircuit.DEFAULT
+        selectedCircuitParams = UiCircuitParams.DEFAULT
     }
 
     fun selectCircuit(index: Int) {
