@@ -48,15 +48,6 @@ fun SelectProjectScreen(
             onShowChanged = { showPicker = it },
             scope = scope
         )
-
-        if (state is UiError)
-            ErrorDialog(
-                ErrorDialogConfig(
-                    "Invalid project",
-                    "The folder provided is not a Clearsy project. Try again with another folder.",
-                    onDialogClosed = viewModel::reset
-                )
-            )
     }
 }
 

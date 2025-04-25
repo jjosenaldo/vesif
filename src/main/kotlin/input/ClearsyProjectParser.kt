@@ -2,6 +2,7 @@ package input
 
 import core.utils.files.FileManager
 import core.utils.files.fileSep
+import input.model.InvalidClearsyProjectException
 import org.w3c.dom.Document
 import java.nio.file.Files
 import java.nio.file.Path
@@ -22,13 +23,19 @@ class ClearsyProjectParser {
         val directoryPath: Path = Paths.get(projectPath)
 
         if (!Files.exists(directoryPath) || !Files.isDirectory(directoryPath)) {
-            throw IllegalArgumentException("The provided path is not a valid Clearsy project folder: $projectPath")
+            throw InvalidClearsyProjectException()
         }
 
-        return Files.list(directoryPath)
+        val path = Files.list(directoryPath)
             .filter { Files.isRegularFile(it) && it.fileName.toString().contains(".$projectFileExtension") }
             .map { it.pathString }
-            .findFirst().get()
+            .findFirst()
+
+        if (path.isPresent) {
+            return path.get()
+        } else {
+            throw InvalidClearsyProjectException()
+        }
     }
 
     private fun getCircuitsPaths(document: Document): List<String> {

@@ -26,8 +26,8 @@ fun appModule() = module {
     single { Preferences }
     single { FdrLoader }
     single { SettingsViewModel(get(), get()) }
-    single { CircuitViewModel(get(), get()) }
+    single { CircuitViewModel(get()) }
     single { AssertionsViewModel(get()) }
-    single { ProjectViewModel(get()) }
+    single { ProjectViewModel(get(), get()) }
     single { FailedAssertionViewModel() }
 }

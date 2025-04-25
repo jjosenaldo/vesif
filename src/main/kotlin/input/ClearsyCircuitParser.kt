@@ -5,10 +5,12 @@ import core.utils.files.fileSep
 import core.model.*
 import input.model.ClearsyCircuit
 import input.model.ClearsyComponent
+import input.model.InvalidClearsyCircuitException
 import input.model.XmlNodeTerminal
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
+import org.xml.sax.SAXParseException
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.pathString
@@ -41,12 +43,19 @@ class ClearsyCircuitParser {
     )
 
     suspend fun parseClearsyCircuit(projectPath: String, circuitPath: String): ClearsyCircuit {
-        val circuitXml = FileManager.readXml(circuitPath)
-        val components = getCircuitComponents(projectPath = projectPath, circuitXml)
-        val circuitName = getCircuitName(circuitXml)
-        val imagePath = getCircuitImagePath(circuitXml, projectPath = projectPath)
+        try {
+            val circuitXml = FileManager.readXml(circuitPath)
+            val components = getCircuitComponents(projectPath = projectPath, circuitXml)
+            val circuitName = getCircuitName(circuitXml)
+            val imagePath = getCircuitImagePath(circuitXml, projectPath = projectPath)
 
-        return ClearsyCircuit(components = components, name = circuitName, circuitImagePath = imagePath)
+            return ClearsyCircuit(components = components, name = circuitName, circuitImagePath = imagePath)
+        } catch (e: Throwable) {
+            if (e is SAXParseException)
+                throw InvalidClearsyCircuitException(circuitPath.split(fileSep).last())
+            throw e
+        }
+
     }
 
     private suspend fun getCircuitComponents(

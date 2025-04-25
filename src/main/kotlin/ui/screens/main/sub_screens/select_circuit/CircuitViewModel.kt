@@ -3,78 +3,42 @@ package ui.screens.main.sub_screens.select_circuit
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import input.ClearsyCircuitParser
 import input.model.ClearsyCircuit
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import ui.common.*
 import ui.model.UiCircuitParams
 import ui.navigation.AppNavigator
-import ui.screens.select_project.ProjectViewModel
 import verifier.AssertionManager
 import java.io.File
 
 class CircuitViewModel(
-    private val circuitParser: ClearsyCircuitParser,
     private val assertionManager: AssertionManager
 ) : KoinComponent {
-    private val projectViewModel: ProjectViewModel by inject()
-    private var loadedCircuits by mutableStateOf<Map<String, ClearsyCircuit>>(mapOf())
-    private val loadedCircuitImages = mutableMapOf<String, File>()
-
-    var loadCircuitState by mutableStateOf<UiState<Void?>>(UiInitial())
+    var circuits = listOf<ClearsyCircuit>()
         private set
-    var selectedCircuitPath by mutableStateOf("")
-        private set
-    var selectedCircuit = ClearsyCircuit.DEFAULT
+    var selectedCircuit by mutableStateOf(ClearsyCircuit.DEFAULT)
         private set
     var selectedCircuitParams by mutableStateOf(UiCircuitParams.DEFAULT)
         private set
+    private var loadedCircuitImages = mutableMapOf<Int, File>()
 
-    fun reset() {
-        selectedCircuit = ClearsyCircuit.DEFAULT
-        selectedCircuitParams = UiCircuitParams.DEFAULT
-        selectedCircuitPath = ""
-        loadCircuitState = UiInitial()
+    fun setup(circuits: List<ClearsyCircuit>) {
+        this.circuits = circuits
+        loadedCircuitImages = mutableMapOf()
     }
 
-    suspend fun selectCircuit(circuitPath: String) {
-        loadCircuitState = UiLoading()
+    fun selectCircuit(index: Int) {
+        val circuit = circuits[index]
 
-        try {
-            val newCircuit: ClearsyCircuit
-            val newImage: File?
-            val existingCircuit = loadedCircuits[circuitPath]
-
-            if (existingCircuit == null) {
-                val clearsyCircuit = circuitParser.parseClearsyCircuit(
-                    circuitPath = circuitPath,
-                    projectPath = projectViewModel.projectPath
-                )
-                newCircuit = clearsyCircuit
-                val image = File(newCircuit.circuitImagePath)
-                loadedCircuitImages[circuitPath] = image
-                newImage = image
-            } else {
-                newCircuit = existingCircuit
-                newImage = loadedCircuitImages[circuitPath]
-            }
-
-            selectedCircuitParams = UiCircuitParams(newImage)
-            selectedCircuit = newCircuit
-            loadCircuitState = UiSuccess(null)
-            selectedCircuitPath = circuitPath
-        } catch (e: Exception) {
-            loadCircuitState = UiError(error = e)
+        if (!loadedCircuitImages.contains(index)) {
+            loadedCircuitImages[index] = File(circuit.circuitImagePath)
         }
+
+        selectedCircuitParams = UiCircuitParams(loadedCircuitImages[index])
+        selectedCircuit = circuit
     }
 
     fun confirmCircuitSelection(navigator: AppNavigator) {
         navigator.navToAssertions(assertionManager.getAssertionTypes())
-    }
-
-    fun getCircuitName(circuitPath: String): String {
-        return loadedCircuits[circuitPath]?.name ?: "ERROR"
     }
 
     fun zoom(isIn: Boolean) {

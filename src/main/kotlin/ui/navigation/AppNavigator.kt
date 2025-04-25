@@ -3,6 +3,7 @@ package ui.navigation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import input.model.ClearsyCircuit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.screens.main.MainScreenId
@@ -34,8 +35,8 @@ class AppNavigator : KoinComponent {
         )
     }
 
-    fun navToSelectCircuit() {
-        circuitViewModel.reset()
+    fun navToSelectCircuit(circuits: List<ClearsyCircuit>) {
+        circuitViewModel.setup(circuits)
         navToScreen(MainScreenId.SelectCircuit)
     }
 
