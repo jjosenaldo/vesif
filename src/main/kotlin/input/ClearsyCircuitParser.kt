@@ -18,6 +18,7 @@ import kotlin.io.path.pathString
 
 class ClearsyCircuitParser {
     private val objectsFileExtension = "cdedatamodel"
+    private var bendCount = 1
 
     // TODO: change ids so that they match the entities' names
     private val xmlComponentBuilders = mapOf(
@@ -44,6 +45,7 @@ class ClearsyCircuitParser {
 
     suspend fun parseClearsyCircuit(projectPath: String, circuitPath: String): ClearsyCircuit {
         try {
+            bendCount = 1
             val circuitXml = FileManager.readXml(circuitPath)
             val components = getCircuitComponents(projectPath = projectPath, circuitXml)
             val circuitName = getCircuitName(circuitXml)
@@ -73,7 +75,7 @@ class ClearsyCircuitParser {
                 circuitObjectsNames.addAll(terminals.map { it.component.name })
                 newObjects
             }
-            .filter { circuitObjectsNames.contains(it.name) }
+            .filter { circuitObjectsNames.contains(it.name) || it.name.contains("BND") }
             .map { xmlComponent ->
                 xmlComponent.apply { setComponentConnections() }.let {
                     ClearsyComponent(it.component, it.positions.toList())
@@ -122,16 +124,24 @@ class ClearsyCircuitParser {
         node: Node
     ): Pair<List<XmlNodeTerminal>, List<XmlCircuitComponent>> {
         if (node !is Element) return Pair(listOf(), listOf())
+        val newObjects = objects.toMutableList()
         val terminals = node
-            .childrenByName("Terminal")
+            .nodeChildren()
             .mapNotNull {
-                if (it !is Element) null
-                else XmlNodeTerminal.fromElementAndObjects(it, objects)?.apply { updatePositions() }
+                when {
+                    it !is Element -> null
+                    it.nodeName == "Knee" -> {
+                        val (component, terminal) = XmlNodeTerminal.fromKnee(it, "BND_${bendCount++}")
+                        newObjects.add(component)
+                        terminal
+                    }
+                    else -> XmlNodeTerminal.fromElementAndObjects(it, newObjects)
+                }?.apply { updatePositions() }
             }
 
         connectNeighbors(terminals)
 
-        return Pair(terminals, objects)
+        return Pair(terminals, newObjects)
     }
 
     private fun connectNeighbors(terminals: List<XmlNodeTerminal>) {
