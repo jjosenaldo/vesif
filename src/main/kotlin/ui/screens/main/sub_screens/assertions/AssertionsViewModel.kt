@@ -4,9 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import core.model.BinaryOutput
-import core.model.Contact
-import core.model.MonostableRelay
+import core.model.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ui.model.UiCircuitParams
@@ -31,7 +29,9 @@ class AssertionsViewModel(
             AssertionInitial(
                 type = it, data = when (it) {
                     AssertionType.ContactStatus -> ContactStatusAssertionData(
-                        contacts = circuitViewModel.selectedCircuit.circuit.components.filterIsInstance<Contact>()
+                        contacts = circuitViewModel.selectedCircuit.circuit.components.filter { component ->
+                            component is MonostableSimpleContact || (component is RelayChangeoverContact &&  component.controller is MonostableRelay)
+                        }.filterIsInstance<Contact>()
                     )
 
                     AssertionType.OutputStatus -> OutputStatusAssertionData(
